@@ -7,5 +7,7 @@
 </head>
 <body>
     <h1>Page About me</h1>
+    <h2>Halo guys</h2>
+    <a href="register.blaade.php">Halaman register</a>
 </body>
 </html>
