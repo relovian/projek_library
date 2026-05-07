@@ -13,3 +13,10 @@ Route::get('/about',function(){
 Route::get('/register',function(){
     return view('register');
 });
+Route::get('/contact',function(){
+    return view('contact');
+});
+
+Route::get('/login',function(){
+    return view('login');
+});
