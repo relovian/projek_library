@@ -13,3 +13,7 @@ Route::get('/about',function(){
 Route::get('/contact',function(){
     return view('contact');
 });
+
+Route::get('/tentang_saya',function(){
+    return view('tentang_saya');
+});
