@@ -6,6 +6,7 @@
     <title>Document</title>
 </head>
 <body>
+
    <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,5 +37,10 @@
     </div>
 </body>
 </html>
+
+    <h1>Page About me</h1>
+    <h2>Halo guys</h2>
+    <a href="register.blaade.php">Halaman register</a>
+
 </body>
 </html>
