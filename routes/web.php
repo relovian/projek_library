@@ -17,6 +17,10 @@ Route::get('/contact',function(){
     return view('contact');
 });
 
+Route::get('/', function () {
+    return view('profil');
+});
+
 Route::get('/tentang_saya',function(){
     return view('tentang_saya');
 });
@@ -24,3 +28,4 @@ Route::get('/tentang_saya',function(){
 Route::get('/login',function(){
     return view('login');
 });
+
