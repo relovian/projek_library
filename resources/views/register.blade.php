@@ -8,6 +8,7 @@
 </head>
 <body>
     <h1>Perubahan Baru</h1>
+    <h2>merubah co</h2>
     <div class="container">
         <div class="card">
             <div class="card-headrer">Register Admin Baru</div>
