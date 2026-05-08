@@ -7,6 +7,7 @@
  <link rel="stylesheet" href="/catatan/public/css/style.css">
 </head>
 <body>
+    <h1>Perubahan Baru</h1>
     <div class="container">
         <div class="card">
             <div class="card-headrer">Register Admin Baru</div>
