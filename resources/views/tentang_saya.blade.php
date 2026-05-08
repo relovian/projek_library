@@ -7,7 +7,7 @@
 </head>
 <body>
 
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,13 +34,16 @@
             </form>
             <hr>
             <a href="/catatan/index.php?act=login" class="text-center">Sudah punya akun?</a>
+            
+            <h1>Page About me</h1>
+            <h2>Halo guys</h2>
+            <a href="register.blaade.php">Halaman register</a>
+
+            <h1>Page About me</h1>
+            <h2>Halo guys</h2>
+            <a href="register.blaade.php">Halaman register</a>
     </div>
-</body>
-</html>
-
-    <h1>Page About me</h1>
-    <h2>Halo guys</h2>
-    <a href="register.blaade.php">Halaman register</a>
-
+    
+    
 </body>
 </html>
