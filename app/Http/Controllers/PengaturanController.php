@@ -7,6 +7,7 @@ use App\Models\Divisi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class PengaturanController extends Controller
 {
@@ -102,8 +103,12 @@ class PengaturanController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email'        => 'required|email|unique:users,email',
+            'nip'          => 'required|string|max:50|unique:users,nip',
             'password'     => 'required|min:8',
             'role'         => 'required|in:admin,staff,pimpinan',
+        ], [
+            'nip.unique' => 'NIP sudah digunakan. Silakan gunakan NIP yang berbeda.',
+            'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
         ]);
 
         User::create([
@@ -124,7 +129,16 @@ class PengaturanController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email'        => 'required|email|unique:users,email,' . $user->id,
+            'nip'          => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('users', 'nip')->ignore($user->id),
+            ],
             'role'         => 'required|in:admin,staff,pimpinan',
+        ], [
+            'nip.unique' => 'NIP sudah digunakan. Silakan gunakan NIP yang berbeda.',
+            'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
         ]);
 
         $user->update([
@@ -187,40 +201,16 @@ class PengaturanController extends Controller
         return back()->with('success', 'Divisi berhasil dihapus.');
     }
 
-    // // ── Kelola Kategori (Admin) ───────────────────────────
-    // public function kategoris()
-    // {
-    //     $this->authorize('admin-only');
-    //     $kategoris = Kategori::withCount('arsips')->get();
-    //     return view('pengaturan.kategoris', compact('kategoris'));
-    // }
-
-    // // ── Kelola User (Admin) ───────────────────────────────
-    // public function users()
-    // {
-    //     $this->authorize('admin-only');
-    //     $users   = User::with('divisi')->paginate(20);
-    //     $divisis = Divisi::where('is_aktif', true)->get();
-    //     return view('pengaturan.users', compact('users', 'divisis'));
-    // }
-
-    // // ── Kelola Divisi (Admin) ─────────────────────────────
-    // public function divisis()
-    // {
-    //     $this->authorize('admin-only');
-    //     $divisis = Divisi::withCount('arsips')->get();
-    //     return view('pengaturan.divisis', compact('divisis'));
-    // }
-
+    // ── Kelola Kategori (Admin) ───────────────────────────
     public function kategoris()
     {
-        // HAPUS: $this->authorize('admin-only');
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
         $kategoris = Kategori::withCount('arsips')->get();
         return view('pengaturan.kategoris', compact('kategoris'));
     }
 
+    // ── Kelola User (Admin) ───────────────────────────────
     public function users()
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
@@ -230,6 +220,7 @@ class PengaturanController extends Controller
         return view('pengaturan.users', compact('users', 'divisis'));
     }
 
+    // ── Kelola Divisi (Admin) ─────────────────────────────
     public function divisis()
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
@@ -298,5 +289,4 @@ class PengaturanController extends Controller
         \App\Models\Arsip::draft()->where('updated_at', '<', now()->subDays(30))->delete();
         return back()->with('success', 'Draft kadaluarsa berhasil dihapus.');
     }
-
 }

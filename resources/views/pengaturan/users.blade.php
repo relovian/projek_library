@@ -8,6 +8,18 @@
     <p>Manajemen akun pengguna dan permission sistem</p>
 </div>
 
+{{-- TAMPILAN PESAN ERROR VALIDASI --}}
+@if($errors->any())
+<div class="alert alert-danger" style="margin-bottom:24px; background:#FEF2F2; border:1px solid #FEE2E2; border-radius:8px; padding:12px 16px;">
+    <div style="font-weight:600; margin-bottom:8px;">⚠️ Terjadi kesalahan:</div>
+    <ul style="margin:0; padding-left:20px;">
+        @foreach($errors->all() as $error)
+            <li style="font-size:13px; color:#DC2626;">{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
 
     {{-- Daftar User --}}
@@ -83,54 +95,91 @@
             @csrf
             <div id="userMethodField"></div>
 
-            @if(session('success'))
-            <div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#059669;">
-                ✅ {{ session('success') }}
-            </div>
-            @endif
-
             <div class="form-group">
                 <label class="form-label">Nama Lengkap <span class="required">*</span></label>
-                <input class="form-input" type="text" name="nama_lengkap" id="uNama" value="{{ old('nama_lengkap') }}">
+                <input class="form-input @error('nama_lengkap') is-invalid @enderror" 
+                       type="text" 
+                       name="nama_lengkap" 
+                       id="uNama" 
+                       value="{{ old('nama_lengkap') }}">
+                @error('nama_lengkap')
+                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                @enderror
             </div>
+
             <div class="form-group">
                 <label class="form-label">NIP</label>
-                <input class="form-input" type="text" name="nip" id="uNip" value="{{ old('nip') }}" placeholder="18 digit NIP">
+                <input class="form-input @error('nip') is-invalid @enderror" 
+                       type="text" 
+                       name="nip" 
+                       id="uNip" 
+                       value="{{ old('nip') }}" 
+                       placeholder="18 digit NIP">
+                @error('nip')
+                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                @enderror
             </div>
+
             <div class="form-group">
                 <label class="form-label">Email <span class="required">*</span></label>
-                <input class="form-input" type="email" name="email" id="uEmail" value="{{ old('email') }}">
+                <input class="form-input @error('email') is-invalid @enderror" 
+                       type="email" 
+                       name="email" 
+                       id="uEmail" 
+                       value="{{ old('email') }}">
+                @error('email')
+                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                @enderror
             </div>
+
             <div class="form-group" id="passwordField">
                 <label class="form-label">Password <span class="required">*</span></label>
-                <input class="form-input" type="password" name="password" placeholder="Min. 8 karakter">
+                <input class="form-input @error('password') is-invalid @enderror" 
+                       type="password" 
+                       name="password" 
+                       placeholder="Min. 8 karakter">
+                @error('password')
+                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                @enderror
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Role <span class="required">*</span></label>
-                    <select class="form-select" name="role" id="uRole">
-                        <option value="staff">Staff</option>
-                        <option value="pimpinan">Pimpinan</option>
-                        <option value="admin">Admin</option>
+                    <select class="form-select @error('role') is-invalid @enderror" name="role" id="uRole">
+                        <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="pimpinan" {{ old('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
+                    @error('role')
+                        <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label class="form-label">Divisi</label>
-                    <select class="form-select" name="divisi_id" id="uDivisi">
+                    <select class="form-select @error('divisi_id') is-invalid @enderror" name="divisi_id" id="uDivisi">
                         <option value="">Tanpa Divisi</option>
                         @foreach($divisis as $div)
-                        <option value="{{ $div->id }}">{{ $div->nama }}</option>
+                        <option value="{{ $div->id }}" {{ old('divisi_id') == $div->id ? 'selected' : '' }}>{{ $div->nama }}</option>
                         @endforeach
                     </select>
+                    @error('divisi_id')
+                        <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="form-label">Status</label>
-                <select class="form-select" name="is_aktif" id="uStatus">
-                    <option value="1">Aktif</option>
-                    <option value="0">Nonaktif</option>
+                <select class="form-select @error('is_aktif') is-invalid @enderror" name="is_aktif" id="uStatus">
+                    <option value="1" {{ old('is_aktif') == '1' ? 'selected' : '' }}>Aktif</option>
+                    <option value="0" {{ old('is_aktif') == '0' ? 'selected' : '' }}>Nonaktif</option>
                 </select>
+                @error('is_aktif')
+                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                @enderror
             </div>
+
             <div style="display:flex; gap:10px;">
                 <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">💾 Simpan</button>
                 <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">Reset</button>
@@ -155,12 +204,37 @@ function editUser(id, nama, email, nip, role, divisiId, isAktif) {
     document.getElementById('passwordField').style.display = 'none';
     document.getElementById('formUserCard').scrollIntoView({ behavior: 'smooth' });
 }
+
 function resetUserForm() {
     document.getElementById('formUserTitle').textContent = '➕ Tambah User';
     document.getElementById('formUser').action = '{{ route('pengaturan.users.store') }}';
     document.getElementById('userMethodField').innerHTML = '';
     document.getElementById('passwordField').style.display = 'block';
     document.getElementById('formUser').reset();
+    // Hapus highlight error
+    document.querySelectorAll('.is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
+    document.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.remove();
+    });
 }
 </script>
+
+<style>
+.is-invalid {
+    border-color: #DC2626 !important;
+}
+.invalid-feedback {
+    color: #DC2626;
+    font-size: 12px;
+    margin-top: 4px;
+}
+.alert-danger {
+    background: #FEF2F2;
+    border: 1px solid #FEE2E2;
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+</style>
 @endpush
