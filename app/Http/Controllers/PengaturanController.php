@@ -20,9 +20,12 @@ class PengaturanController extends Controller
     public function storeKategori(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:100',
+            'nama' => 'required|string|max:100|unique:kategori,nama',
             'kode' => 'required|string|max:50|unique:kategori,kode', // ← kategori bukan kategoris
             'warna'=> 'required|string',
+        ],[
+            'nama.unique' => 'Nama telah digunakan, silakan gunakan nama yang berbeda',
+            'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
         ]);
 
         Kategori::create([
@@ -39,9 +42,12 @@ class PengaturanController extends Controller
     public function updateKategori(Request $request, Kategori $kategori)
     {
         $request->validate([
-            'nama' => 'required|string|max:100',
+            'nama' => 'required|string|max:100|unique:kategori,nama',
             'kode' => 'required|string|max:50|unique:kategori,kode,' . $kategori->id, // ← kategori
             'warna'=> 'required|string',
+        ],[
+            'nama.unique' => 'Nama telah digunakan, silakan gunakan nama yang berbeda',
+            'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
         ]);
 
         $kategori->update([
@@ -159,12 +165,15 @@ class PengaturanController extends Controller
         $user->delete();
         return back()->with('success', 'User berhasil dihapus.');
     }
-
+       // ── Tambah Divisi ───────────────────────────
     public function storeDivisi(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:100',
+            'nama' => 'required|string|max:100|unique:divisi,nama',
             'kode' => 'required|string|max:50|unique:divisi,kode',
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+            'kode.unique' => "Kode sudah digunakan, silakan gunakan kode yang berbeda",
         ]);
 
         Divisi::create([
@@ -176,12 +185,15 @@ class PengaturanController extends Controller
 
         return back()->with('success', 'Divisi berhasil ditambahkan.');
     }
-
+       // ── Update Divisi ───────────────────────────
     public function updateDivisi(Request $request, Divisi $divisi)
     {
         $request->validate([
-            'nama' => 'required|string|max:100',
+            'nama' => 'required|string|max:100|unique:divisi,nama,' . $divisi->id,
             'kode' => 'required|string|max:50|unique:divisi,kode,' . $divisi->id,
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+            'kode.unique' => "Kode sudah digunakan, silakan gunakan kode yang berbeda",
         ]);
 
         $divisi->update([
