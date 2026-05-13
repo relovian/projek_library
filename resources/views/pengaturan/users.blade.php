@@ -8,15 +8,10 @@
     <p>Manajemen akun pengguna dan permission sistem</p>
 </div>
 
-{{-- TAMPILAN PESAN ERROR VALIDASI --}}
-@if($errors->any())
-<div class="alert alert-danger" style="margin-bottom:24px; background:#FEF2F2; border:1px solid #FEE2E2; border-radius:8px; padding:12px 16px;">
-    <div style="font-weight:600; margin-bottom:8px;">⚠️ Terjadi kesalahan:</div>
-    <ul style="margin:0; padding-left:20px;">
-        @foreach($errors->all() as $error)
-            <li style="font-size:13px; color:#DC2626;">{{ $error }}</li>
-        @endforeach
-    </ul>
+{{-- Hanya tampilkan session success jika ada --}}
+@if(session('success'))
+<div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:12px 16px; margin-bottom:24px; font-size:13px; color:#059669;">
+    ✅ {{ session('success') }}
 </div>
 @endif
 
@@ -65,11 +60,15 @@
                     </td>
                     <td>
                         <div class="action-btns">
-                            <button class="tbl-btn" title="Edit"
-                                onclick="editUser({{ $u->id }}, '{{ addslashes($u->nama_lengkap) }}', '{{ $u->email }}', '{{ $u->nip }}', '{{ $u->role }}', '{{ $u->divisi_id }}', {{ $u->is_aktif ? 1 : 0 }})">✏️</button>
+                            {{-- TOMBOL EDIT - Menggunakan link dengan parameter ?edit= --}}
+                            <a href="{{ route('pengaturan.users', ['edit' => $u->id]) }}" 
+                               class="tbl-btn" 
+                               title="Edit"
+                               style="cursor:pointer; text-decoration:none; display:inline-block;">✏️</a>
+                            
                             @if($u->id !== auth()->id())
                             <form method="POST" action="{{ route('pengaturan.users.destroy', $u) }}"
-                                onsubmit="return confirm('Hapus user ini?')">
+                                onsubmit="return confirm('Hapus user ini?')" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="tbl-btn" title="Hapus">🗑️</button>
                             </form>
@@ -89,11 +88,26 @@
 
     {{-- Form Tambah/Edit User --}}
     <div class="card" id="formUserCard">
-        <div class="card-title" style="margin-bottom:20px;" id="formUserTitle">➕ Tambah User</div>
+        <div class="card-title" style="margin-bottom:20px;" id="formUserTitle">
+            @if(request()->has('edit') && $editUser = \App\Models\User::find(request()->get('edit')))
+                ✏️ Edit User: {{ $editUser->nama_lengkap }}
+            @elseif(old('_method') == 'PUT' || session('edit_id'))
+                ✏️ Edit User
+            @else
+                ➕ Tambah User
+            @endif
+        </div>
 
-        <form method="POST" id="formUser" action="{{ route('pengaturan.users.store') }}">
+        <form method="POST" id="formUser" 
+              action="@if(request()->has('edit') && $editUser = \App\Models\User::find(request()->get('edit'))) {{ route('pengaturan.users.update', $editUser) }} @elseif(old('_method') == 'PUT' && old('user_id')) {{ route('pengaturan.users.update', old('user_id')) }} @else {{ route('pengaturan.users.store') }} @endif">
             @csrf
-            <div id="userMethodField"></div>
+            @if(request()->has('edit') && $editUser = \App\Models\User::find(request()->get('edit')))
+                @method('PUT')
+                <input type="hidden" name="user_id" value="{{ $editUser->id }}">
+            @elseif(old('_method') == 'PUT')
+                @method('PUT')
+                <input type="hidden" name="user_id" value="{{ old('user_id') }}">
+            @endif
 
             <div class="form-group">
                 <label class="form-label">Nama Lengkap <span class="required">*</span></label>
@@ -101,9 +115,9 @@
                        type="text" 
                        name="nama_lengkap" 
                        id="uNama" 
-                       value="{{ old('nama_lengkap') }}">
+                       value="{{ old('nama_lengkap', request()->has('edit') && isset($editUser) ? $editUser->nama_lengkap : '') }}">
                 @error('nama_lengkap')
-                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
@@ -113,10 +127,10 @@
                        type="text" 
                        name="nip" 
                        id="uNip" 
-                       value="{{ old('nip') }}" 
+                       value="{{ old('nip', request()->has('edit') && isset($editUser) ? $editUser->nip : '') }}" 
                        placeholder="18 digit NIP">
                 @error('nip')
-                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
@@ -126,20 +140,20 @@
                        type="email" 
                        name="email" 
                        id="uEmail" 
-                       value="{{ old('email') }}">
+                       value="{{ old('email', request()->has('edit') && isset($editUser) ? $editUser->email : '') }}">
                 @error('email')
-                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group" id="passwordField">
-                <label class="form-label">Password <span class="required">*</span></label>
+            <div class="form-group" id="passwordField" @if(request()->has('edit') || old('_method') == 'PUT') style="display:none;" @endif>
+                <label class="form-label">Password <span class="required">@if(!request()->has('edit') && !old('_method'))*@endif</span></label>
                 <input class="form-input @error('password') is-invalid @enderror" 
                        type="password" 
                        name="password" 
                        placeholder="Min. 8 karakter">
                 @error('password')
-                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
@@ -147,12 +161,12 @@
                 <div class="form-group">
                     <label class="form-label">Role <span class="required">*</span></label>
                     <select class="form-select @error('role') is-invalid @enderror" name="role" id="uRole">
-                        <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>Staff</option>
-                        <option value="pimpinan" {{ old('role') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
-                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="staff" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="pimpinan" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                        <option value="admin" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                     @error('role')
-                        <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="form-group">
@@ -160,11 +174,11 @@
                     <select class="form-select @error('divisi_id') is-invalid @enderror" name="divisi_id" id="uDivisi">
                         <option value="">Tanpa Divisi</option>
                         @foreach($divisis as $div)
-                        <option value="{{ $div->id }}" {{ old('divisi_id') == $div->id ? 'selected' : '' }}>{{ $div->nama }}</option>
+                        <option value="{{ $div->id }}" {{ old('divisi_id', request()->has('edit') && isset($editUser) ? $editUser->divisi_id : '') == $div->id ? 'selected' : '' }}>{{ $div->nama }}</option>
                         @endforeach
                     </select>
                     @error('divisi_id')
-                        <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
@@ -172,17 +186,20 @@
             <div class="form-group">
                 <label class="form-label">Status</label>
                 <select class="form-select @error('is_aktif') is-invalid @enderror" name="is_aktif" id="uStatus">
-                    <option value="1" {{ old('is_aktif') == '1' ? 'selected' : '' }}>Aktif</option>
-                    <option value="0" {{ old('is_aktif') == '0' ? 'selected' : '' }}>Nonaktif</option>
+                    <option value="1" {{ old('is_aktif', request()->has('edit') && isset($editUser) ? $editUser->is_aktif : '1') == '1' ? 'selected' : '' }}>Aktif</option>
+                    <option value="0" {{ old('is_aktif', request()->has('edit') && isset($editUser) ? $editUser->is_aktif : '1') == '0' ? 'selected' : '' }}>Nonaktif</option>
                 </select>
                 @error('is_aktif')
-                    <div class="invalid-feedback" style="color:#DC2626; font-size:12px; margin-top:4px;">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
             <div style="display:flex; gap:10px;">
                 <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">💾 Simpan</button>
-                <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">Reset</button>
+                @if(request()->has('edit') || old('_method') == 'PUT')
+                <a href="{{ route('pengaturan.users') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">❌ Batal</a>
+                @endif
+                <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">🔄 Reset</button>
             </div>
         </form>
     </div>
@@ -191,50 +208,22 @@
 
 @push('scripts')
 <script>
-function editUser(id, nama, email, nip, role, divisiId, isAktif) {
-    document.getElementById('formUserTitle').textContent = '✏️ Edit User';
-    document.getElementById('formUser').action = '/pengaturan/users/' + id;
-    document.getElementById('userMethodField').innerHTML = '<input type="hidden" name="_method" value="PUT">';
-    document.getElementById('uNama').value = nama;
-    document.getElementById('uEmail').value = email;
-    document.getElementById('uNip').value = nip;
-    document.getElementById('uRole').value = role;
-    document.getElementById('uDivisi').value = divisiId;
-    document.getElementById('uStatus').value = isAktif;
-    document.getElementById('passwordField').style.display = 'none';
-    document.getElementById('formUserCard').scrollIntoView({ behavior: 'smooth' });
-}
-
 function resetUserForm() {
-    document.getElementById('formUserTitle').textContent = '➕ Tambah User';
-    document.getElementById('formUser').action = '{{ route('pengaturan.users.store') }}';
-    document.getElementById('userMethodField').innerHTML = '';
-    document.getElementById('passwordField').style.display = 'block';
-    document.getElementById('formUser').reset();
-    // Hapus highlight error
-    document.querySelectorAll('.is-invalid').forEach(el => {
-        el.classList.remove('is-invalid');
-    });
-    document.querySelectorAll('.invalid-feedback').forEach(el => {
-        el.remove();
-    });
+    // Redirect ke halaman users tanpa parameter edit
+    window.location.href = '{{ route('pengaturan.users') }}';
 }
 </script>
 
 <style>
 .is-invalid {
     border-color: #DC2626 !important;
+    border-width: 1.5px !important;
 }
 .invalid-feedback {
     color: #DC2626;
     font-size: 12px;
     margin-top: 4px;
-}
-.alert-danger {
-    background: #FEF2F2;
-    border: 1px solid #FEE2E2;
-    border-radius: 8px;
-    padding: 12px 16px;
+    display: block;
 }
 </style>
 @endpush
