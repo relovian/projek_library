@@ -14,7 +14,7 @@ class DashboardController extends Controller
 
         $stats = [
             'total_arsip'    => Arsip::count(),
-            'unggah_bulan'   => Arsip::whereMonth('created_at', now()->month)->count(),
+            //'unggah_bulan'   => Arsip::whereMonth('created_at', now()->month)->count(),
             'menunggu'       => Arsip::menunggu()->count(),
             'user_aktif'     => User::where('is_aktif', true)->count(),
         ];

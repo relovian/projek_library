@@ -14,11 +14,11 @@
         <div class="stat-number">{{ number_format($stats['total_arsip']) }}</div>
         <div class="stat-label">Total Arsip Tersimpan</div>
     </div>
-    <div class="stat-card c2">
+    <!-- <div class="stat-card c2">
         <div class="stat-icon">📄</div>
         <div class="stat-number">{{ $stats['unggah_bulan'] }}</div>
         <div class="stat-label">Diunggah Bulan Ini</div>
-    </div>
+    </div> -->
     <div class="stat-card c3">
         <div class="stat-icon">⏳</div>
         <div class="stat-number">{{ $stats['menunggu'] }}</div>
