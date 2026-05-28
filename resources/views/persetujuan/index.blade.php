@@ -26,7 +26,7 @@
         @csrf
         <button type="submit" class="btn-primary"
             onclick="return confirm('Setujui semua dokumen terpilih?')">
-            ✓ Setujui Semua Terpilih
+            Setujui Semua Terpilih
         </button>
     </form>
 </div>
@@ -44,14 +44,15 @@
                     <div>
                         <div class="pending-doc-name">{{ $arsip->judul }}</div>
                         <div class="pending-submitter" style="margin-top:4px;">
-                            📤 {{ $arsip->uploader->nama_lengkap }}
+                            <img src="{{ asset('img/unggah.png') }}" alt=""> {{ $arsip->uploader->nama_lengkap }}
                             · {{ $arsip->divisi->nama }}
                             · {{ $arsip->file_pertama?->ekstensi ?? '-' }}
                             · {{ $arsip->file_pertama?->ukuran_format ?? '-' }}
                         </div>
+
                         <div class="pending-submitter" style="margin-top:2px;">
-                            🏷️ {{ $arsip->kategori->nama }}
-                            · 📅 {{ $arsip->tanggal_dokumen->format('d M Y') }}
+                            <img src="{{ asset('img/category.png') }}" alt=""> {{ $arsip->kategori->nama }}
+                            · <img src="{{ asset('img/kalender.png') }}" alt="">{{ $arsip->tanggal_dokumen->format('d M Y') }}
                             @if($arsip->nomor_surat)
                                 · No. {{ $arsip->nomor_surat }}
                             @endif
@@ -67,19 +68,19 @@
                     @csrf
                     <button type="submit" class="btn-sm btn-approve"
                         onclick="return confirm('Setujui dokumen ini?')">
-                        ✓ Setujui
+                        Setujui
                     </button>
                 </form>
 
                 {{-- Tolak --}}
                 <button type="button" class="btn-sm btn-reject"
                     onclick="openTolakModal({{ $arsip->id }}, '{{ addslashes($arsip->judul) }}')">
-                    ✗ Tolak
+                    Tolak
                 </button>
 
                 {{-- Lihat --}}
                 <a href="{{ route('arsip.show', $arsip) }}" class="btn-sm btn-view">
-                    👁 Pratinjau
+                    Pratinjau
                 </a>
             </div>
         </li>
@@ -92,7 +93,9 @@
 
     @else
     <div class="empty-state">
-        <div class="empty-icon">✅</div>
+        <div class="empty-icon">
+            <img src="{{ asset('img/persetujuan.png') }}" alt="">
+        </div>
         <p>Tidak ada dokumen yang menunggu persetujuan.</p>
     </div>
     @endif

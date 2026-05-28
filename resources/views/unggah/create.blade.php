@@ -11,25 +11,18 @@
 <div class="upload-layout">
     {{-- Form Metadata --}}
     <div class="card">
-        <div class="card-title" style="margin-bottom:22px">📋 Informasi Dokumen</div>
+        <div class="card-title" style="margin-bottom:22px">Informasi Dokumen</div>
 
         <form method="POST" action="{{ route('unggah.store') }}" enctype="multipart/form-data">
             @csrf
 
-            @if($errors->any())
-            <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:#DC2626;">
-                <strong>Terdapat kesalahan:</strong>
-                <ul style="margin-top:6px; padding-left:20px;">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
             <div class="form-group">
                 <label class="form-label">Judul Dokumen <span class="required">*</span></label>
                 <input class="form-input" type="text" name="judul" value="{{ old('judul') }}" placeholder="Masukkan judul dokumen…">
+
+                @error('judul')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-row">
@@ -43,6 +36,10 @@
                         </option>
                         @endforeach
                     </select>
+
+                    @error('kategori_id')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label class="form-label">Divisi / Bidang <span class="required">*</span></label>
@@ -54,6 +51,10 @@
                         </option>
                         @endforeach
                     </select>
+
+                    @error('divisi_id')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -61,10 +62,18 @@
                 <div class="form-group">
                     <label class="form-label">Tanggal Dokumen <span class="required">*</span></label>
                     <input class="form-input" type="date" name="tanggal_dokumen" value="{{ old('tanggal_dokumen', date('Y-m-d')) }}">
+
+                    @error('tanggal_dokumen')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label class="form-label">Nomor Surat / Referensi</label>
                     <input class="form-input" type="text" name="nomor_surat" value="{{ old('nomor_surat') }}" placeholder="Cth: No. 045/SK/2026">
+
+                    @error('nomor_surat')
+                        <span class="form-error">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -76,16 +85,28 @@
                     <option value="{{ $periode }}" {{ old('periode_pemilu') == $periode ? 'selected' : '' }}>{{ $periode }}</option>
                     @endforeach
                 </select>
+
+                @error('peride_pemilu')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label class="form-label">Tag / Label</label>
                 <input class="form-input" type="text" name="tags" value="{{ old('tags') }}" placeholder="Pisahkan tag dengan koma, cth: laporan, temuan, jatim">
+
+                @error('tags')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label class="form-label">Deskripsi</label>
                 <textarea class="form-textarea" name="deskripsi" placeholder="Ringkasan singkat isi dokumen…">{{ old('deskripsi') }}</textarea>
+
+                @error('deskripsi')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
@@ -96,13 +117,19 @@
                     <option value="pimpinan" {{ old('tingkat_akses') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
                     <option value="rahasia" {{ old('tingkat_akses') == 'rahasia' ? 'selected' : '' }}>Rahasia</option>
                 </select>
+
+                @error('tingkat_akses')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             {{-- File Upload --}}
             <div class="form-group">
                 <label class="form-label">File Dokumen <span class="required">*</span></label>
                 <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-zone-icon">📂</div>
+                    <div class="upload-zone-icon">
+                        <img src="{{ asset('img/folder_kosong.png') }}" alt="">
+                    </div>
                     <h3>Seret & Jatuhkan File</h3>
                     <p>atau klik untuk pilih file</p>
                     <div class="upload-formats">
@@ -117,14 +144,18 @@
                 <input type="file" id="fileInput" name="file" style="display:none"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                     onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? 'Maks. 50 MB per file'">
+
+                @error('file')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div style="display:flex; gap:10px; margin-top:8px;">
                 <button type="submit" name="aksi" value="kirim" class="btn-primary" style="flex:1; justify-content:center;">
-                    ⬆️ Kirim untuk Ditinjau
+                    ⬆Kirim untuk Ditinjau
                 </button>
                 <button type="submit" name="aksi" value="draft" class="btn-sm btn-view" style="padding:9px 18px; font-size:13px;">
-                    💾 Simpan Draft
+                    Simpan Draft
                 </button>
             </div>
         </form>
@@ -135,12 +166,12 @@
 
         {{-- Revisi --}}
         <div class="card">
-            <div class="card-title" style="margin-bottom:16px;">🔄 Unggah Revisi</div>
+            <div class="card-title" style="margin-bottom:16px;"> Unggah Revisi</div>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px; line-height:1.6;">
                 Jika ini adalah versi terbaru dari dokumen yang sudah ada, masukkan ID arsip aslinya:
             </p>
             <input class="form-input" type="text" name="arsip_induk_id" form="formUtama"
-                placeholder="🔍  ID arsip yang akan direvisi…">
+                placeholder="ID arsip yang akan direvisi…">
             <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
                 Versi baru akan terhubung dengan riwayat dokumen asli.
             </div>
@@ -168,7 +199,7 @@
 
         {{-- Panduan --}}
         <div class="card" style="background:var(--surface2);">
-            <div style="font-size:13px; font-weight:700; margin-bottom:10px;">📌 Panduan Unggah</div>
+            <div style="font-size:13px; font-weight:700; margin-bottom:10px;"> Panduan Unggah</div>
             <ul style="font-size:12.5px; color:var(--text-muted); line-height:1.8; padding-left:16px;">
                 <li>Pastikan nama file jelas dan deskriptif</li>
                 <li>Ukuran file maksimal 50 MB</li>

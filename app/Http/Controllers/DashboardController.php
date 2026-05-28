@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Arsip;
 use App\Models\AktivitasLog;
+use App\Models\Kategori;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -13,11 +14,16 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         $stats = [
-            'total_arsip'    => Arsip::count(),
-            'unggah_bulan'   => Arsip::whereMonth('created_at', now()->month)->count(),
-            'menunggu'       => Arsip::menunggu()->count(),
-            'user_aktif'     => User::where('is_aktif', true)->count(),
+            'total_arsip' => Arsip::count(),
+            'menunggu'    => Arsip::menunggu()->count(),
+            'user_aktif'  => User::where('is_aktif', true)->count(),
         ];
+
+        // Arsip per kategori
+        $arsipPerKategori = Kategori::where('is_aktif', true)
+            ->withCount('arsips')
+            ->orderByDesc('arsips_count')
+            ->get();
 
         // 5 arsip terbaru
         $arsipTerbaru = Arsip::with(['kategori', 'divisi', 'uploader', 'files'])
@@ -43,7 +49,7 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard.index', compact(
-            'stats', 'arsipTerbaru', 'menungguPersetujuan', 'aktivitasSaya'
+            'stats', 'arsipPerKategori', 'arsipTerbaru', 'menungguPersetujuan', 'aktivitasSaya'
         ));
     }
 }

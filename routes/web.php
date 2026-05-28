@@ -22,12 +22,20 @@ Route::middleware(['auth'])->group(function () {
 
     // Arsip
     Route::prefix('arsip')->name('arsip.')->group(function () {
-        Route::get('/',             [ArsipController::class, 'index'])->name('index');
-        Route::get('/{arsip}',      [ArsipController::class, 'show'])->name('show');
-        Route::get('/{arsip}/edit', [ArsipController::class, 'edit'])->name('edit');
-        Route::put('/{arsip}',      [ArsipController::class, 'update'])->name('update');
-        Route::delete('/{arsip}',   [ArsipController::class, 'destroy'])->name('destroy');
-        Route::get('/{arsip}/unduh',[ArsipController::class, 'download'])->name('download');
+        Route::get('/',                    [ArsipController::class, 'index'])->name('index');
+        
+        // ← taruh semua route statis DI SINI, sebelum {arsip}
+        Route::get('/trash',               [ArsipController::class, 'trash'])->name('trash');
+        Route::delete('/empty-trash',      [ArsipController::class, 'emptyTrash'])->name('empty-trash');
+        Route::patch('/{id}/restore',      [ArsipController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete',[ArsipController::class, 'forceDelete'])->name('force-delete');
+
+        // ← baru route dinamis {arsip} di bawah
+        Route::get('/{arsip}',             [ArsipController::class, 'show'])->name('show');
+        Route::get('/{arsip}/edit',        [ArsipController::class, 'edit'])->name('edit');
+        Route::put('/{arsip}',             [ArsipController::class, 'update'])->name('update');
+        Route::delete('/{arsip}',          [ArsipController::class, 'destroy'])->name('destroy');
+        Route::get('/{arsip}/unduh',       [ArsipController::class, 'download'])->name('download');
     });
 
     // Unggah

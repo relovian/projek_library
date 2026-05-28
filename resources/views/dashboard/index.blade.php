@@ -4,23 +4,19 @@
 
 @section('content')
 <div class="page-header">
-    <h1>Selamat Datang, {{ auth()->user()->nama_lengkap }} 👋</h1>
+    <h1>Selamat Datang, {{ auth()->user()->nama_lengkap }} </h1>
     <p>Ringkasan sistem pengelolaan arsip Bawaslu — {{ now()->translatedFormat('l, d F Y') }}</p>
 </div>
 
+{{-- Stat Cards --}}
 <div class="stat-grid">
     <div class="stat-card c1">
-        <div class="stat-icon">🗂️</div>
+        <div class="stat-icon"><img src="{{ asset('img/arsip.png') }}" alt=""></div>
         <div class="stat-number">{{ number_format($stats['total_arsip']) }}</div>
         <div class="stat-label">Total Arsip Tersimpan</div>
     </div>
-    <div class="stat-card c2">
-        <div class="stat-icon">📄</div>
-        <div class="stat-number">{{ $stats['unggah_bulan'] }}</div>
-        <div class="stat-label">Diunggah Bulan Ini</div>
-    </div>
     <div class="stat-card c3">
-        <div class="stat-icon">⏳</div>
+        <div class="stat-icon"><img src="{{ asset('img/deadline.png') }}" alt=""></div>
         <div class="stat-number">{{ $stats['menunggu'] }}</div>
         <div class="stat-label">Menunggu Persetujuan</div>
         @if($stats['menunggu'] > 0)
@@ -28,13 +24,54 @@
         @endif
     </div>
     <div class="stat-card c4">
-        <div class="stat-icon">👤</div>
+        <div class="stat-icon"><img src="{{ asset('img/group.png') }}" alt=""></div>
         <div class="stat-number">{{ $stats['user_aktif'] }}</div>
         <div class="stat-label">Pengguna Aktif</div>
     </div>
 </div>
 
-{{-- ── GRID KONTEN ── --}}
+{{-- Arsip Per Kategori --}}
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Arsip Per Kategori</div>
+            <div class="card-sub">Jumlah dokumen berdasarkan kategori</div>
+        </div>
+        <a class="view-all" href="{{ route('arsip.index') }}">Lihat semua →</a>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; padding:16px 0 4px;">
+        @forelse($arsipPerKategori as $kat)
+        <a href="{{ route('arsip.index', ['kategori_id' => $kat->id]) }}"
+           style="
+               display:flex; flex-direction:column; gap:6px;
+               background:var(--bg-secondary, #f9fafb);
+               border:1px solid var(--border, #e5e7eb);
+               border-radius:10px; padding:14px 16px;
+               text-decoration:none;
+               transition: background 0.12s;
+           "
+           onmouseover="this.style.background='#f0f4ff'"
+           onmouseout="this.style.background='var(--bg-secondary, #f9fafb)'">
+            <div style="
+                width:10px; height:10px; border-radius:50%;
+                background:{{ $kat->warna ?? '#6b7280' }};
+            "></div>
+            <div style="font-size:20px; font-weight:700; color:var(--text-primary, #111827);">
+                {{ number_format($kat->arsips_count) }}
+            </div>
+            <div style="font-size:12px; color:var(--text-muted, #6b7280);">
+                {{ $kat->nama }}
+            </div>
+        </a>
+        @empty
+        <div style="font-size:13px; color:var(--text-muted, #6b7280); padding:8px 0;">
+            Belum ada kategori tersedia.
+        </div>
+        @endforelse
+    </div>
+</div>
+
+{{-- Grid Konten --}}
 <div class="dash-grid">
     {{-- Arsip Terbaru --}}
     <div class="card">
@@ -48,8 +85,9 @@
         <ul class="doc-list">
             @forelse($arsipTerbaru as $arsip)
             <li class="doc-item" onclick="window.location='{{ route('arsip.show', $arsip) }}'">
-                <div class="doc-icon {{ $arsip->file_pertama?->ekstensi ?? 'pdf' }}">
-                    {{ $arsip->file_pertama?->ikon ?? '📄' }}
+                <div class="doc-icon">
+                    <img src="{{ $arsip->file_pertama?->ikon ?? asset('img/berkas.png') }}"
+                        alt="icon" class="arsip-icon-image">
                 </div>
                 <div class="doc-info">
                     <div class="doc-name">{{ $arsip->judul }}</div>
@@ -65,14 +103,14 @@
             </li>
             @empty
             <li class="empty-state">
-                <div class="empty-icon">🗂️</div>
+                <div class="empty-icon"><img src="{{ asset('img/arsip.png') }}" alt=""></div>
                 <p>Belum ada arsip yang diunggah.</p>
             </li>
             @endforelse
         </ul>
     </div>
 
-    {{-- Menunggu Persetujuan --}}
+    {{-- Perlu Ditinjau (Admin/Pimpinan) atau Aktivitas Saya (Staff) --}}
     @if(auth()->user()->isAdmin() || auth()->user()->isPimpinan())
     <div class="card">
         <div class="card-header">
@@ -90,30 +128,30 @@
                     <div class="pending-time">{{ $arsip->created_at->diffForHumans() }}</div>
                 </div>
                 <div class="pending-submitter">
-                    📤 {{ $arsip->uploader->nama_lengkap }} · {{ $arsip->divisi->nama }}
+                    <img src="{{ asset('img/unggah.png') }}" alt="">
+                    {{ $arsip->uploader->nama_lengkap }} · {{ $arsip->divisi->nama }}
                 </div>
                 <div class="pending-actions">
                     <form method="POST" action="{{ route('persetujuan.setujui', $arsip) }}" style="display:inline">
                         @csrf
-                        <button type="submit" class="btn-sm btn-approve">✓ Setujui</button>
+                        <button type="submit" class="btn-sm btn-approve">Setujui</button>
                     </form>
                     <button type="button" class="btn-sm btn-reject"
                         onclick="openTolakModal({{ $arsip->id }}, '{{ addslashes($arsip->judul) }}')">
-                        ✗ Tolak
+                        Tolak
                     </button>
-                    <a href="{{ route('arsip.show', $arsip) }}" class="btn-sm btn-view">👁 Lihat</a>
+                    <a href="{{ route('arsip.show', $arsip) }}" class="btn-sm btn-view">Lihat</a>
                 </div>
             </li>
             @empty
             <li class="empty-state" style="padding:30px 0;">
-                <div class="empty-icon">✅</div>
+                <div class="empty-icon"><img src="{{ asset('img/persetujuan.png') }}" alt=""></div>
                 <p>Tidak ada dokumen yang menunggu.</p>
             </li>
             @endforelse
         </ul>
     </div>
     @else
-    {{-- Aktivitas Saya untuk Staff --}}
     <div class="card">
         <div class="card-header">
             <div class="card-title">Aktivitas Terakhir Saya</div>
@@ -158,7 +196,8 @@
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end;">
                 <button type="button" class="btn-sm btn-view" onclick="closeTolakModal()">Batal</button>
-                <button type="submit" class="btn-sm btn-approve" style="background:var(--bawaslu-red)">Konfirmasi Tolak</button>
+                <button type="submit" class="btn-sm btn-approve"
+                    style="background:var(--bawaslu-red)">Konfirmasi Tolak</button>
             </div>
         </form>
     </div>

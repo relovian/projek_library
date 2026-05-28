@@ -19,7 +19,6 @@
     <a href="{{ route('aktivitas.index', ['tab' => 'log']) }}"
        class="tab-btn {{ $tab === 'log' ? 'active' : '' }}">
         Log Semua User
-        <span class="nav-badge badge-admin" style="margin-left:6px; font-size:9px; padding:1px 6px; border-radius:20px; display:inline;">Admin</span>
     </a>
     @endif
 </div>
@@ -29,12 +28,14 @@
     <ul class="timeline">
         @foreach($logs as $log)
         <li class="tl-item">
-            <div class="tl-dot {{ $log->aksi_warna_dot }}">{{ $log->aksi_ikon }}</div>
+            <div class="tl-dot {{ $log->aksi_warna_dot }}">
+                <img src="{{ $log->aksi_ikon }}" alt="">
+            </div>
             <div class="tl-content" style="flex:1;">
                 <div class="tl-action">{{ $log->aksi_label }}</div>
                 @if($log->arsip)
                 <div class="tl-doc">
-                    📄 <a href="{{ route('arsip.show', $log->arsip) }}"
+                    <a href="{{ route('arsip.show', $log->arsip) }}"
                           style="color:var(--bawaslu-red); text-decoration:none;">
                         {{ $log->arsip->judul }}
                     </a>
@@ -44,7 +45,7 @@
                 <div class="tl-doc">{{ $log->keterangan }}</div>
                 @endif
                 <div class="tl-time">
-                    {{ $log->created_at->format('d M Y, H:i') }} WIB
+                    {{ $log->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
                     @if(auth()->user()->isAdmin() && $tab === 'log')
                         · oleh <strong>{{ $log->user->nama_lengkap }}</strong>
                     @endif
@@ -60,8 +61,31 @@
     </ul>
 
     {{-- Pagination --}}
-    <div style="margin-top:20px; display:flex; justify-content:flex-end;">
-        {{ $logs->withQueryString()->links() }}
+
+    <div class="custom-pagination">
+
+        {{-- Tombol Previous --}}
+        @if ($logs->onFirstPage())
+            <span class="page-btn disabled">‹</span>
+        @else
+            <a href="{{ $logs->previousPageUrl() }}" class="page-btn">‹</a>
+        @endif
+
+        {{-- Nomor Halaman --}}
+        @for ($i = 1; $i <= $logs->lastPage(); $i++)
+            <a href="{{ $logs->url($i) }}"
+            class="page-btn {{ $logs->currentPage() == $i ? 'active' : '' }}">
+                {{ $i }}
+            </a>
+        @endfor
+
+        {{-- Tombol Next --}}
+        @if ($logs->hasMorePages())
+            <a href="{{ $logs->nextPageUrl() }}" class="page-btn">›</a>
+        @else
+            <span class="page-btn disabled">›</span>
+        @endif
+
     </div>
 
     @else

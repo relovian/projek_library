@@ -25,7 +25,7 @@
 <form method="GET" action="{{ route('arsip.index') }}" class="filter-row">
     @if(request('tab')) <input type="hidden" name="tab" value="{{ request('tab') }}"> @endif
 
-    <input class="filter-input" type="text" name="q" value="{{ request('q') }}" placeholder="🔍  Cari judul dokumen…">
+    <input class="filter-input" type="text" name="q" value="{{ request('q') }}" placeholder=" Cari judul dokumen... ">
 
     <select class="filter-select" name="kategori_id">
         <option value="">Semua Kategori</option>
@@ -85,8 +85,12 @@
                 <tr>
                     <td style="padding-left:20px">
                         <div class="doc-thumb">
-                            <div class="doc-thumb-icon {{ $arsip->file_pertama?->ekstensi ?? 'pdf' }}">
-                                {{ $arsip->file_pertama?->ikon ?? '📄' }}
+                            <div class="doc-thumb-icon ">
+                               <img 
+                                    src="{{ $arsip->file_pertama?->ikon ?? asset('img/berkas.png') }}"
+                                    alt="icon"
+                                    class="arsip-icon-image"
+                                >
                             </div>
                             <div>
                                 <div class="doc-thumb-name">{{ Str::limit($arsip->judul, 45) }}</div>
@@ -105,18 +109,27 @@
                     <td>{{ $arsip->file_pertama?->ukuran_format ?? '-' }}</td>
                     <td>
                         <div class="action-btns">
-                            <a href="{{ route('arsip.show', $arsip) }}" class="tbl-btn" title="Lihat">👁</a>
-                            <a href="{{ route('arsip.download', $arsip) }}" class="tbl-btn" title="Unduh">⬇️</a>
-                            @can('update', $arsip)
-                            <a href="{{ route('arsip.edit', $arsip) }}" class="tbl-btn" title="Edit">✏️</a>
-                            @endcan
-                            @can('delete', $arsip)
-                            <form method="POST" action="{{ route('arsip.destroy', $arsip) }}"
-                                  onsubmit="return confirm('Hapus arsip ini?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="tbl-btn" title="Hapus">🗑️</button>
-                            </form>
-                            @endcan
+                            <a href="{{ route('arsip.show', $arsip) }}" class="tbl-btn" title="Lihat">
+                                <img src="{{ asset('img/pratinjau.png') }}" alt="">
+                            </a>
+                            
+                            
+                            {{-- Sesudah --}}
+                            @if(auth()->user()->role === 'admin' || auth()->user()->id === $arsip->uploader_id)
+                                <a href="{{ route('arsip.edit', $arsip) }}" class="tbl-btn" title="Edit">
+                                    <img src="{{ asset('img/edit.png') }}" alt="">
+                                </a>
+
+                                <form method="POST" action="{{ route('arsip.destroy', $arsip->id) }}"
+                                    onsubmit="return confirm('Pindahkan arsip ini ke trash?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="tbl-btn" title="Hapus">
+                                        <img src="{{ asset('img/hapus.png') }}" alt="">
+                                    </button>
+                                </form>
+
+                            @endif
+                          
                         </div>
                     </td>
                 </tr>
@@ -124,12 +137,16 @@
                 <tr>
                     <td colspan="7">
                         <div class="empty-state">
-                            <div class="empty-icon">🗂️</div>
+                            <div class="empty-icon">
+                                <img src="{{ asset('img/arsip.png') }}" alt="">
+                            </div>
                             <p>Tidak ada arsip yang sesuai filter.</p>
                         </div>
                     </td>
                 </tr>
                 @endforelse
+
+            
             </tbody>
         </table>
     </div>
@@ -141,4 +158,12 @@
         {{ $arsips->withQueryString()->links() }}
     </div>
 </div>
+
+@if(auth()->user()->role === 'admin')
+<div class="ikon-sampah" style="margin-top:12px; text-align:right;">
+    <a href="{{ route('arsip.trash') }}" style="font-size:12.5px; color:#6b7280; text-decoration:none;">
+        <img src="{{ asset('img/sampah.png') }}" alt="">
+    </a>
+</div>
+@endif
 @endsection

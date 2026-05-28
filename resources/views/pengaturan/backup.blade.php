@@ -8,6 +8,12 @@
     <p>Kelola backup data dan pemeliharaan rutin sistem SIARSIP</p>
 </div>
 
+<div style="margin-bottom: 20px;">
+    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+        Kembali ke Pengaturan
+    </a>
+</div>
+
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
 
     {{-- Backup Database --}}

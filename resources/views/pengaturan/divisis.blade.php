@@ -8,12 +8,12 @@
     <p>Konfigurasi struktur organisasi divisi Bawaslu</p>
 </div>
 
-{{-- Session Success --}}
-@if(session('success'))
-<div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:12px 16px; margin-bottom:24px; font-size:13px; color:#059669;">
-    ✅ {{ session('success') }}
+<div style="margin-bottom: 20px;">
+    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+        Kembali ke Pengaturan
+    </a>
 </div>
-@endif
+
 
 <div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
 
@@ -54,13 +54,17 @@
                             <a href="{{ route('pengaturan.divisis', ['edit' => $div->id]) }}" 
                                class="tbl-btn" 
                                title="Edit"
-                               style="cursor:pointer; text-decoration:none; display:inline-block;">✏️</a>
+                               style="cursor:pointer; text-decoration:none; display: flex; text-align: center;">
+                                <img src="{{ asset('img/edit.png') }}" alt="">
+                            </a>
                             
                             @if($div->arsips_count == 0)
                             <form method="POST" action="{{ route('pengaturan.divisis.destroy', $div) }}"
                                 onsubmit="return confirm('Hapus divisi ini?')" style="display:inline;">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="tbl-btn">🗑️</button>
+                                <button type="submit" class="tbl-btn">
+                                    <img src="{{ asset('img/hapus.png') }}" alt="">
+                                </button>
                             </form>
                             @endif
                         </div>
@@ -77,11 +81,11 @@
     <div class="card" id="formDivisiCard">
         <div class="card-title" style="margin-bottom:20px;" id="formDivisiTitle">
             @if(request()->has('edit') && $editDivisi = \App\Models\Divisi::find(request()->get('edit')))
-                ✏️ Edit Divisi: {{ $editDivisi->nama }}
+                Edit Divisi: {{ $editDivisi->nama }}
             @elseif(old('_method') == 'PUT')
-                ✏️ Edit Divisi
+                Edit Divisi
             @else
-                ➕ Tambah Divisi
+                Tambah Divisi
             @endif
         </div>
 
@@ -152,11 +156,11 @@
             </div>
 
             <div style="display:flex; gap:10px;">
-                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">💾 Simpan</button>
+                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">Simpan</button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.divisis') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">❌ Batal</a>
+                <a href="{{ route('pengaturan.divisis') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">Batal</a>
                 @endif
-                <button type="button" class="btn-sm btn-view" onclick="resetDivisiForm()" style="padding:8px 16px;">🔄 Reset</button>
+                <button type="button" class="btn-sm btn-view" onclick="resetDivisiForm()" style="padding:8px 16px;">Reset</button>
             </div>
         </form>
     </div>
