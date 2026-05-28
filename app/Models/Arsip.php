@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Arsip extends Model
 {
@@ -131,4 +130,5 @@ class Arsip extends Model
         $urutan = static::whereYear('created_at', $tahun)->count() + 1;
         return 'ARS-' . $tahun . '-' . str_pad($urutan, 4, '0', STR_PAD_LEFT);
     }
+    
 }

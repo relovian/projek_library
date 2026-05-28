@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules;
 
 class PengaturanController extends Controller
 {
@@ -91,12 +92,35 @@ class PengaturanController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'password_lama' => 'required',
-            'password_baru' => 'required|min:8|confirmed',
+            'password_lama' => ['required'],
+            'password_baru' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                Rules\Password::min(8)->mixedCase()->numbers(),
+            ],
+            'password_baru_confirmation' => ['required'],
+        ], [
+            'password_lama.required'              => 'Password lama wajib diisi.',
+
+            'password_baru.required'              => 'Password baru wajib diisi.',
+            'password_baru.string'                => 'Password baru harus berupa teks.',
+            'password_baru.min'                   => 'Password baru minimal 8 karakter.',
+            'password_baru.confirmed'             => 'Konfirmasi password baru tidak cocok.',
+            'password_baru.mixed'                 => 'Password baru harus mengandung huruf besar dan huruf kecil.',
+            'password_baru.numbers'               => 'Password baru harus mengandung minimal satu angka.',
+
+            'password_baru_confirmation.required' => 'Konfirmasi password baru wajib diisi.',
         ]);
 
         if (!Hash::check($request->password_lama, auth()->user()->password)) {
-            return back()->withErrors(['password_lama' => 'Password lama tidak sesuai.']);
+            return back()->withErrors(['password_lama' => 'Password lama yang kamu masukkan tidak sesuai.']);
+        }
+
+        // Cegah pakai password yang sama dengan yang lama
+        if (Hash::check($request->password_baru, auth()->user()->password)) {
+            return back()->withErrors(['password_baru' => 'Password baru tidak boleh sama dengan password lama.']);
         }
 
         auth()->user()->update(['password' => Hash::make($request->password_baru)]);
@@ -107,14 +131,30 @@ class PengaturanController extends Controller
     public function storeUser(Request $request)
     {
         $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email',
-            'nip'          => 'required|string|max:50|unique:users,nip',
-            'password'     => 'required|min:8',
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password'     => ['required', Rules\Password::min(8)->mixedCase()->numbers()],
+            'nip'          => 'required|digits:18|unique:users,nip', 
             'role'         => 'required|in:admin,staff,pimpinan',
         ], [
-            'nip.unique' => 'NIP sudah digunakan. Silakan gunakan NIP yang berbeda.',
-            'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'nama_lengkap.string' => 'Nama harus berupa teks.',
+            'nama_lengkap.max' => 'Nama maksimal 255 karakter.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.string' => 'Email harus berupa teks.',
+            'email.lowercase' => 'Email harus menggunakan huruf kecil.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'email.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain.',
+            'password.required' => 'Kata sandi wajib diisi.',
+            'password.min' => 'Kata sandi minimal 8 karakter.',
+            'password.mixed' => 'Kata sandi harus mengandung huruf besar dan huruf kecil.',
+            'password.numbers' => 'Kata sandi harus mengandung minimal satu angka.',
+            'nip.required' => 'NIP wajib diisi.',
+            'nip.digits' => 'NIP harus terdiri dari tepat 18 angka.',
+            'nip.unique' => 'NIP sudah terdaftar di sistem.',
+            'role.required' => 'Pilih role pengguna.',
+            'role.in' => 'Role yang dipilih tidak valid.',
         ]);
 
         User::create([
@@ -130,8 +170,16 @@ class PengaturanController extends Controller
         return back()->with('success', 'User berhasil ditambahkan.');
     }
 
-    public function updateUser(Request $request, User $user)
+    public function updateUser(Request $request, $id )
     {
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return redirect()->route('admin.users')
+                ->with('error', 'User dengan ID tersebut tidak ditemukan.');
+        }
+
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
             'email'        => 'required|email|unique:users,email,' . $user->id,
@@ -223,19 +271,30 @@ class PengaturanController extends Controller
     }
 
     // ── Kelola User (Admin) ───────────────────────────────
-    public function users()
+    public function users(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        $users   = User::with('divisi')->paginate(20);
+        // Cek kalau ada parameter ?edit= tapi user tidak ditemukan
+        if ($request->has('edit') && !User::find($request->get('edit'))) {
+            return redirect()->route('pengaturan.users')
+                ->with('error', 'User dengan ID ' . $request->get('edit') . ' tidak ditemukan.');
+        }
+
+        $users   = User::with('divisi')->paginate(8);
         $divisis = Divisi::where('is_aktif', true)->get();
         return view('pengaturan.users', compact('users', 'divisis'));
     }
 
     // ── Kelola Divisi (Admin) ─────────────────────────────
-    public function divisis()
+    public function divisis(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        if ($request->has('edit') && !User::find($request->get('edit'))) {
+            return redirect()->route('pengaturan.divisis')
+            ->with('error', 'Divisi dengan ID ' . $request->get('edit') . ' tidak ditemukan.');
+        }
 
         $divisis = Divisi::withCount('arsips')->get();
         return view('pengaturan.divisis', compact('divisis'));

@@ -8,17 +8,16 @@
     <p>Manajemen akun pengguna dan permission sistem</p>
 </div>
 
-{{-- Hanya tampilkan session success jika ada --}}
-@if(session('success'))
-<div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:12px 16px; margin-bottom:24px; font-size:13px; color:#059669;">
-    ✅ {{ session('success') }}
+<div style="margin-bottom: 20px;">
+    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+        Kembali ke Pengaturan
+    </a>
 </div>
-@endif
 
-<div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
+<div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
 
     {{-- Daftar User --}}
-    <div class="card" style="padding:0; overflow:hidden;">
+    <div class="card" style="padding:0; overflow:hidden; padding-right: 10px; padding-bottom: 10px;">
         <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
             <div class="card-title">Daftar Pengguna</div>
             <span style="font-size:12.5px; color:var(--text-muted);">{{ $users->total() }} pengguna</span>
@@ -64,13 +63,17 @@
                             <a href="{{ route('pengaturan.users', ['edit' => $u->id]) }}" 
                                class="tbl-btn" 
                                title="Edit"
-                               style="cursor:pointer; text-decoration:none; display:inline-block;">✏️</a>
+                               style="cursor:pointer; text-decoration:none; display:inline-block; text-align: center; display: flex;">
+                                <img src="{{ asset('img/edit.png') }}" alt=""> 
+                            </a>
                             
                             @if($u->id !== auth()->id())
                             <form method="POST" action="{{ route('pengaturan.users.destroy', $u) }}"
                                 onsubmit="return confirm('Hapus user ini?')" style="display:inline;">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="tbl-btn" title="Hapus">🗑️</button>
+                                <button type="submit" class="tbl-btn" title="Hapus">
+                                    <img src="{{ asset('img/hapus.png') }}" alt=""> 
+                                </button>
                             </form>
                             @endif
                         </div>
@@ -81,8 +84,31 @@
                 @endforelse
             </tbody>
         </table>
-        <div style="padding:16px 20px; border-top:1px solid var(--border);">
-            {{ $users->links() }}
+        
+        <div class="custom-pagination">
+
+            {{-- Tombol Previous --}}
+            @if ($users->onFirstPage())
+                <span class="page-btn disabled">‹</span>
+            @else
+                <a href="{{ $users->previousPageUrl() }}" class="page-btn">‹</a>
+            @endif
+
+            {{-- Nomor Halaman --}}
+            @for ($i = 1; $i <= $users->lastPage(); $i++)
+                <a href="{{ $users->url($i) }}"
+                class="page-btn {{ $users->currentPage() == $i ? 'active' : '' }}">
+                    {{ $i }}
+                </a>
+            @endfor
+
+            {{-- Tombol Next --}}
+            @if ($users->hasMorePages())
+                <a href="{{ $users->nextPageUrl() }}" class="page-btn">›</a>
+            @else
+                <span class="page-btn disabled">›</span>
+            @endif
+
         </div>
     </div>
 
@@ -90,11 +116,11 @@
     <div class="card" id="formUserCard">
         <div class="card-title" style="margin-bottom:20px;" id="formUserTitle">
             @if(request()->has('edit') && $editUser = \App\Models\User::find(request()->get('edit')))
-                ✏️ Edit User: {{ $editUser->nama_lengkap }}
+                Edit User: {{ $editUser->nama_lengkap }}
             @elseif(old('_method') == 'PUT' || session('edit_id'))
-                ✏️ Edit User
+                Edit User
             @else
-                ➕ Tambah User
+                Tambah User
             @endif
         </div>
 
@@ -195,11 +221,11 @@
             </div>
 
             <div style="display:flex; gap:10px;">
-                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">💾 Simpan</button>
+                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;"> Simpan </button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.users') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">❌ Batal</a>
+                <a href="{{ route('pengaturan.users') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">Batal</a>
                 @endif
-                <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">🔄 Reset</button>
+                <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">Reset</button>
             </div>
         </form>
     </div>

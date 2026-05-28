@@ -8,11 +8,17 @@
     <p>Perbarui informasi akun Anda</p>
 </div>
 
+<div style="margin-bottom: 20px;">
+    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+        Kembali ke Pengaturan
+    </a>
+</div>
+
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
 
     {{-- Form Profil --}}
     <div class="card">
-        <div class="card-title" style="margin-bottom:24px;">👤 Informasi Profil</div>
+        <div class="card-title" style="margin-bottom:24px;"> Informasi Profil</div>
 
         <div style="display:flex; align-items:center; gap:20px; margin-bottom:28px; padding-bottom:24px; border-bottom:1px solid var(--border);">
             <div style="width:72px; height:72px; border-radius:50%; background:var(--bawaslu-red); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; flex-shrink:0;">
@@ -32,20 +38,6 @@
         <form method="POST" action="{{ route('pengaturan.profil.update') }}">
             @csrf
             @method('PUT')
-
-            @if(session('success'))
-            <div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#059669;">
-                ✅ {{ session('success') }}
-            </div>
-            @endif
-
-            @if($errors->any())
-            <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#DC2626;">
-                @foreach($errors->all() as $error)
-                <div>{{ $error }}</div>
-                @endforeach
-            </div>
-            @endif
 
             <div class="form-group">
                 <label class="form-label">Nama Lengkap <span class="required">*</span></label>
@@ -75,13 +67,13 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary">💾 Simpan Perubahan</button>
+            <button type="submit" class="btn-primary"> Simpan Perubahan</button>
         </form>
     </div>
 
     {{-- Form Password --}}
     <div class="card">
-        <div class="card-title" style="margin-bottom:24px;">🔐 Ubah Password</div>
+        <div class="card-title" style="margin-bottom:24px;"> Ubah Password</div>
 
         <form method="POST" action="{{ route('pengaturan.password.update') }}">
             @csrf
@@ -95,23 +87,32 @@
 
             <div class="form-group">
                 <label class="form-label">Password Lama <span class="required">*</span></label>
-                <input class="form-input" type="password" name="password_lama"
-                    placeholder="••••••••">
+                <input type="password" name="password_lama"
+                    placeholder="••••••••"  class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} ">
+            
                 @error('password_lama')
-                <div style="font-size:12px; color:#DC2626; margin-top:4px;">{{ $message }}</div>
+                <div class="form-error">{{ $message }}</div>
                 @enderror
             </div>
 
             <div class="form-group">
                 <label class="form-label">Password Baru <span class="required">*</span></label>
-                <input class="form-input" type="password" name="password_baru"
-                    placeholder="Min. 8 karakter">
+                <input type="password" name="password_baru"
+                    placeholder="Min. 8 karakter" class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} " >
+
+                @error('password_baru')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label class="form-label">Konfirmasi Password Baru <span class="required">*</span></label>
-                <input class="form-input" type="password" name="password_baru_confirmation"
-                    placeholder="Ulangi password baru">
+                <input type="password" name="password_baru_confirmation"
+                    placeholder="Ulangi password baru" class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} ">
+
+                @error('password_baru_confirmation')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
             </div>
 
             <div style="background:var(--surface2); border-radius:8px; padding:12px 14px; margin-bottom:18px; font-size:12.5px; color:var(--text-muted); line-height:1.7;">
@@ -120,7 +121,7 @@
                 • Kombinasi huruf dan angka disarankan
             </div>
 
-            <button type="submit" class="btn-primary">🔐 Ubah Password</button>
+            <button type="submit" class="btn-primary"> Ubah Password</button>
         </form>
     </div>
 
@@ -128,7 +129,7 @@
 
 {{-- Info Akun --}}
 <div class="card" style="margin-top:24px;">
-    <div class="card-title" style="margin-bottom:16px;">📊 Statistik Akun</div>
+    <div class="card-title" style="margin-bottom:16px;">Statistik Akun</div>
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
         <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:10px;">
             <div style="font-size:24px; font-weight:800; color:var(--bawaslu-red);">

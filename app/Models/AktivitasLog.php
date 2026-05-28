@@ -41,15 +41,16 @@ class AktivitasLog extends Model
     public function getAksiIkonAttribute(): string
     {
         return match ($this->aksi) {
-            'unggah'  => '⬆️',
-            'unduh'   => '⬇️',
-            'lihat'   => '👁',
-            'edit'    => '✏️',
-            'hapus'   => '🗑️',
-            'setujui' => '✅',
-            'tolak'   => '❌',
-            'revisi'  => '🔄',
-            default   => '📋',
+            'unggah'  => asset('img/unggah.png'),
+            'unduh'   => asset('img/unduh.png'),
+            'lihat'   => asset('img/pratinjau.png'),
+            'edit'    => asset('img/edit.png'),
+            'hapus'   => asset('img/hapus.png'),
+            'setujui' => asset('img/persetujuan.png'),
+            'tolak'   => asset('img/tolak.png'),
+            'revisi'  => asset('img/revisi.png'),
+            'pulihkan' => asset('img/pulihkan.png'),
+            default   => asset('img/berkas.png'),
         };
     }
 

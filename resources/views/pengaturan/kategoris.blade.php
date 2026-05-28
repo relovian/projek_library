@@ -8,12 +8,11 @@
     <p>Tambah, ubah, atau hapus kategori dokumen arsip</p>
 </div>
 
-{{-- Hanya tampilkan session success --}}
-@if(session('success'))
-<div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:12px 16px; margin-bottom:24px; font-size:13px; color:#059669;">
-    ✅ {{ session('success') }}
+<div style="margin-bottom: 20px;">
+    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+        Kembali ke Pengaturan
+    </a>
 </div>
-@endif
 
 <div style="display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start;">
 
@@ -57,7 +56,7 @@
                             <a href="{{ route('pengaturan.kategoris', ['edit' => $kat->id]) }}" 
                                class="tbl-btn" 
                                title="Edit"
-                               style="cursor:pointer; text-decoration:none; display:inline-block;">✏️</a>
+                               style="cursor:pointer; text-decoration:none; display:flex; align-items: center;">✏️</a>
                             
                             @if($kat->arsips_count == 0)
                             <form method="POST" action="{{ route('pengaturan.kategoris.destroy', $kat) }}"
@@ -73,7 +72,9 @@
                 <tr>
                     <td colspan="5">
                         <div class="empty-state">
-                            <div class="empty-icon">🏷️</div>
+                            <div class="empty-icon">
+                                <img src="{{ asset('img/category.png') }}" alt="">
+                            </div>
                             <p>Belum ada kategori. Tambahkan kategori pertama.</p>
                         </div>
                     </td>
@@ -87,11 +88,11 @@
     <div class="card" id="formCard">
         <div class="card-title" style="margin-bottom:20px;" id="formTitle">
             @if(request()->has('edit') && $editKategori = \App\Models\Kategori::find(request()->get('edit')))
-                ✏️ Edit Kategori: {{ $editKategori->nama }}
+                Edit Kategori: {{ $editKategori->nama }}
             @elseif(old('_method') == 'PUT')
-                ✏️ Edit Kategori
+                Edit Kategori
             @else
-                ➕ Tambah Kategori
+                Tambah Kategori
             @endif
         </div>
 
@@ -177,11 +178,11 @@
             </div>
 
             <div style="display:flex; gap:10px;">
-                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">💾 Simpan</button>
+                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;">Simpan</button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.kategoris') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">❌ Batal</a>
+                <a href="{{ route('pengaturan.kategoris') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">Batal</a>
                 @endif
-                <button type="button" class="btn-sm btn-view" onclick="resetForm()" style="padding:8px 16px;">🔄 Reset</button>
+                <button type="button" class="btn-sm btn-view" onclick="resetForm()" style="padding:8px 16px;">Reset</button>
             </div>
         </form>
     </div>
