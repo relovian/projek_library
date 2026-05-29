@@ -84,6 +84,9 @@ Route::middleware(['auth'])->group(function () {
 
         // notifikasi
         Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
+        Route::get('/notifikasi',  [PengaturanController::class, 'notifikasi'])->name('notifikasi');
+        Route::put('/notifikasi',  [PengaturanController::class, 'updateNotifikasi'])->name('notifikasi.update');
+ 
 
         Route::get('/backup',                    [PengaturanController::class, 'backup'])->name('backup')->middleware('role:admin');
         Route::post('/backup/database',          [PengaturanController::class, 'backupDatabase'])->name('backup.database')->middleware('role:admin');

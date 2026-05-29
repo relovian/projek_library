@@ -2073,11 +2073,20 @@
 
                     {{-- Menunggu Persetujuan --}}
                     @php
-                        $arsipMenunggu = \App\Models\Arsip::with(['uploader','divisi'])
-                            ->menunggu()->latest()->take(4)->get();
-                        $aktivitasTerbaru = \App\Models\AktivitasLog::with(['user','arsip'])
-                            ->where('user_id', auth()->id())
-                            ->latest()->take(3)->get();
+                        $user = auth()->user();
+
+                        $arsipMenunggu = collect();
+                        if ($user->notif_menunggu_persetujuan) {
+                            $arsipMenunggu = \App\Models\Arsip::with(['uploader','divisi'])
+                                ->menunggu()->latest()->take(4)->get();
+                        }
+
+                        $aktivitasTerbaru = collect();
+                        if ($user->notif_arsip_baru || $user->notif_arsip_disetujui || $user->notif_arsip_ditolak) {
+                            $aktivitasTerbaru = \App\Models\AktivitasLog::with(['user','arsip'])
+                                ->where('user_id', auth()->id())
+                                ->latest()->take(3)->get();
+                        }
                     @endphp
 
                     @if($arsipMenunggu->count() > 0)

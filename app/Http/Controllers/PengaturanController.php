@@ -302,7 +302,21 @@ class PengaturanController extends Controller
 
     public function notifikasi()
     {
-        return view('pengaturan.notifikasi');
+        return view('pengaturan.notifikasi', ['user' => auth()->user()]);
+    }
+    
+    // ── Update Preferensi Notifikasi ──────────────────────
+    public function updateNotifikasi(Request $request)
+    {
+        auth()->user()->update([
+            'notif_arsip_baru'             => $request->boolean('notif_arsip_baru'),
+            'notif_arsip_disetujui'        => $request->boolean('notif_arsip_disetujui'),
+            'notif_arsip_ditolak'          => $request->boolean('notif_arsip_ditolak'),
+            'notif_menunggu_persetujuan'   => $request->boolean('notif_menunggu_persetujuan'),
+            'notif_revisi_dokumen'         => $request->boolean('notif_revisi_dokumen'),
+        ]);
+    
+        return back()->with('success', 'Preferensi notifikasi berhasil disimpan.');
     }
 
     public function backup()
