@@ -2,27 +2,6 @@
 @section('title', 'Notifikasi')
 @section('breadcrumb', 'Pengaturan / Notifikasi')
 
-@push('styles')
-<style>
-    .notif-grid        { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
-    .notif-item        { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); }
-    .notif-item:last-child { border:none; }
-    .notif-info        { display:flex; align-items:center; gap:12px; }
-    .notif-icon        { width:36px; height:36px; border-radius:8px; background:var(--surface2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .notif-icon img    { width:20px; height:20px; }
-    .notif-label       { font-size:13.5px; font-weight:500; color:var(--text); }
-    .notif-sub         { font-size:12px; color:var(--text-muted); margin-top:2px; }
-
-    /* Toggle switch */
-    .switch            { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
-    .switch input      { opacity:0; width:0; height:0; }
-    .slider            { position:absolute; cursor:pointer; inset:0; background:#d1d5db; border-radius:24px; transition:.3s; }
-    .slider::before    { content:''; position:absolute; width:18px; height:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
-    input:checked + .slider            { background:var(--bawaslu-red, #9b1c1c); }
-    input:checked + .slider::before   { transform:translateX(20px); }
-</style>
-@endpush
-
 @section('content')
 <div class="page-header">
     <h1>Pengaturan Notifikasi</h1>
@@ -31,14 +10,9 @@
 
 <div style="margin-bottom:20px;">
     <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration:none;">
-        ← Kembali ke Pengaturan
+        Kembali ke Pengaturan
     </a>
 </div>
-
-{{-- Flash message --}}
-@if(session('success'))
-<div class="alert alert-success" style="margin-bottom:16px;">✅ {{ session('success') }}</div>
-@endif
 
 <form action="{{ route('pengaturan.notifikasi.update') }}" method="POST">
     @csrf

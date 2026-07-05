@@ -1849,85 +1849,100 @@
             display: block;
         }
 
-        .notif-item {
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 16px 0; 
-            border-bottom: 1px solid var(--border);
+        .notif-grid { 
+            display:grid; 
+            grid-template-columns:1fr 1fr; 
+            gap:24px; 
+            align-items:start; 
+        }
+
+        .notif-item { 
+            display:flex; 
+            align-items:center; 
+            justify-content:space-between; 
+            padding:14px 0; 
+            border-bottom:1px solid var(--border); 
+        }
+
+        .notif-item:last-child { 
+            border:none; 
         }
 
         .notif-info { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
+            display:flex; 
+            align-items:center; 
+            gap:12px; 
         }
 
         .notif-icon { 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 10px; 
-            background: var(--surface2); display: flex; 
-            align-items: center; 
-            justify-content: center;
+            width:36px; 
+            height:36px; 
+            border-radius:8px; 
+            background:var(--surface2); 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            flex-shrink:0; 
         }
 
         .notif-icon img { 
-            width: 20px; 
-            height: 20px; 
+            width:20px; 
+            height:20px; 
         }
 
-        .notif-label { 
-            font-size: 13.5px; 
-            font-weight: 600; 
+        .notif-label  { 
+            font-size:13.5px; 
+            font-weight:500; 
+            color:var(--text); 
         }
 
         .notif-sub { 
-            font-size: 12px; 
-            color: var(--text-muted); 
-            margin-top: 2px; 
+            font-size:12px; 
+            color:var(--text-muted); 
+            margin-top:2px; 
         }
-    
+
+        /* Toggle switch */
         .switch { 
-            position: relative; 
-            display: inline-block; 
-            width: 44px; 
-            height: 24px; 
+            position:relative; 
+            display:inline-block; 
+            width:44px; height:24px; 
+            flex-shrink:0; 
         }
 
         .switch input { 
-            opacity: 0; 
-            width: 0; 
-            height: 0; 
+            opacity:0; 
+            width:0; 
+            height:0; 
         }
 
-        .slider {
-            position: absolute; 
-            cursor: pointer; 
-            inset: 0; 
-            background: #ccc; 
-            border-radius: 24px; 
-            transition: .3s;
+        .slider { 
+            position:absolute; 
+            cursor:pointer; 
+            inset:0; 
+            background:#d1d5db; 
+            border-radius:24px; 
+            transition:.3s; 
         }
 
-        .slider:before {
-            position: absolute; 
-            content: ""; 
-            height: 18px; 
-            width: 18px; 
-            left: 3px; 
-            bottom: 3px; 
-            background: white; 
-            border-radius: 50%; 
-            transition: .3s;
+        .slider::before    { 
+            content:''; 
+            position:absolute;
+            width:18px; 
+            height:18px; 
+            left:3px; 
+            bottom:3px; 
+            background:#fff; 
+            border-radius:50%; 
+            transition:.3s; 
         }
 
         input:checked + .slider { 
-            background: var(--bawaslu-red); 
+            background:var(--bawaslu-red, #9b1c1c); 
         }
 
-        input:checked + .slider:before { 
-            transform: translateX(20px); 
+        input:checked + .slider::before { 
+            transform:translateX(20px); 
         }
 
         @media (max-width: 1100px) {
@@ -2075,16 +2090,25 @@
                     @php
                         $user = auth()->user();
 
+                        // Hanya tampilkan arsip menunggu kalau preferensi aktif
                         $arsipMenunggu = collect();
                         if ($user->notif_menunggu_persetujuan) {
                             $arsipMenunggu = \App\Models\Arsip::with(['uploader','divisi'])
                                 ->menunggu()->latest()->take(4)->get();
                         }
 
+                        // Filter aktivitas berdasarkan preferensi yang aktif
+                        $aksiFilter = [];
+                        if ($user->notif_arsip_baru)      $aksiFilter[] = 'unggah';
+                        if ($user->notif_arsip_disetujui) $aksiFilter[] = 'setujui';
+                        if ($user->notif_arsip_ditolak)   $aksiFilter[] = 'tolak';
+                        if ($user->notif_revisi_dokumen)  $aksiFilter[] = 'revisi';
+
                         $aktivitasTerbaru = collect();
-                        if ($user->notif_arsip_baru || $user->notif_arsip_disetujui || $user->notif_arsip_ditolak) {
+                        if (!empty($aksiFilter)) {
                             $aktivitasTerbaru = \App\Models\AktivitasLog::with(['user','arsip'])
-                                ->where('user_id', auth()->id())
+                                ->where('user_id', $user->id)
+                                ->whereIn('aksi', $aksiFilter)
                                 ->latest()->take(3)->get();
                         }
                     @endphp

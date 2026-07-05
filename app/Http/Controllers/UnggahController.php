@@ -23,23 +23,133 @@ class UnggahController extends Controller
         return view('unggah.create', compact('kategoris', 'divisis', 'drafts'));
     }
 
-    // ── Simpan Arsip ─────────────────────────────────────
+    // ── Edit Draft ───────────────────────────────────────
+    public function editDraft(Arsip $arsip)
+    {
+        // Pastikan hanya draft milik user sendiri yang bisa diedit
+        if ($arsip->status !== 'draft' || $arsip->uploader_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
+        }
+
+        $kategoris = Kategori::where('is_aktif', true)->get();
+        $divisis   = Divisi::where('is_aktif', true)->get();
+        $drafts    = Arsip::draft()->byUser(auth()->id())->latest()->get();
+
+        return view('unggah.create', compact('kategoris', 'divisis', 'drafts', 'arsip'));
+    }
+
+    // ── Update Draft ─────────────────────────────────────
+    public function updateDraft(Request $request, Arsip $arsip)
+    {
+        // Pastikan hanya draft milik user sendiri yang bisa diupdate
+        if ($arsip->status !== 'draft' || $arsip->uploader_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
+        }
+
+        $request->validate([
+            'judul'           => 'required|string|max:255',
+            'kategori_id'     => 'required|exists:kategori,id',
+            'divisi_id'       => 'required|exists:divisi,id',
+            'tanggal_dokumen' => 'required|date',
+            'nomor_surat'     => 'required|string|max:100',
+            'periode_pemilu'  => 'required|string|max:50',
+            'tags'            => 'required|string|max:255',
+            'deskripsi'       => 'nullable|string',
+            'tingkat_akses'   => 'required|in:publik_internal,divisi,pimpinan,rahasia',
+            'file'            => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
+            'aksi'            => 'required|in:kirim,draft',
+        ], [
+            'judul.required'           => 'Judul arsip wajib diisi.',
+            'judul.max'                => 'Judul maksimal 255 karakter.',
+            'kategori_id.required'     => 'Silakan pilih kategori arsip.',
+            'kategori_id.exists'       => 'Kategori yang dipilih tidak valid.',
+            'divisi_id.required'       => 'Silakan pilih divisi terkait.',
+            'divisi_id.exists'         => 'Divisi yang dipilih tidak valid.',
+            'tanggal_dokumen.required' => 'Tanggal dokumen wajib diisi.',
+            'tanggal_dokumen.date'     => 'Format tanggal tidak valid.',
+            'tingkat_akses.required'   => 'Tingkat akses wajib dipilih.',
+            'tingkat_akses.in'         => 'Pilihan tingkat akses tidak valid.',
+            'file.file'                => 'Data yang diunggah harus berupa file.',
+            'file.max'                 => 'Ukuran file maksimal 50 MB.',
+            'file.mimes'               => 'Format file tidak didukung (gunakan: pdf, doc, docx, xls, xlsx, jpg, jpeg, png).',
+            'nomor_surat.required'     => 'Nomor surat wajib diisi.',
+            'nomor_surat.max'          => 'Nomor surat maksimal 100 karakter.',
+            'periode_pemilu.required'  => 'Periode pemilu wajib diisi.',
+            'periode_pemilu.max'       => 'Periode pemilu maksimal 50 karakter.',
+            'tags.required'            => 'Tags wajib diisi.',
+            'tags.max'                 => 'Tags maksimal 255 karakter.',
+        ]);
+
+        DB::transaction(function () use ($request, $arsip) {
+            $status = $request->aksi === 'draft' ? 'draft' : 'menunggu';
+
+            // Update metadata arsip
+            $arsip->update([
+                'judul'           => $request->judul,
+                'deskripsi'       => $request->deskripsi,
+                'nomor_surat'     => $request->nomor_surat,
+                'kategori_id'     => $request->kategori_id,
+                'divisi_id'       => $request->divisi_id,
+                'tanggal_dokumen' => $request->tanggal_dokumen,
+                'periode_pemilu'  => $request->periode_pemilu,
+                'status'          => $status,
+                'tingkat_akses'   => $request->tingkat_akses,
+                'tags'            => $request->tags,
+            ]);
+
+            // Kalau ada file baru diunggah, ganti file lama
+            if ($request->hasFile('file')) {
+                // Hapus file lama
+                $fileLama = $arsip->files()->first();
+                if ($fileLama && Storage::disk('local')->exists($fileLama->path)) {
+                    Storage::disk('local')->delete($fileLama->path);
+                    $fileLama->delete();
+                }
+
+                // Simpan file baru
+                $file     = $request->file('file');
+                $ekstensi = $file->getClientOriginalExtension();
+                $namaSimp = $arsip->kode_arsip . '_v' . $arsip->versi . '.' . $ekstensi;
+                $path     = $file->storeAs('arsip/' . date('Y/m'), $namaSimp, 'local');
+
+                ArsipFile::create([
+                    'arsip_id'    => $arsip->id,
+                    'nama_asli'   => $file->getClientOriginalName(),
+                    'nama_simpan' => $namaSimp,
+                    'path'        => $path,
+                    'mime_type'   => $file->getMimeType(),
+                    'ekstensi'    => $ekstensi,
+                    'ukuran'      => $file->getSize(),
+                ]);
+            }
+
+            AktivitasLog::catat('edit', $arsip->id, "Memperbarui draft: {$arsip->judul}");
+        });
+
+        $pesan = $request->aksi === 'draft'
+            ? 'Draft berhasil diperbarui.'
+            : 'Arsip berhasil dikirim dan menunggu persetujuan.';
+
+        return redirect()->route('arsip.index')->with('success', $pesan);
+    }
+
+    // ── Simpan Arsip Baru ─────────────────────────────────────
     public function store(Request $request)
     {
         $request->validate([
             'judul'           => 'required|string|max:255',
-            'kategori_id'     => 'required|exists:kategori,id', 
-            'divisi_id'       => 'required|exists:divisi,id',    
+            'kategori_id'     => 'required|exists:kategori,id',
+            'divisi_id'       => 'required|exists:divisi,id',
             'tanggal_dokumen' => 'required|date',
-            'nomor_surat'     => 'required|string|max:100', 
-            'periode_pemilu'  => 'required|string|max:50', // Tambahan validasi
-            'tags'            => 'required|string|max:255', // Tambahan validasi
-            'deskripsi'       => 'nullable|string',        // Tambahan validasi
+            'nomor_surat'     => 'required|string|max:100',
+            'periode_pemilu'  => 'required|string|max:50',
+            'tags'            => 'required|string|max:255',
+            'deskripsi'       => 'nullable|string',
             'arsip_induk_id'  => 'nullable|exists:arsip,id',
             'tingkat_akses'   => 'required|in:publik_internal,divisi,pimpinan,rahasia',
             'file'            => 'required|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png',
             'aksi'            => 'required|in:kirim,draft',
-        ], [    
+        ], [
             'judul.required'           => 'Judul arsip wajib diisi.',
             'judul.max'                => 'Judul maksimal 255 karakter.',
             'kategori_id.required'     => 'Silakan pilih kategori arsip.',
@@ -55,11 +165,11 @@ class UnggahController extends Controller
             'file.max'                 => 'Ukuran file maksimal 50 MB.',
             'file.mimes'               => 'Format file tidak didukung (gunakan: pdf, doc, docx, xls, xlsx, jpg, jpeg, png).',
             'aksi.required'            => 'Status aksi tidak ditemukan.',
+            'nomor_surat.required'     => 'Nomor surat wajib diisi.',
             'nomor_surat.max'          => 'Nomor surat maksimal 100 karakter.',
-            'nomor_surat.required'          => 'Nomor surat wajib diisi.',
+            'periode_pemilu.required'  => 'Periode pemilu wajib diisi.',
             'periode_pemilu.max'       => 'Periode pemilu maksimal 50 karakter.',
-            'periode_pemilu.required'       => 'Periode pemilu wajib diisi.',
-            'tags.required'       => 'Tags wajib diisi.',
+            'tags.required'            => 'Tags wajib diisi.',
             'tags.max'                 => 'Tags maksimal 255 karakter.',
         ]);
 
@@ -86,19 +196,19 @@ class UnggahController extends Controller
             ]);
 
             // Simpan file
-            $file      = $request->file('file');
-            $ekstensi  = $file->getClientOriginalExtension();
-            $namaSimp  = $arsip->kode_arsip . '_v' . $arsip->versi . '.' . $ekstensi;
-            $path = $file->storeAs('arsip/' . date('Y/m'), $namaSimp, 'local');
+            $file     = $request->file('file');
+            $ekstensi = $file->getClientOriginalExtension();
+            $namaSimp = $arsip->kode_arsip . '_v' . $arsip->versi . '.' . $ekstensi;
+            $path     = $file->storeAs('arsip/' . date('Y/m'), $namaSimp, 'local');
 
             ArsipFile::create([
-                'arsip_id'   => $arsip->id,
-                'nama_asli'  => $file->getClientOriginalName(),
-                'nama_simpan'=> $namaSimp,
-                'path'       => $path,
-                'mime_type'  => $file->getMimeType(),
-                'ekstensi'   => $ekstensi,
-                'ukuran'     => $file->getSize(),
+                'arsip_id'    => $arsip->id,
+                'nama_asli'   => $file->getClientOriginalName(),
+                'nama_simpan' => $namaSimp,
+                'path'        => $path,
+                'mime_type'   => $file->getMimeType(),
+                'ekstensi'    => $ekstensi,
+                'ukuran'      => $file->getSize(),
             ]);
 
             $aksi = $request->arsip_induk_id ? 'revisi' : 'unggah';

@@ -107,8 +107,8 @@ class ArsipController extends Controller
 
         $request->validate([
             'judul'           => 'required|string|max:255',
-            'kategori_id'     => 'required|exists:kategoris,id',
-            'divisi_id'       => 'required|exists:divisis,id',
+            'kategori_id'     => 'required|exists:kategori,id',
+            'divisi_id'       => 'required|exists:divisi,id',
             'tanggal_dokumen' => 'required|date',
             'tingkat_akses'   => 'required|in:publik_internal,divisi,pimpinan,rahasia',
         ]);

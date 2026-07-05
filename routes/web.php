@@ -95,4 +95,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/maintenance/log',          [PengaturanController::class, 'clearLog'])->name('maintenance.log')->middleware('role:admin');
         Route::post('/maintenance/draft',        [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');
     });
+
+    Route::prefix('unggah')->name('unggah.')->group(function () {
+        Route::get('/',                    [UnggahController::class, 'create'])->name('create');
+        Route::post('/',                   [UnggahController::class, 'store'])->name('store');
+
+        // ← Tambahkan 2 route ini
+        Route::get('/draft/{arsip}/edit',  [UnggahController::class, 'editDraft'])->name('draft.edit');
+        Route::put('/draft/{arsip}',       [UnggahController::class, 'updateDraft'])->name('draft.update');
+    });
 });
