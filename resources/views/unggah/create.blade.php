@@ -159,19 +159,19 @@
 
                 {{-- Info file lama kalau edit draft --}}
                 @if(isset($arsip) && $arsip->file_pertama)
-                <div class="flex items-center gap-[10px] bg-[#f0fdf4] border border-solid border-[#bbf7d0] rounded-lg px-2 py-3 text-xs text-[#15803d] mt-2">
-                    <img src="{{ $arsip->file_pertama->ikon ?? asset('img/berkas.png') }}" width="20" alt="">
-                    <span>File saat ini: <strong>{{ $arsip->file_pertama->nama_asli }}</strong></span>
-                    <span class="text-abu text-sm ">({{ $arsip->file_pertama->ukuran_format }})</span>
-                </div>
-                <p class="text-xs text-abu mt-2">
-                    Biarkan kosong jika tidak ingin mengganti file.
-                </p>
+                    <div class="flex items-center gap-[10px] bg-[#f0fdf4] border border-solid border-[#bbf7d0] rounded-lg px-2 py-3 text-xs text-[#15803d] mt-2">
+                        <img src="{{ $arsip->file_pertama->ikon ?? asset('img/berkas.png') }}" width="20" alt="">
+                        <span>File saat ini: <strong>{{ $arsip->file_pertama->nama_asli }}</strong></span>
+                        <span class="text-abu text-sm ">({{ $arsip->file_pertama->ukuran_format }})</span>
+                    </div>
+                    <p class="text-xs text-abu mt-2">
+                        Biarkan kosong jika tidak ingin mengganti file.
+                    </p>
                 @endif
 
                 <div class="border-2 border-dashed border-border rounded-[14px] py-12 text-center cursor-pointer transition-colors duration-200 hover:border-bawaslu-red hover:bg-[#FEF2F2] bg-surface2" onclick="document.getElementById('fileInput').click()">
                     <div class="text-5xl mb-4">
-                        <img src="{{ asset('img/folder_kosong.png') }}" class="mx-auto" alt="">
+                        <img id="folderIcon" src="{{ asset('img/folder_kosong.png') }}" class="mx-auto" alt="">
                     </div>
                     <h3 class="text-base font-bold mb-1.5">Seret & Jatuhkan File</h3>
                     <p class="text-[13px] text-abu">atau klik untuk pilih file</p>
@@ -186,7 +186,7 @@
                 </div>
                 <input type="file" id="fileInput" name="file" class="hidden"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                    onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? 'Maks. 50 MB per file'">
+                    onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? 'Maks. 50 MB per file'; document.getElementById('folderIcon').src = this.files[0] ? '{{ asset('img/folder_open.png') }}' : '{{ asset('img/folder_kosong.png') }}'">
                 @error('file')
                     <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
