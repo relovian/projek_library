@@ -22,12 +22,20 @@ Route::middleware(['auth'])->group(function () {
 
     // Arsip
     Route::prefix('arsip')->name('arsip.')->group(function () {
-        Route::get('/',             [ArsipController::class, 'index'])->name('index');
-        Route::get('/{arsip}',      [ArsipController::class, 'show'])->name('show');
-        Route::get('/{arsip}/edit', [ArsipController::class, 'edit'])->name('edit');
-        Route::put('/{arsip}',      [ArsipController::class, 'update'])->name('update');
-        Route::delete('/{arsip}',   [ArsipController::class, 'destroy'])->name('destroy');
-        Route::get('/{arsip}/unduh',[ArsipController::class, 'download'])->name('download');
+        Route::get('/',                    [ArsipController::class, 'index'])->name('index');
+        
+        // ← taruh semua route statis DI SINI, sebelum {arsip}
+        Route::get('/trash',               [ArsipController::class, 'trash'])->name('trash');
+        Route::delete('/empty-trash',      [ArsipController::class, 'emptyTrash'])->name('empty-trash');
+        Route::patch('/{id}/restore',      [ArsipController::class, 'restore'])->name('restore');
+        Route::delete('/{id}/force-delete',[ArsipController::class, 'forceDelete'])->name('force-delete');
+
+        // ← baru route dinamis {arsip} di bawah
+        Route::get('/{arsip}',             [ArsipController::class, 'show'])->name('show');
+        Route::get('/{arsip}/edit',        [ArsipController::class, 'edit'])->name('edit');
+        Route::put('/{arsip}',             [ArsipController::class, 'update'])->name('update');
+        Route::delete('/{arsip}',          [ArsipController::class, 'destroy'])->name('destroy');
+        Route::get('/{arsip}/unduh',       [ArsipController::class, 'download'])->name('download');
     });
 
     // Unggah
@@ -76,12 +84,26 @@ Route::middleware(['auth'])->group(function () {
 
         // notifikasi
         Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
-
+        Route::get('/notifikasi',  [PengaturanController::class, 'notifikasi'])->name('notifikasi');
+        Route::put('/notifikasi',  [PengaturanController::class, 'updateNotifikasi'])->name('notifikasi.update');
+ 
+        // backup
         Route::get('/backup',                    [PengaturanController::class, 'backup'])->name('backup')->middleware('role:admin');
         Route::post('/backup/database',          [PengaturanController::class, 'backupDatabase'])->name('backup.database')->middleware('role:admin');
         Route::post('/backup/files',             [PengaturanController::class, 'backupFiles'])->name('backup.files')->middleware('role:admin');
+        Route::get('/backup/download/{filename}', [PengaturanController::class, 'downloadBackup'])->name('backup.download')->middleware('role:admin');
+        Route::delete('/backup/{filename}',       [PengaturanController::class, 'destroyBackup'])->name('backup.destroy')->middleware('role:admin');
         Route::post('/maintenance/cache',        [PengaturanController::class, 'clearCache'])->name('maintenance.cache')->middleware('role:admin');
         Route::post('/maintenance/log',          [PengaturanController::class, 'clearLog'])->name('maintenance.log')->middleware('role:admin');
         Route::post('/maintenance/draft',        [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');
+    });
+
+    Route::prefix('unggah')->name('unggah.')->group(function () {
+        Route::get('/',                    [UnggahController::class, 'create'])->name('create');
+        Route::post('/',                   [UnggahController::class, 'store'])->name('store');
+
+        // ← Tambahkan 2 route ini
+        Route::get('/draft/{arsip}/edit',  [UnggahController::class, 'editDraft'])->name('draft.edit');
+        Route::put('/draft/{arsip}',       [UnggahController::class, 'updateDraft'])->name('draft.update');
     });
 });

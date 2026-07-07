@@ -35,11 +35,11 @@ class ArsipFile extends Model
     public function getIkonAttribute(): string
     {
         return match ($this->ekstensi) {
-            'pdf'  => '📕',
-            'docx', 'doc' => '📘',
-            'xlsx', 'xls' => '📗',
-            'jpg', 'jpeg', 'png' => '🖼️',
-            default => '📄',
+            'pdf'  => asset('img/buku_merah.png'),
+            'docx', 'doc' => asset('img/buku_biru.png'),
+            'xlsx', 'xls' => asset('img/buku_hijau.png'),
+            'jpg', 'jpeg', 'png' => asset('img/foto.png'),
+            default => asset('img/berkas.png'),
         };
     }
 }

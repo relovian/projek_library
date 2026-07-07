@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 
 class ArsipController extends Controller
 {
-
     // ── Index (Daftar Arsip) ─────────────────────────────
     public function index(Request $request)
     {
@@ -21,7 +20,7 @@ class ArsipController extends Controller
 
         // Filter berdasarkan role — staff hanya lihat divisi sendiri dan publik
         $user = auth()->user();
-        if ($user->isStaff()) {
+        if ($user->role === 'staff') {
             $query->where(function ($q) use ($user) {
                 $q->where('divisi_id', $user->divisi_id)
                   ->orWhere('tingkat_akses', 'publik_internal');
@@ -58,10 +57,10 @@ class ArsipController extends Controller
             $query->where('uploader_id', $user->id);
         }
 
-        $arsips     = $query->latest()->paginate(15)->withQueryString();
-        $kategoris  = Kategori::where('is_aktif', true)->get();
-        $divisis    = Divisi::where('is_aktif', true)->get();
-        $tahunList  = Arsip::selectRaw('YEAR(tanggal_dokumen) as tahun')
+        $arsips    = $query->latest()->paginate(15)->withQueryString();
+        $kategoris = Kategori::where('is_aktif', true)->get();
+        $divisis   = Divisi::where('is_aktif', true)->get();
+        $tahunList = Arsip::selectRaw('YEAR(tanggal_dokumen) as tahun')
                         ->distinct()->orderByDesc('tahun')->pluck('tahun');
 
         return view('arsip.index', compact('arsips', 'kategoris', 'divisis', 'tahunList'));
@@ -86,7 +85,12 @@ class ArsipController extends Controller
     // ── Edit (Form) ──────────────────────────────────────
     public function edit(Arsip $arsip)
     {
-        $this->authorize('update', $arsip);
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
+        }
+
         $kategoris = Kategori::where('is_aktif', true)->get();
         $divisis   = Divisi::where('is_aktif', true)->get();
         return view('arsip.edit', compact('arsip', 'kategoris', 'divisis'));
@@ -95,14 +99,18 @@ class ArsipController extends Controller
     // ── Update ───────────────────────────────────────────
     public function update(Request $request, Arsip $arsip)
     {
-        $this->authorize('update', $arsip);
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
+        }
 
         $request->validate([
-            'judul'          => 'required|string|max:255',
-            'kategori_id'    => 'required|exists:kategoris,id',
-            'divisi_id'      => 'required|exists:divisis,id',
-            'tanggal_dokumen'=> 'required|date',
-            'tingkat_akses'  => 'required|in:publik_internal,divisi,pimpinan,rahasia',
+            'judul'           => 'required|string|max:255',
+            'kategori_id'     => 'required|exists:kategori,id',
+            'divisi_id'       => 'required|exists:divisi,id',
+            'tanggal_dokumen' => 'required|date',
+            'tingkat_akses'   => 'required|in:publik_internal,divisi,pimpinan,rahasia',
         ]);
 
         $arsip->update($request->only([
@@ -111,19 +119,99 @@ class ArsipController extends Controller
             'tingkat_akses', 'tags',
         ]));
 
-        
-
         AktivitasLog::catat('edit', $arsip->id, "Memperbarui metadata: {$arsip->judul}");
 
         return redirect()->route('arsip.show', $arsip)->with('success', 'Arsip berhasil diperbarui.');
     }
 
-    // ── Destroy ──────────────────────────────────────────
+    // ── Destroy (Soft Delete → Trash) ────────────────────
     public function destroy(Arsip $arsip)
     {
-        $this->authorize('delete', $arsip);
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus arsip ini.');
+        }
+
         AktivitasLog::catat('hapus', $arsip->id, "Menghapus dokumen: {$arsip->judul}");
         $arsip->delete();
-        return redirect()->route('arsip.index')->with('success', 'Arsip berhasil dihapus.');
+
+        return redirect()->route('arsip.index')->with('success', 'Arsip berhasil dipindahkan ke trash.');
+    }
+
+    // ── Trash (Daftar Arsip Terhapus) ────────────────────
+    public function trash()
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat mengakses halaman trash.');
+        }
+
+        $arsip = Arsip::onlyTrashed()
+            ->with(['kategori', 'divisi', 'uploader'])
+            ->latest('deleted_at')
+            ->paginate(15);
+
+        return view('arsip.trash', compact('arsip'));
+    }
+
+    // ── Restore (Pulihkan dari Trash) ─────────────────────
+    public function restore($id)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat memulihkan arsip.');
+        }
+
+        $arsip = Arsip::onlyTrashed()->findOrFail($id);
+        $arsip->restore();
+
+        AktivitasLog::catat('pulihkan', $arsip->id, "Memulihkan dokumen: {$arsip->judul}");
+
+        return redirect()->route('arsip.trash')
+            ->with('success', 'Arsip "' . $arsip->judul . '" berhasil dipulihkan.');
+    }
+
+    // ── Force Delete (Hapus Permanen) ─────────────────────
+    public function forceDelete($id)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat menghapus arsip secara permanen.');
+        }
+
+        $arsip = Arsip::onlyTrashed()->findOrFail($id);
+
+        foreach ($arsip->files as $file) {
+            if (Storage::exists($file->path)) {
+                Storage::delete($file->path);
+            }
+        }
+
+        AktivitasLog::catat('hapus_permanen', $arsip->id, "Menghapus permanen: {$arsip->judul}");
+        $arsip->forceDelete();
+
+        return redirect()->route('arsip.trash')
+            ->with('success', 'Arsip "' . $arsip->judul . '" berhasil dihapus permanen.');
+    }
+
+    // ── Empty Trash (Kosongkan Semua Trash) ───────────────
+    public function emptyTrash()
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Hanya admin yang dapat mengosongkan trash.');
+        }
+
+        $trashed = Arsip::onlyTrashed()->with('files')->get();
+
+        foreach ($trashed as $arsip) {
+            foreach ($arsip->files as $file) {
+                if (Storage::exists($file->path)) {
+                    Storage::delete($file->path);
+                }
+            }
+            AktivitasLog::catat('hapus_permanen', $arsip->id, "Menghapus permanen: {$arsip->judul}");
+            $arsip->forceDelete();
+        }
+
+        return redirect()->route('arsip.trash')
+            ->with('success', 'Semua arsip di trash berhasil dihapus permanen.');
     }
 }
