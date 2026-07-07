@@ -87,10 +87,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/notifikasi',  [PengaturanController::class, 'notifikasi'])->name('notifikasi');
         Route::put('/notifikasi',  [PengaturanController::class, 'updateNotifikasi'])->name('notifikasi.update');
  
-
+        // backup
         Route::get('/backup',                    [PengaturanController::class, 'backup'])->name('backup')->middleware('role:admin');
         Route::post('/backup/database',          [PengaturanController::class, 'backupDatabase'])->name('backup.database')->middleware('role:admin');
         Route::post('/backup/files',             [PengaturanController::class, 'backupFiles'])->name('backup.files')->middleware('role:admin');
+        Route::get('/backup/download/{filename}', [PengaturanController::class, 'downloadBackup'])->name('backup.download')->middleware('role:admin');
+        Route::delete('/backup/{filename}',       [PengaturanController::class, 'destroyBackup'])->name('backup.destroy')->middleware('role:admin');
         Route::post('/maintenance/cache',        [PengaturanController::class, 'clearCache'])->name('maintenance.cache')->middleware('role:admin');
         Route::post('/maintenance/log',          [PengaturanController::class, 'clearLog'])->name('maintenance.log')->middleware('role:admin');
         Route::post('/maintenance/draft',        [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');

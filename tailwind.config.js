@@ -13,7 +13,19 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                serif: ['Playfair Display', ...defaultTheme.fontFamily.serif],
             },
+            colors: {
+                'bawaslu-red': 'var(--bawaslu-red)',
+                'bawaslu-dark-red': 'var(--bawaslu-dark-red)',
+                'bawaslu-gold': 'var(--bawaslu-gold)', 
+                'bg': 'var(--bg)',
+                'surface': 'var(--surface)',
+                'surface2': 'var(--surface2)',
+                'hitam': 'var(--text)',
+                'abu': 'var(--text-abu)',
+                'border': 'var(--border)',
+            }
         },
     },
 

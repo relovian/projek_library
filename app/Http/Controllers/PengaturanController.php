@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
+use Ifsnop\Mysqldump as MysqlDump;
 
 class PengaturanController extends Controller
 {
@@ -322,34 +323,148 @@ class PengaturanController extends Controller
     public function backup()
     {
         abort_if(!auth()->user()->isAdmin(), 403);
-        return view('pengaturan.backup');
+
+        // Ambil daftar file backup dari folder storage/app/backups
+        $backupDir = storage_path('app/backups');
+        $backups = [];
+
+        if (file_exists($backupDir)) {
+            $files = scandir($backupDir);
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') continue;
+
+                $filePath = $backupDir . '/' . $file;
+                $tipe = str_starts_with($file, 'backup_db_') ? 'database' : 'files';
+                $bytes = filesize($filePath);
+
+                $ukuran = $bytes >= 1073741824
+                    ? round($bytes / 1073741824, 2) . ' GB'
+                    : ($bytes >= 1048576
+                        ? round($bytes / 1048576, 2) . ' MB'
+                        : ($bytes >= 1024
+                            ? round($bytes / 1024, 2) . ' KB'
+                            : $bytes . ' B'));
+
+                $backups[] = [
+                    'nama'   => $file,
+                    'ukuran' => $ukuran,
+                    'waktu'  => date('Y-m-d H:i:s', filemtime($filePath)),
+                    'tipe'   => $tipe,
+                ];
+            }
+
+            // Urutkan dari yang terbaru
+            usort($backups, fn($a, $b) => strtotime($b['waktu']) - strtotime($a['waktu']));
+        }
+
+        return view('pengaturan.backup', compact('backups'));
     }
 
     public function backupDatabase()
     {
         abort_if(!auth()->user()->isAdmin(), 403);
-        // Jalankan backup database
+
         $filename = 'backup_db_' . date('Ymd_His') . '.sql';
         $path = storage_path('app/backups/' . $filename);
-        
+
         if (!file_exists(storage_path('app/backups'))) {
             mkdir(storage_path('app/backups'), 0755, true);
         }
 
-        $db = config('database.connections.mysql');
-        $command = sprintf(
-            'mysqldump -h %s -u %s -p%s %s > %s',
-            $db['host'], $db['username'], $db['password'], $db['database'], $path
-        );
-        exec($command);
+        try {
+            $db = config('database.connections.mysql');
+            $dump = new MysqlDump\Mysqldump(
+                "mysql:host={$db['host']};dbname={$db['database']}",
+                $db['username'],
+                $db['password']
+            );
+            $dump->start($path);
 
-        return back()->with('success', "Backup database berhasil disimpan: {$filename}");
+            return back()->with('success', "Backup database berhasil disimpan: {$filename}");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal backup database: ' . $e->getMessage());
+        }
     }
 
     public function backupFiles()
     {
         abort_if(!auth()->user()->isAdmin(), 403);
-        return back()->with('success', 'Backup file arsip sedang diproses.');
+
+        $filename = 'backup_files_' . date('Ymd_His') . '.zip';
+        $backupDir = storage_path('app/backups');
+        
+        if (!file_exists($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+
+        $zipPath = $backupDir . '/' . $filename;
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return back()->with('error', 'Gagal membuat file backup.');
+        }
+
+        // Ambil semua file arsip dari database
+        $files = \App\Models\ArsipFile::all();
+
+        if ($files->isEmpty()) {
+            $zip->close();
+            unlink($zipPath);
+            return back()->with('error', 'Tidak ada file arsip untuk di-backup.');
+        }
+
+        $totalFiles = 0;
+        foreach ($files as $file) {
+            $filePath = storage_path('app/private/' . $file->path);
+            if (file_exists($filePath)) {
+                // Simpan dengan struktur folder: arsip/tahun/bulan/nama_file
+                $zip->addFile($filePath, $file->path);
+                $totalFiles++;
+            }
+        }
+
+        $zip->close();
+
+        if ($totalFiles === 0) {
+            unlink($zipPath);
+            return back()->with('error', 'Tidak ada file fisik yang ditemukan untuk di-backup.');
+        }
+
+        $size = filesize($zipPath);
+        $sizeFormatted = $size >= 1073741824 
+            ? round($size / 1073741824, 2) . ' GB'
+            : ($size >= 1048576 
+                ? round($size / 1048576, 2) . ' MB' 
+                : round($size / 1024, 2) . ' KB');
+
+        return back()->with('success', "Backup file arsip berhasil: {$filename} ({$sizeFormatted}, {$totalFiles} file)");
+    }
+
+    public function downloadBackup($filename)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403);
+
+        $filePath = storage_path('app/backups/' . $filename);
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File backup tidak ditemukan.');
+        }
+
+        return response()->download($filePath);
+    }
+
+    public function destroyBackup($filename)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403);
+
+        $filePath = storage_path('app/backups/' . $filename);
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File backup tidak ditemukan.');
+        }
+
+        unlink($filePath);
+        return back()->with('success', "Backup {$filename} berhasil dihapus.");
     }
 
     public function clearCache()
@@ -364,8 +479,18 @@ class PengaturanController extends Controller
     public function clearLog()
     {
         abort_if(!auth()->user()->isAdmin(), 403);
-        \App\Models\AktivitasLog::where('created_at', '<', now()->subDays(90))->delete();
-        return back()->with('success', 'Log lama berhasil dihapus.');
+
+        try {
+            $deleted = \App\Models\AktivitasLog::where('created_at', '<', now()->subDays(30))->delete();
+            
+            if ($deleted > 0) {
+                return back()->with('success', "{$deleted} log aktivitas berusia lebih dari 90 hari berhasil dihapus.");
+            } else {
+                return back()->with('success', 'Tidak ada log aktivitas yang berusia lebih dari 90 hari untuk dihapus.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus log aktivitas: ' . $e->getMessage());
+        }
     }
 
     public function clearDraft()
@@ -374,4 +499,5 @@ class PengaturanController extends Controller
         \App\Models\Arsip::draft()->where('updated_at', '<', now()->subDays(30))->delete();
         return back()->with('success', 'Draft kadaluarsa berhasil dihapus.');
     }
+
 }

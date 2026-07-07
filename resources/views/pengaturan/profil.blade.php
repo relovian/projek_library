@@ -3,33 +3,33 @@
 @section('breadcrumb', 'Pengaturan / Profil')
 
 @section('content')
-<div class="page-header">
-    <h1>Profil & Password</h1>
-    <p>Perbarui informasi akun Anda</p>
+<div class="mb-7">
+    <h1 class="font-serif text-[28px] text-hitam mb-1">Profil & Password</h1>
+    <p class="text-[14px] text-abu">Perbarui informasi akun Anda</p>
 </div>
 
-<div style="margin-bottom: 20px;">
-    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+<div class="mt-5">
+    <a href="{{ route('pengaturan.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
         Kembali ke Pengaturan
     </a>
 </div>
 
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+<div class="grid grid-cols-2 gap-[24px] items-start">
 
     {{-- Form Profil --}}
-    <div class="card">
-        <div class="card-title" style="margin-bottom:24px;"> Informasi Profil</div>
+    <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
+        <div class="text-[15px] font-bold mb-6"> Informasi Profil</div>
 
-        <div style="display:flex; align-items:center; gap:20px; margin-bottom:28px; padding-bottom:24px; border-bottom:1px solid var(--border);">
-            <div style="width:72px; height:72px; border-radius:50%; background:var(--bawaslu-red); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff; flex-shrink:0;">
+        <div class="flex items-center gap-[20px] mt-[28px] pb-[24px]">
+            <div class="w-20 h-20 rounded-full bg-bawaslu-red flex items-center justify-center text-4xl font-bold text-white shrink-0 border border-solid border-border">
                 {{ $user->inisial }}
             </div>
             <div>
-                <div style="font-weight:700; font-size:16px;">{{ $user->nama_lengkap }}</div>
-                <div style="color:var(--text-muted); font-size:13px; margin-top:4px;">
+                <div class="font-bold text-base">{{ $user->nama_lengkap }}</div>
+                <div class="text-abu text-xs mt-1">
                     {{ $user->role_label }} · {{ $user->divisi?->nama ?? 'Tanpa Divisi' }}
                 </div>
-                <div style="color:var(--text-muted); font-size:12px; margin-top:2px;">
+                <div class="text-xs text-abu mt-[2px]">
                     NIP: {{ $user->nip ?? '-' }}
                 </div>
             </div>
@@ -39,115 +39,115 @@
             @csrf
             @method('PUT')
 
-            <div class="form-group">
-                <label class="form-label">Nama Lengkap <span class="required">*</span></label>
-                <input class="form-input" type="text" name="nama_lengkap"
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama Lengkap <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="text" name="nama_lengkap"
                     value="{{ old('nama_lengkap', $user->nama_lengkap) }}">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Email <span class="required">*</span></label>
-                <input class="form-input" type="email" name="email"
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Email <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="email" name="email"
                     value="{{ old('email', $user->email) }}">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Telepon</label>
-                <input class="form-input" type="text" name="telepon"
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Telepon</label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="text" name="telepon"
                     value="{{ old('telepon', $user->telepon) }}"
                     placeholder="+62 812-xxxx-xxxx">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">NIP</label>
-                <input class="form-input" type="text" value="{{ $user->nip ?? '-' }}"
-                    readonly style="background:var(--surface2); cursor:not-allowed;">
-                <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">NIP</label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface2 text-hitam outline-none cursor-not-allowed" type="text" value="{{ $user->nip ?? '-' }}"
+                    readonly>
+                <div class="text-xs text-abu mt-1">
                     NIP tidak dapat diubah sendiri. Hubungi Admin.
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary"> Simpan Perubahan</button>
+            <button type="submit" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit]"> Simpan Perubahan</button>
         </form>
     </div>
 
     {{-- Form Password --}}
-    <div class="card">
-        <div class="card-title" style="margin-bottom:24px;"> Ubah Password</div>
+    <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
+        <div class="text-[15px] font-bold mb-6"> Ubah Password</div>
 
         <form method="POST" action="{{ route('pengaturan.password.update') }}">
             @csrf
             @method('PUT')
 
             @if(session('password_success'))
-            <div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#059669;">
+            <div class="bg-[#ECFDF5] border border-solid border-[#A7F3D0] rounded-lg px-2 py-3 mb-4 text-xs text-[#059669]">
                 ✅ {{ session('password_success') }}
             </div>
             @endif
 
-            <div class="form-group">
-                <label class="form-label">Password Lama <span class="required">*</span></label>
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password Lama <span class="text-bawaslu-red">*</span></label>
                 <input type="password" name="password_lama"
-                    placeholder="••••••••"  class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} ">
+                    placeholder="••••••••" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
             
                 @error('password_lama')
-                <div class="form-error">{{ $message }}</div>
+                <div class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Password Baru <span class="required">*</span></label>
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password Baru <span class="text-bawaslu-red">*</span></label>
                 <input type="password" name="password_baru"
-                    placeholder="Min. 8 karakter" class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} " >
+                    placeholder="Min. 8 karakter" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
 
                 @error('password_baru')
-                    <span class="form-error">{{ $message }}</span>
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Konfirmasi Password Baru <span class="required">*</span></label>
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Konfirmasi Password Baru <span class="text-bawaslu-red">*</span></label>
                 <input type="password" name="password_baru_confirmation"
-                    placeholder="Ulangi password baru" class="form-input {{ $errors->has('password_lama') ? 'is-error' : '' }} ">
+                    placeholder="Ulangi password baru" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
 
                 @error('password_baru_confirmation')
-                    <span class="form-error">{{ $message }}</span>
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div style="background:var(--surface2); border-radius:8px; padding:12px 14px; margin-bottom:18px; font-size:12.5px; color:var(--text-muted); line-height:1.7;">
+            <div class="bg-surface2 rounded-lg px-3 py-[14px] mt-[18px] mb-4 text-xs leading-[1.7]">
                 <strong>Syarat password:</strong><br>
                 • Minimal 8 karakter<br>
                 • Kombinasi huruf dan angka disarankan
             </div>
 
-            <button type="submit" class="btn-primary"> Ubah Password</button>
+            <button type="submit" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit]"> Ubah Password</button>
         </form>
     </div>
 
 </div>
 
 {{-- Info Akun --}}
-<div class="card" style="margin-top:24px;">
-    <div class="card-title" style="margin-bottom:16px;">Statistik Akun</div>
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
-        <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:10px;">
-            <div style="font-size:24px; font-weight:800; color:var(--bawaslu-red);">
+<div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px] mt-6">
+    <div class="text-[15px] font-bold mb-4">Statistik Akun</div>
+    <div class="grid grid-cols-3 gap-4">
+        <div class="p-4 bg-surface2 rounded-lg">
+            <div class="text-2xl font-extrabold text-bawaslu-red">
                 {{ auth()->user()->arsips()->count() }}
             </div>
-            <div style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">Total Arsip Diunggah</div>
+            <div class="text-xs text-abu mt-1">Total Arsip Diunggah</div>
         </div>
-        <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:10px;">
-            <div style="font-size:24px; font-weight:800; color:#059669;">
+        <div class="p-4 bg-surface2 rounded-lg">
+            <div class="text-2xl font-extrabold text-[#059669]">
                 {{ auth()->user()->arsips()->where('status','disetujui')->count() }}
             </div>
-            <div style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">Arsip Disetujui</div>
+            <div class="text-xs text-abu mt-1">Arsip Disetujui</div>
         </div>
-        <div style="text-align:center; padding:16px; background:var(--surface2); border-radius:10px;">
-            <div style="font-size:24px; font-weight:800; color:#D97706;">
+        <div class="p-4 bg-surface2 rounded-lg">
+            <div class="text-2xl font-extrabold text-[#D97706]">
                 {{ auth()->user()->arsips()->where('status','menunggu')->count() }}
             </div>
-            <div style="font-size:12.5px; color:var(--text-muted); margin-top:4px;">Menunggu Persetujuan</div>
+            <div class="text-xs text-abu mt-1">Menunggu Persetujuan</div>
         </div>
     </div>
 </div>

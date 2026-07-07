@@ -3,13 +3,13 @@
 @section('breadcrumb', 'Pengaturan / Notifikasi')
 
 @section('content')
-<div class="page-header">
-    <h1>Pengaturan Notifikasi</h1>
-    <p>Atur preferensi notifikasi sistem untuk akun Anda</p>
+<div class="mb-7">
+    <h1 class="font-serif text-[28px] text-hitam mb-1">Pengaturan Notifikasi</h1>
+    <p class="text-[14px] text-abu">Atur preferensi notifikasi sistem untuk akun Anda</p>
 </div>
 
-<div style="margin-bottom:20px;">
-    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration:none;">
+<div class="mb-5">
+    <a href="{{ route('pengaturan.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
         Kembali ke Pengaturan
     </a>
 </div>
@@ -18,19 +18,21 @@
     @csrf
     @method('PUT')
 
-    <div class="notif-grid">
+    <div class="grid grid-cols-[1fr_1fr] gap-6 items-start">
 
         {{-- Notifikasi Sistem --}}
-        <div class="card">
-            <div class="card-title" style="margin-bottom:20px;">Notifikasi Sistem</div>
+        <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
+            <div class="text-[15px] font-bold mb-5">Notifikasi Sistem</div>
 
             {{-- Arsip baru diunggah --}}
-            <div class="notif-item">
-                <div class="notif-info">
-                    <div class="notif-icon"><img src="{{ asset('img/arsip.png') }}" alt=""></div>
+            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('img/arsip.png') }}" class="w-5 h-5" alt="">
+                    </div>
                     <div>
-                        <div class="notif-label">Arsip baru diunggah</div>
-                        <div class="notif-sub">Notifikasi saat ada arsip baru di divisi Anda</div>
+                        <div class="text-[13.5px] font-medium text-hitam">Arsip baru diunggah</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada arsip baru di divisi Anda</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -41,12 +43,14 @@
             </div>
 
             {{-- Arsip disetujui --}}
-            <div class="notif-item">
-                <div class="notif-info">
-                    <div class="notif-icon"><img src="{{ asset('img/persetujuan.png') }}" alt=""></div>
+            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('img/persetujuan.png') }}" class="w-5 h-5" alt="">
+                    </div>
                     <div>
-                        <div class="notif-label">Arsip disetujui</div>
-                        <div class="notif-sub">Notifikasi saat arsip yang Anda unggah disetujui</div>
+                        <div class="text-[13.5px] font-medium text-hitam">Arsip disetujui</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip yang Anda unggah disetujui</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -57,12 +61,14 @@
             </div>
 
             {{-- Arsip ditolak --}}
-            <div class="notif-item">
-                <div class="notif-info">
-                    <div class="notif-icon"><img src="{{ asset('img/tolak.png') }}" alt=""></div>
+            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('img/tolak.png') }}" class="w-5 h-5" alt="">
+                    </div>
                     <div>
-                        <div class="notif-label">Arsip ditolak</div>
-                        <div class="notif-sub">Notifikasi saat arsip yang Anda unggah ditolak</div>
+                        <div class="text-[13.5px] font-medium text-hitam">Arsip ditolak</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip yang Anda unggah ditolak</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -73,12 +79,14 @@
             </div>
 
             {{-- Menunggu persetujuan --}}
-            <div class="notif-item">
-                <div class="notif-info">
-                    <div class="notif-icon"><img src="{{ asset('img/deadline.png') }}" alt=""></div>
+            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('img/deadline.png') }}" class="w-5 h-5" alt="">
+                    </div>
                     <div>
-                        <div class="notif-label">Menunggu persetujuan</div>
-                        <div class="notif-sub">Notifikasi saat ada dokumen menunggu persetujuan Anda</div>
+                        <div class="text-[13.5px] font-medium text-hitam">Menunggu persetujuan</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada dokumen menunggu persetujuan Anda</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -89,12 +97,14 @@
             </div>
 
             {{-- Revisi dokumen --}}
-            <div class="notif-item">
-                <div class="notif-info">
-                    <div class="notif-icon"><img src="{{ asset('img/revisi.png') }}" alt=""></div>
+            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('img/revisi.png') }}" class="w-5 h-5" alt="">
+                    </div>
                     <div>
-                        <div class="notif-label">Revisi dokumen</div>
-                        <div class="notif-sub">Notifikasi saat ada revisi dokumen baru</div>
+                        <div class="text-[13.5px] font-medium text-hitam">Revisi dokumen</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada revisi dokumen baru</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -104,20 +114,20 @@
                 </label>
             </div>
 
-            <div style="margin-top:20px;">
-                <button type="submit" class="btn-primary">Simpan Preferensi</button>
+            <div class="mt-5">
+                <button type="submit" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit]">Simpan Preferensi</button>
             </div>
         </div>
 
         {{-- Info --}}
-        <div class="card">
-            <div class="card-title" style="margin-bottom:16px;">Tentang Notifikasi</div>
-            <div style="font-size:13px; color:var(--text-muted); line-height:1.7;">
+        <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
+            <div class="text-[15px] font-bold mb-4">Tentang Notifikasi</div>
+            <div class="text-xs text-abu leading-[1.7]">
                 <p>Notifikasi akan muncul di ikon lonceng pada navbar sistem.</p>
                 <br>
                 <p>Matikan notifikasi yang tidak Anda butuhkan untuk mengurangi gangguan.</p>
                 <br>
-                <p style="color:var(--text-muted); font-size:12px;">
+                <p class="text-abu text-xs">
                     Catatan: Notifikasi hanya tersedia di dalam sistem, bukan melalui email atau SMS.
                 </p>
             </div>

@@ -3,76 +3,79 @@
 @section('breadcrumb', 'Pengaturan / User')
 
 @section('content')
-<div class="page-header">
-    <h1>Kelola User & Hak Akses</h1>
-    <p>Manajemen akun pengguna dan permission sistem</p>
+<div class="mb-7">
+    <h1 class="font-serif text-[28px] text-hitam mb-1">Kelola User & Hak Akses</h1>
+    <p class="text-[14px] text-abu">Manajemen akun pengguna dan permission sistem</p>
 </div>
 
-<div style="margin-bottom: 20px;">
-    <a href="{{ route('pengaturan.index') }}" class="btn-sm btn-view" style="text-decoration: none;">
+<div class="mb-5">
+    <a href="{{ route('pengaturan.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
         Kembali ke Pengaturan
     </a>
 </div>
 
-<div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+<div class="grid grid-cols-[1fr_320px] gap-6 items-start">
 
-    {{-- Daftar User --}}
-    <div class="card" style="padding:0; overflow:hidden; padding-right: 10px; padding-bottom: 10px;">
-        <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-            <div class="card-title">Daftar Pengguna</div>
-            <span style="font-size:12.5px; color:var(--text-muted);">{{ $users->total() }} pengguna</span>
+    <div class="bg-surface border border-border rounded-[14px] overflow-hidden pr-2 pb-2">
+        <div class="px-5 py-6 border-b border-solid border-border flex justify-between items-center">
+            <div class="text-[15px] font-bold">Daftar Pengguna</div>
+            <span class="text-xs text-abu">{{ $users->total() }} pengguna</span>
         </div>
-        <table>
+        <table class="w-full border-collapse text-[13.5px]">
             <thead>
                 <tr>
-                    <th style="padding-left:20px;">Nama</th>
-                    <th>Role</th>
-                    <th>Divisi</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
+                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Nama</th>
+                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Role</th>
+                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Divisi</th>
+                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
+                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($users as $u)
-                <tr>
-                    <td style="padding-left:20px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:32px; height:32px; border-radius:50%; background:var(--bawaslu-red); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:700; flex-shrink:0;">
+                <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
+                    <td class="px-[14px] py-3 pl-5">
+                        <div class="flex items-center gap-[10px]">
+                            <div class="w-8 h-8 rounded-full bg-bawaslu-red flex justify-center text-xs font-bold shrink-0 text-white items-center">
                                 {{ $u->inisial }}
                             </div>
                             <div>
-                                <div style="font-weight:600; font-size:13px;">{{ $u->nama_lengkap }}</div>
-                                <div style="font-size:11.5px; color:var(--text-muted);">{{ $u->email }}</div>
+                                <div class="font-semibold text-xs">{{ $u->nama_lengkap }}</div>
+                                <div class="text-xs text-abu">{{ $u->email }}</div>
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <span class="doc-status {{ $u->role === 'admin' ? 'status-red' : ($u->role === 'pimpinan' ? 'status-blue' : 'status-gray') }}">
+                    <td class="px-[14px] py-3">
+                        <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
+                            @if($u->role === 'admin') bg-[#FEF2F2] text-[#DC2626]
+                            @elseif($u->role === 'pimpinan') bg-[#EFF6FF] text-[#2563EB]
+                            @else bg-[#F5F5F5] text-[#6B7280] @endif">
                             {{ $u->role_label }}
                         </span>
                     </td>
-                    <td style="font-size:13px;">{{ $u->divisi?->nama ?? '-' }}</td>
-                    <td>
-                        <span class="doc-status {{ $u->is_aktif ? 'status-green' : 'status-gray' }}">
+                    <td class="px-[14px] py-3 text-xs">{{ $u->divisi?->nama ?? '-' }}</td>
+                    <td class="px-[14px] py-3">
+                        <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
+                            @if($u->is_aktif) bg-[#ECFDF5] text-[#059669]
+                            @else bg-[#F5F5F5] text-[#6B7280] @endif">
                             {{ $u->is_aktif ? 'Aktif' : 'Nonaktif' }}
                         </span>
                     </td>
-                    <td>
-                        <div class="action-btns">
-                            {{-- TOMBOL EDIT - Menggunakan link dengan parameter ?edit= --}}
+                    <td class="px-[14px] py-3">
+                        <div class="flex gap-1.5">
+                            {{-- TOMBOL EDIT --}}
                             <a href="{{ route('pengaturan.users', ['edit' => $u->id]) }}" 
-                               class="tbl-btn" 
-                               title="Edit"
-                               style="cursor:pointer; text-decoration:none; display:inline-block; text-align: center; display: flex;">
-                                <img src="{{ asset('img/edit.png') }}" alt=""> 
+                               class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" 
+                               title="Edit">
+                                <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt=""> 
                             </a>
                             
                             @if($u->id !== auth()->id())
                             <form method="POST" action="{{ route('pengaturan.users.destroy', $u) }}"
-                                onsubmit="return confirm('Hapus user ini?')" style="display:inline;">
+                                onsubmit="return confirm('Hapus user ini?')" class="inline">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="tbl-btn" title="Hapus">
-                                    <img src="{{ asset('img/hapus.png') }}" alt=""> 
+                                <button type="submit" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2" title="Hapus">
+                                    <img src="{{ asset('img/hapus.png') }}" class="w-[15px] h-[15px]" alt=""> 
                                 </button>
                             </form>
                             @endif
@@ -80,41 +83,39 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="5"><div class="empty-state"><p>Belum ada pengguna.</p></div></td></tr>
+                <tr><td colspan="5"><div class="text-center py-10 px-5 text-abu"><p class="text-[14px]">Belum ada pengguna.</p></div></td></tr>
                 @endforelse
             </tbody>
         </table>
         
-        <div class="custom-pagination">
-
+        <div class="mt-6 flex items-center justify-end gap-2 flex-wrap px-4 py-3">
             {{-- Tombol Previous --}}
             @if ($users->onFirstPage())
-                <span class="page-btn disabled">‹</span>
+                <span class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB] opacity-45 pointer-events-none">‹</span>
             @else
-                <a href="{{ $users->previousPageUrl() }}" class="page-btn">‹</a>
+                <a href="{{ $users->previousPageUrl() }}" class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB]">‹</a>
             @endif
 
             {{-- Nomor Halaman --}}
             @for ($i = 1; $i <= $users->lastPage(); $i++)
                 <a href="{{ $users->url($i) }}"
-                class="page-btn {{ $users->currentPage() == $i ? 'active' : '' }}">
+                class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB] {{ $users->currentPage() == $i ? 'bg-bawaslu-red text-white border-bawaslu-red' : '' }}">
                     {{ $i }}
                 </a>
             @endfor
 
             {{-- Tombol Next --}}
             @if ($users->hasMorePages())
-                <a href="{{ $users->nextPageUrl() }}" class="page-btn">›</a>
+                <a href="{{ $users->nextPageUrl() }}" class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB]">›</a>
             @else
-                <span class="page-btn disabled">›</span>
+                <span class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB] opacity-45 pointer-events-none">›</span>
             @endif
-
         </div>
     </div>
 
     {{-- Form Tambah/Edit User --}}
-    <div class="card" id="formUserCard">
-        <div class="card-title" style="margin-bottom:20px;" id="formUserTitle">
+    <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]" id="formUserCard">
+        <div class="text-[15px] font-bold mb-5" id="formUserTitle">
             @if(request()->has('edit') && $editUser = \App\Models\User::find(request()->get('edit')))
                 Edit User: {{ $editUser->nama_lengkap }}
             @elseif(old('_method') == 'PUT' || session('edit_id'))
@@ -135,97 +136,97 @@
                 <input type="hidden" name="user_id" value="{{ old('user_id') }}">
             @endif
 
-            <div class="form-group">
-                <label class="form-label">Nama Lengkap <span class="required">*</span></label>
-                <input class="form-input @error('nama_lengkap') is-invalid @enderror" 
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama Lengkap <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('nama_lengkap') border-[#DC2626] border-[1.5px] @enderror" 
                        type="text" 
                        name="nama_lengkap" 
                        id="uNama" 
                        value="{{ old('nama_lengkap', request()->has('edit') && isset($editUser) ? $editUser->nama_lengkap : '') }}">
                 @error('nama_lengkap')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label class="form-label">NIP</label>
-                <input class="form-input @error('nip') is-invalid @enderror" 
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">NIP</label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('nip') border-[#DC2626] border-[1.5px] @enderror" 
                        type="text" 
                        name="nip" 
                        id="uNip" 
                        value="{{ old('nip', request()->has('edit') && isset($editUser) ? $editUser->nip : '') }}" 
                        placeholder="18 digit NIP">
                 @error('nip')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Email <span class="required">*</span></label>
-                <input class="form-input @error('email') is-invalid @enderror" 
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Email <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('email') border-[#DC2626] border-[1.5px] @enderror" 
                        type="email" 
                        name="email" 
                        id="uEmail" 
                        value="{{ old('email', request()->has('edit') && isset($editUser) ? $editUser->email : '') }}">
                 @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group" id="passwordField" @if(request()->has('edit') || old('_method') == 'PUT') style="display:none;" @endif>
-                <label class="form-label">Password <span class="required">@if(!request()->has('edit') && !old('_method'))*@endif</span></label>
-                <input class="form-input @error('password') is-invalid @enderror" 
+            <div class="mb-[18px]" id="passwordField" @if(request()->has('edit') || old('_method') == 'PUT') style="display:none" @endif>
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password <span class="text-bawaslu-red">@if(!request()->has('edit') && !old('_method'))*@endif</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('password') border-[#DC2626] border-[1.5px] @enderror" 
                        type="password" 
                        name="password" 
                        placeholder="Min. 8 karakter">
                 @error('password')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Role <span class="required">*</span></label>
-                    <select class="form-select @error('role') is-invalid @enderror" name="role" id="uRole">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="mb-[18px]">
+                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Role <span class="text-bawaslu-red">*</span></label>
+                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('role') border-[#DC2626] border-[1.5px] @enderror" name="role" id="uRole">
                         <option value="staff" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'staff' ? 'selected' : '' }}>Staff</option>
                         <option value="pimpinan" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
                         <option value="admin" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                     @error('role')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Divisi</label>
-                    <select class="form-select @error('divisi_id') is-invalid @enderror" name="divisi_id" id="uDivisi">
+                <div class="mb-[18px]">
+                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Divisi</label>
+                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('divisi_id') border-[#DC2626] border-[1.5px] @enderror" name="divisi_id" id="uDivisi">
                         <option value="">Tanpa Divisi</option>
                         @foreach($divisis as $div)
                         <option value="{{ $div->id }}" {{ old('divisi_id', request()->has('edit') && isset($editUser) ? $editUser->divisi_id : '') == $div->id ? 'selected' : '' }}>{{ $div->nama }}</option>
                         @endforeach
                     </select>
                     @error('divisi_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Status</label>
-                <select class="form-select @error('is_aktif') is-invalid @enderror" name="is_aktif" id="uStatus">
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Status</label>
+                <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('is_aktif') border-[#DC2626] border-[1.5px] @enderror" name="is_aktif" id="uStatus">
                     <option value="1" {{ old('is_aktif', request()->has('edit') && isset($editUser) ? $editUser->is_aktif : '1') == '1' ? 'selected' : '' }}>Aktif</option>
                     <option value="0" {{ old('is_aktif', request()->has('edit') && isset($editUser) ? $editUser->is_aktif : '1') == '0' ? 'selected' : '' }}>Nonaktif</option>
                 </select>
                 @error('is_aktif')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div style="display:flex; gap:10px;">
-                <button type="submit" class="btn-primary" style="flex:1; justify-content:center;"> Simpan </button>
+            <div class="flex gap-[10px]">
+                <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1"> Simpan </button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.users') }}" class="btn-sm btn-view" style="padding:8px 16px; text-decoration:none; display:inline-block; text-align:center;">Batal</a>
+                <a href="{{ route('pengaturan.users') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-center">Batal</a>
                 @endif
-                <button type="button" class="btn-sm btn-view" onclick="resetUserForm()" style="padding:8px 16px;">Reset</button>
+                <button type="button" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4" onclick="resetUserForm()">Reset</button>
             </div>
         </form>
     </div>
@@ -235,21 +236,7 @@
 @push('scripts')
 <script>
 function resetUserForm() {
-    // Redirect ke halaman users tanpa parameter edit
     window.location.href = '{{ route('pengaturan.users') }}';
 }
 </script>
-
-<style>
-.is-invalid {
-    border-color: #DC2626 !important;
-    border-width: 1.5px !important;
-}
-.invalid-feedback {
-    color: #DC2626;
-    font-size: 12px;
-    margin-top: 4px;
-    display: block;
-}
-</style>
 @endpush
