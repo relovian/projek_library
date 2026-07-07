@@ -8,7 +8,6 @@
     <p class="text-[14px] text-abu">Ringkasan sistem pengelolaan arsip Bawaslu — {{ now()->translatedFormat('l, d F Y') }}</p>
 </div>
 
-{{-- Stat Cards --}}
 <div class="grid grid-cols-3 gap-4 mb-6">
 
     <div class="group relative overflow-hidden rounded-[14px] border border-border bg-surface p-[22px] transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
@@ -27,6 +26,7 @@
         </div>
         <div class="text-[30px] font-extrabold leading-none text-text">{{ $stats['menunggu'] }}</div>
         <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Menunggu Persetujuan</div>
+
         @if($stats['menunggu'] > 0)
             <div class="mt-2 inline-flex items-center rounded-full bg-[#FFFBEB] px-2 py-[2px] text-[11px] font-semibold text-[#D97706]">Perlu ditinjau</div>
         @endif
