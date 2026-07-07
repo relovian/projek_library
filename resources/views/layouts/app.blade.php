@@ -1163,6 +1163,46 @@
             box-shadow: 0 4px 16px rgba(192,39,45,.08); 
         }
 
+ .settings-card.locked{
+    position:relative;
+}
+
+.tooltip-lock{
+
+    position:absolute;
+
+    bottom:-55px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:#2d3748;
+
+    color:white;
+
+    padding:8px 12px;
+
+    border-radius:8px;
+
+    font-size:12px;
+
+    white-space:nowrap;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transition:.2s;
+}
+
+.settings-card.locked:hover .tooltip-lock{
+
+    opacity:1;
+
+    visibility:visible;
+
+}
         .settings-icon { 
             font-size: 28px;
             margin-bottom: 12px; 
@@ -2196,3 +2236,5 @@ document.addEventListener('click', function(e) {
 
 </body>
 </html>
+
+    pengaturan

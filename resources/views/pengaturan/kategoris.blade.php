@@ -73,7 +73,8 @@
                     <td colspan="5">
                         <div class="empty-state">
                             <div class="empty-icon">
-                                <img src="{{ asset('img/category.png') }}" alt="">
+                                <img src="{{ asset('img/lock.png') }}   " alt="">
+                                <!-- <img src="{{ asset('img/category.png') }}" alt=""> -->
                             </div>
                             <p>Belum ada kategori. Tambahkan kategori pertama.</p>
                         </div>

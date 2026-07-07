@@ -3,20 +3,42 @@
 @section('breadcrumb', 'Pengaturan')
 
 @section('content')
+@php
+    $user = auth()->user();
+
+    // Admin dan Pimpinan boleh mengakses fitur manajemen
+    $canManage = $user->isAdmin() || $user->isPimpinan();
+@endphp
 <div class="page-header">
     <h1>Pengaturan Sistem</h1>
     <p>Konfigurasi dan administrasi SIARSIP Bawaslu</p>
 </div>
 
 <div class="settings-grid">
-    @if(auth()->user()->isAdmin())
-    <div class="settings-card" onclick="window.location='{{ route('pengaturan.kategoris') }}'">
-        <div class="settings-icon">
-            <img src="{{ asset('img/category.png') }}" alt="">
-        </div>
-        <h3>Kelola Kategori & Tag</h3>
-        <p>Tambah, ubah, atau hapus kategori dan tag untuk pengelompokan arsip.</p>
+  
+   <div class="settings-card {{ !$canManage ? 'locked' : '' }}"
+    @if($canManage)
+        onclick="window.location='{{ route('pengaturan.kategoris') }}'"
+    @endif
+>
+
+    <!-- @if(!$canManage)
+        <div class="lock-badge">🔒</div>
+    @endif -->
+
+    <div class="settings-icon">
+        <img src="{{ asset('img/category.png') }}" alt="">
     </div>
+   @if(!$canManage)
+<div class="tooltip-lock">
+    Hanya Admin & Pimpinan yang dapat mengakses fitur ini
+</div>
+@endif
+    <h3>Kelola Kategori & Tag</h3>
+
+    <p>Tambah, ubah, atau hapus kategori dan tag untuk pengelompokan arsip.</p>
+
+</div>
 
     
 
@@ -35,7 +57,7 @@
         <h3>Kelola Divisi / Bidang</h3>
         <p>Konfigurasi struktur organisasi divisi dan bidang di Bawaslu.</p>
     </div>
-    @endif
+    
 
     <div class="settings-card" onclick="window.location='{{ route('pengaturan.profil') }}'">
         <div class="settings-icon">
@@ -53,7 +75,7 @@
         <p>Atur preferensi notifikasi email dan sistem untuk akun Anda.</p>
     </div>
 
-    @if(auth()->user()->isAdmin())
+  
         <div class="settings-card" onclick="window.location='{{ route('pengaturan.backup') }}'">
             <div class="settings-icon">
                 <img src="{{ asset('img/backup.png') }}" alt="">
@@ -62,6 +84,6 @@
             <p>Kelola backup data dan pemeliharaan rutin sistem.</p>
 
         </div>
-    @endif
+   
 </div>
 @endsection
