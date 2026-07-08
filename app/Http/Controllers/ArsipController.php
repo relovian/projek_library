@@ -142,14 +142,17 @@ class ArsipController extends Controller
     // ── Trash (Daftar Arsip Terhapus) ────────────────────
     public function trash()
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Hanya admin yang dapat mengakses halaman trash.');
+        $user = auth()->user();
+
+        $query = Arsip::onlyTrashed()
+            ->with(['kategori', 'divisi', 'uploader']);
+
+        // Staff hanya lihat sampah miliknya sendiri
+        if ($user->role !== 'admin') {
+            $query->where('uploader_id', $user->id);
         }
 
-        $arsip = Arsip::onlyTrashed()
-            ->with(['kategori', 'divisi', 'uploader'])
-            ->latest('deleted_at')
-            ->paginate(15);
+        $arsip = $query->latest('deleted_at')->paginate(15);
 
         return view('arsip.trash', compact('arsip'));
     }

@@ -99,7 +99,7 @@
             {{-- Nomor Halaman --}}
             @for ($i = 1; $i <= $users->lastPage(); $i++)
                 <a href="{{ $users->url($i) }}"
-                class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-surface2 hover:border-[#D1D5DB] {{ $users->currentPage() == $i ? 'bg-bawaslu-red text-white border-bawaslu-red' : '' }}">
+                class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:bg-red-600 hover:border-[#D1D5DB] hover:text-white {{ $users->currentPage() == $i ? 'bg-red-500 text-white border-bawaslu-red' : '' }}">
                     {{ $i }}
                 </a>
             @endfor
@@ -198,7 +198,7 @@
                 </div>
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Divisi</label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('divisi_id') border-[#DC2626] border-[1.5px] @enderror" name="divisi_id" id="uDivisi">
+                    <select class="w-full pr-[25px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('divisi_id') border-[#DC2626] border-[1.5px] @enderror" name="divisi_id" id="uDivisi">
                         <option value="">Tanpa Divisi</option>
                         @foreach($divisis as $div)
                         <option value="{{ $div->id }}" {{ old('divisi_id', request()->has('edit') && isset($editUser) ? $editUser->divisi_id : '') == $div->id ? 'selected' : '' }}>{{ $div->nama }}</option>

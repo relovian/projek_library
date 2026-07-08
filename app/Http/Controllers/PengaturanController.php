@@ -26,8 +26,15 @@ class PengaturanController extends Controller
             'kode' => 'required|string|max:50|unique:kategori,kode', // ← kategori bukan kategoris
             'warna'=> 'required|string',
         ],[
-            'nama.unique' => 'Nama telah digunakan, silakan gunakan nama yang berbeda',
+            'nama.unique' => 'kategori telah digunakan, silakan gunakan kategori yang berbeda',
             'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
+            'kode.required' => 'Kolom Kategori Wajib Di isi',
+            'nama.required' => 'Kolom Kode Wajib Di isi',
+            'nama.string'  => 'Nama kategori harus berupa teks valid.',
+            'kode.string'  => 'Kode harus berupa teks valid.',
+            'warna.string' => 'Pilihan warna harus berupa format teks yang valid.',
+            'nama.max' => 'Nama kategori terlalu panjang, maksimal 100 karakter.',
+            'kode.max' => 'Kode terlalu panjang, maksimal 50 karakter.',
         ]);
 
         Kategori::create([
@@ -44,12 +51,17 @@ class PengaturanController extends Controller
     public function updateKategori(Request $request, Kategori $kategori)
     {
         $request->validate([
-            'nama' => 'required|string|max:100|unique:kategori,nama',
+            'nama' => 'required|string|max:100|unique:kategori,nama,' . $kategori->id,
             'kode' => 'required|string|max:50|unique:kategori,kode,' . $kategori->id, // ← kategori
             'warna'=> 'required|string',
-        ],[
-            'nama.unique' => 'Nama telah digunakan, silakan gunakan nama yang berbeda',
+        ], [
+            'nama.unique' => 'kategori telah digunakan, silakan gunakan kategori yang berbeda',
             'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
+            'nama.string'  => 'Nama kategori harus berupa teks valid.',
+            'kode.string'  => 'Kode harus berupa teks valid.',
+            'warna.string' => 'Pilihan warna harus berupa format teks yang valid.',
+            'nama.max' => 'Nama kategori terlalu panjang, maksimal 100 karakter.',
+            'kode.max' => 'Kode terlalu panjang, maksimal 50 karakter.',
         ]);
 
         $kategori->update([

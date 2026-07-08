@@ -146,10 +146,10 @@
                 <tr>
                     <td colspan="7">
                         <div class="text-center py-10 px-5 text-abu">
-                            <div class="text-[40px] mb-[10px]">
+                            <div class="flex justify-center align-center text-[40px] mb-[10px]">
                                 <img src="{{ asset('img/arsip.png') }}" alt="">
                             </div>
-                            <p class="text-[14px]">Tidak ada arsip yang sesuai filter.</p>
+                            <p class="text-[14px]">Tidak ada arsip yang tersedia</p>
                         </div>
                     </td>
                 </tr>
@@ -168,11 +168,10 @@
     </div>
 </div>
 
-@if(auth()->user()->role === 'admin')
 <div class="mt-3 text-right">
     <a href="{{ route('arsip.trash') }}" class="inline-flex items-center justify-center w-[50px] h-[50px] fixed bottom-[30px] right-[30px] bg-[#db3f44] rounded-full transition-all duration-200 ease-in-out hover:bg-[#c0272d]">
         <img src="{{ asset('img/sampah.png') }}" class="w-[30px] h-[30px]" alt="">
     </a>
 </div>
-@endif
+
 @endsection

@@ -93,7 +93,7 @@
 
     @else
     <div class="text-center py-10 px-5 text-abu">
-        <div class="text-[40px] mb-[10px]">
+        <div class=" flex justify-center items-center text-[40px] mb-[10px]">
             <img src="{{ asset('img/persetujuan.png') }}" alt="">
         </div>
         <p class="text-[14px]">Tidak ada dokumen yang menunggu persetujuan.</p>

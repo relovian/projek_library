@@ -5,33 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SIARSIP') — Bawaslu RI</title>
-     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bawaslu-red: #C0272D;
-            --bawaslu-dark-red: #8B1A1F;
-            --bawaslu-gold: #D4A843;
-            --bg: #F7F5F2;
-            --surface: #FFFFFF;
-            --surface2: #F0EDE8;
-            --text: #1A1714;
-            --text-abu: #6B6560;
-            --border: #E2DDD8;
-            --sidebar-w: 260px;
-        }
-
-        /* Toggle switch - tidak bisa di-Tailwind karena ::before */
-        .switch { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; }
-        .switch input { opacity:0; width:0; height:0; }
-        .slider { position:absolute; cursor:pointer; inset:0; background:#d1d5db; border-radius:24px; transition:.3s; }
-        .slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
-        input:checked + .slider { background:var(--bawaslu-red, #9b1c1c); }
-        input:checked + .slider::before { transform:translateX(20px); }
-    </style>
     @stack('styles')
 </head>
-<body>
+<body class="overflow-x-hidden">
     
     <aside class="w-64 fixed inset-y-0 left-0 z-50 flex flex-col bg-[#8B1A1F]">
         <div class="px-5 py-6 border-b border-white/10 flex items-center gap-3">
@@ -72,14 +50,13 @@
             </a>
 
             @if(auth()->user()->isAdmin() || auth()->user()->isPimpinan())
-            <a href="{{ route('persetujuan.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('persetujuan.*') ? 'active' : '' }}">
-                <img class="w-4 h-4" src="{{ asset('img/persetujuan.png') }}" alt="">Persetujuan
-                @php $jmlMenunggu = \App\Models\Arsip::menunggu()->count(); @endphp
-                @if($jmlMenunggu > 0)
-                    <span class="ml-auto rounded-[20px] px-[7px] py-[2px] text-[9px] font-bold uppercase">{{ $jmlMenunggu }}</span>
-                @endif
-            </a>
-
+                <a href="{{ route('persetujuan.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('persetujuan.*') ? 'active' : '' }}">
+                    <img class="w-4 h-4" src="{{ asset('img/persetujuan.png') }}" alt="">Persetujuan
+                    @php $jmlMenunggu = \App\Models\Arsip::menunggu()->count(); @endphp
+                    @if($jmlMenunggu > 0)
+                        <span class="ml-auto rounded-[20px] px-[7px] py-[2px] text-[9px] font-bold uppercase">{{ $jmlMenunggu }}</span>
+                    @endif
+                </a>
             @endif
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Sistem</div>

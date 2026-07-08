@@ -8,7 +8,7 @@
     <p class="text-[14px] text-abu">Perbarui informasi akun Anda</p>
 </div>
 
-<div class="mt-5">
+<div class="mt-5 mb-5">
     <a href="{{ route('pengaturan.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
         Kembali ke Pengaturan
     </a>

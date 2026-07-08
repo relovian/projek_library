@@ -26,7 +26,6 @@
         </div>
         <div class="text-[30px] font-extrabold leading-none text-text">{{ $stats['menunggu'] }}</div>
         <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Menunggu Persetujuan</div>
-
         @if($stats['menunggu'] > 0)
             <div class="mt-2 inline-flex items-center rounded-full bg-[#FFFBEB] px-2 py-[2px] text-[11px] font-semibold text-[#D97706]">Perlu ditinjau</div>
         @endif
@@ -57,7 +56,7 @@
             class="flex flex-col gap-[6px] bg-[var(--bg-secondary,#f9fafb)] border border-[var(--border,#e5e7eb)] rounded-[10px] px-4 py-[14px] no-underline transition-colors duration-[0.12s]"
            onmouseover="this.style.background='#f0f4ff'"
            onmouseout="this.style.background='var(--bg-secondary, #f9fafb)'">
-            <div class="w-2 h-2 rounded-full  " style="background-color: {{ $kat->warna ?? '#6b7280' }};"></div>
+            <div class="w-2 h-2 rounded-full" style="background-color: {{ $kat->warna ?? '#6b7280' }};"></div>
             <div class="text-xl font-bold text-[#111827]">
                 {{ number_format($kat->arsips_count) }}
             </div>
@@ -84,7 +83,7 @@
             </div>
             <a class="text-[12px] text-bawaslu-red font-semibold cursor-pointer no-underline" href="{{ route('arsip.index') }}">Lihat semua →</a>
         </div>
-        <ul class="list-none">
+        <ul class="list-none flex-col">
             @forelse($arsipTerbaru as $arsip)
             <li class="flex items-center gap-[14px] py-3 border-b border-border cursor-pointer last:border-b-0" onclick="window.location='{{ route('arsip.show', $arsip) }}'">
                 <div class="w-[38px] h-[38px] rounded-[9px] flex items-center justify-center text-lg shrink-0">
@@ -112,7 +111,7 @@
                 </span>
             </li>
             @empty
-            <li class="text-center py-10 px-5 text-abu">
+            <li class="flex flex-col items-center justify-center py-10 px-5 text-abu">
                 <div class="text-[40px] mb-[10px]"><img src="{{ asset('img/arsip.png') }}" alt=""></div>
                 <p class="text-[14px]">Belum ada arsip yang diunggah.</p>
             </li>
@@ -153,9 +152,8 @@
                     <a href="{{ route('arsip.show', $arsip) }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border h-6">Lihat</a>
                 </div>
             </li>
-
             @empty
-            <li class="text-center py-10 px-5 text-abu">
+            <li class="flex flex-col justify-center items-center py-10 px-5 text-abu">
                 <div class="text-[40px] mb-[10px]"><img src="{{ asset('img/persetujuan.png') }}" alt=""></div>
                 <p class="text-[14px]">Tidak ada dokumen yang menunggu.</p>
             </li>
@@ -191,13 +189,14 @@
                 </div>
             </li>
             @empty
-            <li class="text-center py-10 px-5 text-abu"><p class="text-[14px]">Belum ada aktivitas.</p></li>
+            <li class="text-center py-10 px-5 text-abu"><p class="mt-10 text-[14px]">Belum ada aktivitas.</p></li>
             @endforelse
         </ul>
     </div>
     @endif
 </div>
 
+{{-- Modal Tolak --}}
 <div class="hidden fixed inset-0 bg-black/45 z-[200] items-center justify-center" id="modalTolak">
     <div class="bg-surface rounded-[16px] p-8 max-w-[520px] w-[90%]">
         <div class="flex justify-between items-start mb-6">
