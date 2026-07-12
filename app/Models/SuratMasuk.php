@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class SuratMasuk extends Model
+{
+    protected $table = 'surat_masuk';
+
+    protected $fillable = [
+        'kode_arsip_masuk',
+        'nama_file',
+        'perihal',
+        'asal_instansi',
+        'tanggal_surat',
+        'tanggal_diterima',
+        'tanggal_unggah',
+        'link_file',
+        'uploader_id',
+    ];
+
+    protected $casts = [
+        'tanggal_surat'    => 'date',
+        'tanggal_diterima' => 'date',
+        'tanggal_unggah'   => 'date',
+    ];
+
+    // ── Relations ──────────────────────────────────────────
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploader_id');
+    }
+
+    /**
+     * Users yang dipilih sebagai disposisi/tujuan surat.
+     * Tipe: 'disposisi'
+     */
+    public function usersDisposisi(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'surat_masuk_user')
+                    ->withPivot('tipe')
+                    ->wherePivot('tipe', 'disposisi')
+                    ->withTimestamps();
+    }
+
+    /**
+     * All users terkait surat ini.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'surat_masuk_user')
+                    ->withPivot('tipe')
+                    ->withTimestamps();
+    }
+}
