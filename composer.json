@@ -10,10 +10,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "google/apiclient": "^2.19",
         "ifsnop/mysqldump-php": "^2.12",
         "laravel/framework": "^13.7",
         "laravel/tinker": "^3.0",
-        "spatie/laravel-permission": "^7.4"
+        "spatie/laravel-permission": "^7.4",
+        "yaza/laravel-google-drive-storage": "^5.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     @stack('styles')
 </head>
-<body class="overflow-x-hidden">
+<body class="overflow-x-hidden ">
     
     <aside class="w-64 fixed inset-y-0 left-0 z-50 flex flex-col bg-[#8B1A1F]">
         <div class="px-5 py-6 border-b border-white/10 flex items-center gap-3">
@@ -39,8 +39,12 @@
                 <img class="w-4 h-4" src="{{ asset('img/arsip.png') }}" alt=""> Arsip
             </a>
 
+            <a href="{{ route('surat-masuk.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('surat-masuk.*') ? 'active' : '' }}">
+                <img class="w-4 h-4" src="{{ asset('img/unduh.png') }}" alt="">Unggah Surat Masuk
+            </a>
+
             <a href="{{ route('unggah.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('unggah.*') ? 'active' : '' }}">
-                <img class="w-4 h-4" src="{{ asset('img/unggah.png') }}" alt=""> Unggah
+                <img class="w-4 h-4" src="{{ asset('img/unggah.png') }}" alt="">Unggah Surat Keluar
             </a>
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Manajemen</div>
@@ -48,16 +52,6 @@
             <a href="{{ route('aktivitas.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('aktivitas.*') ? 'active' : '' }}">
                 <img class="w-4 h-4" src="{{ asset('img/aktivitas.png') }}" alt=""> Aktivitas
             </a>
-
-            @if(auth()->user()->isAdmin() || auth()->user()->isPimpinan())
-                <a href="{{ route('persetujuan.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('persetujuan.*') ? 'active' : '' }}">
-                    <img class="w-4 h-4" src="{{ asset('img/persetujuan.png') }}" alt="">Persetujuan
-                    @php $jmlMenunggu = \App\Models\Arsip::menunggu()->count(); @endphp
-                    @if($jmlMenunggu > 0)
-                        <span class="ml-auto rounded-[20px] px-[7px] py-[2px] text-[9px] font-bold uppercase">{{ $jmlMenunggu }}</span>
-                    @endif
-                </a>
-            @endif
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Sistem</div>
 

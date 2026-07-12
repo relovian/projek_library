@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UnggahController extends Controller
 {
-    // ── Form Unggah ──────────────────────────────────────
+    // ── Form Unggah Arsip (dokumen) ──────────────────────
     public function create()
     {
         $kategoris = Kategori::where('is_aktif', true)->get();

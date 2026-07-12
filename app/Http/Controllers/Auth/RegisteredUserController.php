@@ -31,14 +31,19 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nama_lengkap' => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::min(8)->mixedCase()->numbers()],
+            'nama_lengkap'   => ['required', 'string', 'max:255'],
+            'nama_panggilan' => ['required', 'string', 'max:100'],
+            'email'          => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password'       => ['required', 'confirmed', Rules\Password::min(8)->mixedCase()->numbers()],
         ], [
             // Pesan validasi Bahasa Indonesia
             'nama_lengkap.required'         => 'Nama lengkap wajib diisi.',
             'nama_lengkap.string'           => 'Nama harus berupa teks.',
             'nama_lengkap.max'              => 'Nama maksimal 255 karakter.',
+
+            'nama_panggilan.required'       => 'Nama panggilan wajib diisi.',
+            'nama_panggilan.string'         => 'Nama panggilan harus berupa teks.',
+            'nama_panggilan.max'            => 'Nama panggilan maksimal 100 karakter.',
 
             'email.required'        => 'Alamat email wajib diisi.',
             'email.string'          => 'Email harus berupa teks.',
@@ -55,10 +60,11 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
-            'nama_lengkap' => $request->nama_lengkap,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => 'staff', // default role untuk semua pendaftar baru
+            'nama_lengkap'   => $request->nama_lengkap,
+            'nama_panggilan' => $request->nama_panggilan,
+            'email'          => $request->email,
+            'password'       => Hash::make($request->password),
+            'role'           => 'staff', // default role untuk semua pendaftar baru
         ]);
 
         event(new Registered($user));

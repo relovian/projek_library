@@ -12,7 +12,7 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $fillable = [
-        'nama_lengkap', 'nip', 'email', 'password',
+        'nama_lengkap', 'nama_panggilan', 'nip', 'email', 'password',
         'role', 'divisi_id', 'telepon', 'foto', 'is_aktif', 'last_login_at',
         'notif_arsip_baru', 'notif_arsip_disetujui', 'notif_arsip_ditolak',
         'notif_menunggu_persetujuan','notif_revisi_dokumen',
@@ -62,6 +62,21 @@ class User extends Authenticatable
         return $this->role === 'staff';
     }
 
+    public function isKomisioner(): bool
+    {
+        return $this->role === 'komisioner';
+    }
+
+    public function isKepalaSekretariat(): bool
+    {
+        return $this->role === 'kepala_sekretariat';
+    }
+
+    public function isKepalaSubBagian(): bool
+    {
+        return $this->role === 'kepala_sub_bagian';
+    }
+
     public function getInisialAttribute(): string
     {
         $kata = explode(' ', $this->nama_lengkap);
@@ -75,9 +90,12 @@ class User extends Authenticatable
     public function getRoleLabelAttribute(): string
     {
         return match ($this->role) {
-            'admin'    => 'Admin',
-            'pimpinan' => 'Pimpinan',
-            default    => 'Staff',
+            'admin'               => 'Admin',
+            'pimpinan'            => 'Pimpinan',
+            'komisioner'          => 'Komisioner',
+            'kepala_sekretariat'  => 'Kepala Sekretariat',
+            'kepala_sub_bagian'   => 'Kepala Sub Bagian',
+            default               => 'Staff',
         };
     }
 }

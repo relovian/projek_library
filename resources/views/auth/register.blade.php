@@ -13,12 +13,22 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
+        <!-- Nama Lengkap -->
         <div>
-            <x-input-label for="nama_lengkap" :value="__('Name')" />
+            <x-input-label for="nama_lengkap" :value="__('Nama Lengkap')" />
+            <span style="color:#ef4444; font-weight:bold;">*</span>
             <x-text-input id="nama_lengkap" class="block mt-1 w-full" type="text" name="nama_lengkap"
-                :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                :value="old('nama_lengkap')" required autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('nama_lengkap')" class="mt-2" />
+        </div>
+
+        <!-- Nama Panggilan -->
+        <div class="mt-4">
+            <x-input-label for="nama_panggilan" :value="__('Nama Panggilan')" />
+            <span style="color:#ef4444; font-weight:bold;">*</span>
+            <x-text-input id="nama_panggilan" class="block mt-1 w-full" type="text" name="nama_panggilan"
+                :value="old('nama_panggilan')" required />
+            <x-input-error :messages="$errors->get('nama_panggilan')" class="mt-2" />
         </div>
 
         <!-- Email -->

@@ -92,12 +92,13 @@ class PengaturanController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email,' . $user->id,
-            'telepon'      => 'nullable|string|max:20',
+            'nama_lengkap'   => 'required|string|max:255',
+            'nama_panggilan' => 'required|string|max:100',
+            'email'          => 'required|email|unique:users,email,' . $user->id,
+            'telepon'        => 'nullable|string|max:20',
         ]);
 
-        $user->update($request->only('nama_lengkap', 'email', 'telepon'));
+        $user->update($request->only('nama_lengkap', 'nama_panggilan', 'email', 'telepon'));
 
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
@@ -144,15 +145,19 @@ class PengaturanController extends Controller
     public function storeUser(Request $request)
     {
         $request->validate([
-            'nama_lengkap' => ['required', 'string', 'max:255'],
-            'email'        => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password'     => ['required', Rules\Password::min(8)->mixedCase()->numbers()],
-            'nip'          => 'required|digits:18|unique:users,nip', 
-            'role'         => 'required|in:admin,staff,pimpinan',
+            'nama_lengkap'   => ['required', 'string', 'max:255'],
+            'nama_panggilan' => ['required', 'string', 'max:100'],
+            'email'          => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password'       => ['required', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
+            'nip'            => 'required|digits:18|unique:users,nip', 
+            'role'           => 'required|in:admin,staff,pimpinan,komisioner,kepala_sekretariat,kepala_sub_bagian',
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
             'nama_lengkap.string' => 'Nama harus berupa teks.',
             'nama_lengkap.max' => 'Nama maksimal 255 karakter.',
+            'nama_panggilan.required' => 'Nama panggilan wajib diisi.',
+            'nama_panggilan.string' => 'Nama panggilan harus berupa teks.',
+            'nama_panggilan.max' => 'Nama panggilan maksimal 100 karakter.',
             'email.required' => 'Alamat email wajib diisi.',
             'email.string' => 'Email harus berupa teks.',
             'email.lowercase' => 'Email harus menggunakan huruf kecil.',
@@ -163,6 +168,7 @@ class PengaturanController extends Controller
             'password.min' => 'Kata sandi minimal 8 karakter.',
             'password.mixed' => 'Kata sandi harus mengandung huruf besar dan huruf kecil.',
             'password.numbers' => 'Kata sandi harus mengandung minimal satu angka.',
+            'password.symbols' => 'Kata sandi harus mengandung minimal satu simbol.',
             'nip.required' => 'NIP wajib diisi.',
             'nip.digits' => 'NIP harus terdiri dari tepat 18 angka.',
             'nip.unique' => 'NIP sudah terdaftar di sistem.',
@@ -171,13 +177,14 @@ class PengaturanController extends Controller
         ]);
 
         User::create([
-            'nama_lengkap' => $request->nama_lengkap,
-            'nip'          => $request->nip,
-            'email'        => $request->email,
-            'password'     => \Hash::make($request->password),
-            'role'         => $request->role,
-            'divisi_id'    => $request->divisi_id ?: null,
-            'is_aktif'     => $request->is_aktif ?? 1,
+            'nama_lengkap'   => $request->nama_lengkap,
+            'nama_panggilan' => $request->nama_panggilan,
+            'nip'            => $request->nip,
+            'email'          => $request->email,
+            'password'       => \Hash::make($request->password),
+            'role'           => $request->role,
+            'divisi_id'      => $request->divisi_id ?: null,
+            'is_aktif'       => $request->is_aktif ?? 1,
         ]);
 
         return back()->with('success', 'User berhasil ditambahkan.');
@@ -194,27 +201,32 @@ class PengaturanController extends Controller
         }
 
         $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email,' . $user->id,
-            'nip'          => [
+            'nama_lengkap'   => 'required|string|max:255',
+            'nama_panggilan' => 'required|string|max:100',
+            'email'          => 'required|email|unique:users,email,' . $user->id,
+            'nip'            => [
                 'required',
                 'string',
                 'max:50',
                 Rule::unique('users', 'nip')->ignore($user->id),
             ],
-            'role'         => 'required|in:admin,staff,pimpinan',
+            'role'           => 'required|in:admin,staff,pimpinan,komisioner,kepala_sekretariat,kepala_sub_bagian',
         ], [
+            'nama_panggilan.required' => 'Nama panggilan wajib diisi.',
+            'nama_panggilan.string' => 'Nama panggilan harus berupa teks.',
+            'nama_panggilan.max' => 'Nama panggilan maksimal 100 karakter.',
             'nip.unique' => 'NIP sudah digunakan. Silakan gunakan NIP yang berbeda.',
             'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
         ]);
 
         $user->update([
-            'nama_lengkap' => $request->nama_lengkap,
-            'nip'          => $request->nip,
-            'email'        => $request->email,
-            'role'         => $request->role,
-            'divisi_id'    => $request->divisi_id ?: null,
-            'is_aktif'     => $request->is_aktif ?? 1,
+            'nama_lengkap'   => $request->nama_lengkap,
+            'nama_panggilan' => $request->nama_panggilan,
+            'nip'            => $request->nip,
+            'email'          => $request->email,
+            'role'           => $request->role,
+            'divisi_id'      => $request->divisi_id ?: null,
+            'is_aktif'       => $request->is_aktif ?? 1,
         ]);
 
         return back()->with('success', 'User berhasil diperbarui.');

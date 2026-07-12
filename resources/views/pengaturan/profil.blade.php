@@ -46,6 +46,12 @@
             </div>
 
             <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama Panggilan <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="text" name="nama_panggilan"
+                    value="{{ old('nama_panggilan', $user->nama_panggilan) }}">
+            </div>
+
+            <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Email <span class="text-bawaslu-red">*</span></label>
                 <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="email" name="email"
                     value="{{ old('email', $user->email) }}">
@@ -87,9 +93,24 @@
 
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password Lama <span class="text-bawaslu-red">*</span></label>
-                <input type="password" name="password_lama"
-                    placeholder="••••••••" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
-            
+                <div style="position:relative;">
+                    <input type="password" name="password_lama" id="passwordLama"
+                        placeholder="••••••••" style="padding-right:42px;"
+                        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
+                    <button type="button" onclick="togglePassword('passwordLama', 'eye-lama')"
+                        style="
+                            position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                            background:none; border:none; cursor:pointer;
+                            color:#9ca3af; padding:4px;
+                        ">
+                        <svg id="eye-lama" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
                 @error('password_lama')
                 <div class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</div>
                 @enderror
@@ -97,9 +118,24 @@
 
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password Baru <span class="text-bawaslu-red">*</span></label>
-                <input type="password" name="password_baru"
-                    placeholder="Min. 8 karakter" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
-
+                <div style="position:relative;">
+                    <input type="password" name="password_baru" id="passwordBaru"
+                        placeholder="Min. 8 karakter" style="padding-right:42px;"
+                        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
+                    <button type="button" onclick="togglePassword('passwordBaru', 'eye-baru')"
+                        style="
+                            position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                            background:none; border:none; cursor:pointer;
+                            color:#9ca3af; padding:4px;
+                        ">
+                        <svg id="eye-baru" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
                 @error('password_baru')
                     <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
@@ -107,9 +143,24 @@
 
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Konfirmasi Password Baru <span class="text-bawaslu-red">*</span></label>
-                <input type="password" name="password_baru_confirmation"
-                    placeholder="Ulangi password baru" class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
-
+                <div style="position:relative;">
+                    <input type="password" name="password_baru_confirmation" id="passwordKonfirm"
+                        placeholder="Ulangi password baru" style="padding-right:42px;"
+                        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('password_lama') ? 'border-[#dc2626]' : '' }}">
+                    <button type="button" onclick="togglePassword('passwordKonfirm', 'eye-konfirm')"
+                        style="
+                            position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                            background:none; border:none; cursor:pointer;
+                            color:#9ca3af; padding:4px;
+                        ">
+                        <svg id="eye-konfirm" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
                 @error('password_baru_confirmation')
                     <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
@@ -152,3 +203,29 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+        `;
+        icon.style.color = '#374151';
+    } else {
+        input.type = 'password';
+        icon.innerHTML = `
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+        `;
+        icon.style.color = '#9ca3af';
+    }
+}
+</script>
+@endpush

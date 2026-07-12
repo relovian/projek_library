@@ -1,13 +1,15 @@
 <?php
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArsipController;
 use App\Http\Controllers\UnggahController;
+use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AktivitasController;
 use App\Http\Controllers\PengaturanController;
-
+use Google\Client;
+use Google\Service\Drive;
 // ── Redirect root ke dashboard ──────────────────────────
 Route::get('/', fn() => redirect()->route('dashboard'));
 
@@ -19,6 +21,59 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/auth/google', function () {
+        $client = new Client();
+        $client->setAuthConfig(storage_path('app/oauth-credentials.json'));
+        $client->addScope(Drive::DRIVE_FILE);
+        $client->setRedirectUri('http://127.0.0.1:8000/oauth-callback');
+        $client->setAccessType('offline');
+        $client->setPrompt('consent');
+
+        return redirect($client->createAuthUrl());
+    });
+
+    Route::get('/test-drive', function () {
+    $client = new Client();
+    $client->setAuthConfig(storage_path('app/oauth-credentials.json'));
+    $client->setAccessToken(json_decode(Storage::get('google-token.json'), true));
+    
+    $drive = new Drive($client);
+
+    $fileMetadata = new Google\Service\Drive\DriveFile([
+        'name' => 'Test_File_Dari_Laravel.txt'
+    ]);
+    
+    $content = "Halo! Ini file yang dibuat lewat Laravel.";
+    
+    $file = $drive->files->create($fileMetadata, [
+        'data' => $content,
+        'mimeType' => 'text/plain',
+        'uploadType' => 'multipart'
+    ]);
+    
+   
+    return "File berhasil dibuat! ID File: " . $file->id;
+});
+
+   Route::get('/oauth-callback', function (Request $request) {
+    $client = new \Google\Client();
+    $client->setAuthConfig(storage_path('app/oauth-credentials.json'));
+    $client->setRedirectUri('http://127.0.0.1:8000/oauth-callback');
+
+    $token = $client->fetchAccessTokenWithAuthCode($request->query('code'));
+
+    // TAMBAHKAN INI UNTUK CEK ERROR
+    if (isset($token['error'])) {
+        dd("Gagal mendapatkan token: " . $token['error_description']);
+    }
+
+    // SIMPAN DENGAN PATH LENGKAP UNTUK MEMASTIKAN LOKASI
+    $path = storage_path('app/google-token.json');
+    file_put_contents($path, json_encode($token));
+
+    return "Token berhasil dibuat di: " . $path;
+});
 
     // Arsip
     Route::prefix('arsip')->name('arsip.')->group(function () {
@@ -38,10 +93,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{arsip}/unduh',       [ArsipController::class, 'download'])->name('download');
     });
 
-    // Unggah
+    // Unggah (dokumen arsip) + draft routes
     Route::prefix('unggah')->name('unggah.')->group(function () {
-        Route::get('/',    [UnggahController::class, 'create'])->name('create');
-        Route::post('/',   [UnggahController::class, 'store'])->name('store');
+        Route::get('/',                    [UnggahController::class, 'create'])->name('create');
+        Route::post('/',                   [UnggahController::class, 'store'])->name('store');
+        Route::get('/draft/{arsip}/edit',  [UnggahController::class, 'editDraft'])->name('draft.edit');
+        Route::put('/draft/{arsip}',       [UnggahController::class, 'updateDraft'])->name('draft.update');
     });
 
     // Aktivitas
@@ -98,12 +155,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/maintenance/draft',        [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');
     });
 
-    Route::prefix('unggah')->name('unggah.')->group(function () {
-        Route::get('/',                    [UnggahController::class, 'create'])->name('create');
-        Route::post('/',                   [UnggahController::class, 'store'])->name('store');
-
-        // ← Tambahkan 2 route ini
-        Route::get('/draft/{arsip}/edit',  [UnggahController::class, 'editDraft'])->name('draft.edit');
-        Route::put('/draft/{arsip}',       [UnggahController::class, 'updateDraft'])->name('draft.update');
+    // Surat Masuk (via SuratMasukController)
+    Route::prefix('surat-masuk')->name('surat-masuk.')->group(function () {
+        Route::get('/create',  [SuratMasukController::class, 'create'])->name('create');
+        Route::post('/',       [SuratMasukController::class, 'store'])->name('store');
     });
 });
