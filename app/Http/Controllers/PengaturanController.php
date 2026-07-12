@@ -512,4 +512,157 @@ class PengaturanController extends Controller
         return back()->with('success', 'Draft kadaluarsa berhasil dihapus.');
     }
 
+    // ── Kelola Sub Bagian (Admin) ─────────────────────────────
+    public function subBagians(Request $request)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $subBagians = \App\Models\SubBagian::get();//withCount('arsips')->
+        // $divisis = Divisi::where('is_aktif', true)->get();
+        return view('pengaturan.sub_bagians', compact('subBagians'));
+    }
+
+    public function storeSubBagian(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:sub_bagian,nama',
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        \App\Models\SubBagian::create([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Sub Bagian berhasil ditambahkan.');
+    }
+
+    public function updateSubBagian(Request $request, \App\Models\SubBagian $sub_bagian)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:sub_bagian,nama,' . $sub_bagian->id,
+          
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        $sub_bagian->update([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+           
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Sub Bagian berhasil diperbarui.');
+    }
+
+    public function destroySubBagian(\App\Models\SubBagian $sub_bagian)
+    {
+        // abort_if($sub_bagian->arsips()->count() > 0, 403, 'Sub Bagian masih memiliki arsip.');
+        $sub_bagian->delete();
+        return back()->with('success', 'Sub Bagian berhasil dihapus.');
+    }
+
+    // ── Kelola Kode Klasifikasi (Admin) ─────────────────────
+    public function klasifikasis(Request $request)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $klasifikasis = \App\Models\Klasifikasi::get();//withCount('arsips')->
+        return view('pengaturan.klasifikasis', compact('klasifikasis'));
+    }
+
+    public function storeKlasifikasi(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:klasifikasi,nama',
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        \App\Models\Klasifikasi::create([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Kode Klasifikasi berhasil ditambahkan.');
+    }
+
+    public function updateKlasifikasi(Request $request, \App\Models\Klasifikasi $klasifikasi)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:klasifikasi,nama,' . $klasifikasi->id,
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        $klasifikasi->update([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Kode Klasifikasi berhasil diperbarui.');
+    }
+
+    public function destroyKlasifikasi(\App\Models\Klasifikasi $klasifikasi)
+    {
+        // abort_if($klasifikasi->arsips()->count() > 0, 403, 'Kode Klasifikasi masih memiliki arsip.');
+        $klasifikasi->delete();
+        return back()->with('success', 'Kode Klasifikasi berhasil dihapus.');
+    }
+
+    // ── Kelola Sifat Surat (Admin) ──────────────────────────
+    public function sifatSurats(Request $request)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $sifatSurats = \App\Models\SifatSurat::get();//withCount('arsips')->
+        return view('pengaturan.sifat_surats', compact('sifatSurats'));
+    }
+
+    public function storeSifatSurat(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:sifat_surat,nama',
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        \App\Models\SifatSurat::create([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Sifat Surat berhasil ditambahkan.');
+    }
+
+    public function updateSifatSurat(Request $request, \App\Models\SifatSurat $sifat_surat)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:sifat_surat,nama,' . $sifat_surat->id,
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        $sifat_surat->update([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Sifat Surat berhasil diperbarui.');
+    }
+
+    public function destroySifatSurat(\App\Models\SifatSurat $sifat_surat)
+    {
+       // abort_if($sifat_surat->arsips()->count() > 0, 403, 'Sifat Surat masih memiliki arsip.');
+        $sifat_surat->delete();
+        return back()->with('success', 'Sifat Surat berhasil dihapus.');
+    }
+
 }

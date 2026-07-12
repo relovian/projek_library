@@ -82,6 +82,24 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/divisis/{divisi}',      [PengaturanController::class, 'updateDivisi'])->name('divisis.update');
         Route::delete('/divisis/{divisi}',   [PengaturanController::class, 'destroyDivisi'])->name('divisis.destroy');
 
+        // Sub Bagian
+        Route::get('/sub_bagians',           [PengaturanController::class, 'subBagians'])->name('sub_bagians')->middleware('role:admin');
+        Route::post('/sub_bagians',          [PengaturanController::class, 'storeSubBagian'])->name('sub_bagians.store')->middleware('role:admin');
+        Route::put('/sub_bagians/{sub_bagian}', [PengaturanController::class, 'updateSubBagian'])->name('sub_bagians.update')->middleware('role:admin');
+        Route::delete('/sub_bagians/{sub_bagian}', [PengaturanController::class, 'destroySubBagian'])->name('sub_bagians.destroy')->middleware('role:admin');
+
+        // Kode Klasifikasi
+        Route::get('/klasifikasis',          [PengaturanController::class, 'klasifikasis'])->name('klasifikasis')->middleware('role:admin');
+        Route::post('/klasifikasis',         [PengaturanController::class, 'storeKlasifikasi'])->name('klasifikasis.store')->middleware('role:admin');
+        Route::put('/klasifikasis/{klasifikasi}', [PengaturanController::class, 'updateKlasifikasi'])->name('klasifikasis.update')->middleware('role:admin');
+        Route::delete('/klasifikasis/{klasifikasi}', [PengaturanController::class, 'destroyKlasifikasi'])->name('klasifikasis.destroy')->middleware('role:admin');
+
+        // Sifat Surat
+        Route::get('/sifat_surats',          [PengaturanController::class, 'sifatSurats'])->name('sifat_surats')->middleware('role:admin');
+        Route::post('/sifat_surats',         [PengaturanController::class, 'storeSifatSurat'])->name('sifat_surats.store')->middleware('role:admin');
+        Route::put('/sifat_surats/{sifat_surat}', [PengaturanController::class, 'updateSifatSurat'])->name('sifat_surats.update')->middleware('role:admin');
+        Route::delete('/sifat_surats/{sifat_surat}', [PengaturanController::class, 'destroySifatSurat'])->name('sifat_surats.destroy')->middleware('role:admin');
+
         // notifikasi
         Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
         Route::get('/notifikasi',  [PengaturanController::class, 'notifikasi'])->name('notifikasi');
