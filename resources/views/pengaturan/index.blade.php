@@ -148,5 +148,22 @@
         <h3 class="mb-1 text-[14px] font-bold">Kelola Sifat Surat</h3>
         <p class="text-[12.5px] leading-[1.5] text-text-abu">Tambah, ubah, atau hapus sifat surat untuk arsip.</p>
     </div>
+
+    <div class="group relative rounded-[14px] border border-border p-[22px] pb-[25px] {{ $canManage ? 'cursor-pointer bg-surface transition-all duration-200 hover:border-bawaslu-red hover:shadow-[0_4px_16px_rgba(192,39,45,0.08)]' : 'bg-gray-100 opacity-70 cursor-not-allowed' }}"
+        @if($canManage)
+            onclick="window.location='{{ route('pengaturan.verifikator') }}'"
+        @endif>
+        @if(!$canManage)
+            <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
+            <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                Fitur hanya bisa diakses Admin & Pimpinan
+            </div>
+        @endif
+        <div class="mb-3 text-[28px]">
+            <img class="size-10" src="{{ asset('img/portugal.png') }}" alt="">
+        </div>
+        <h3 class="mb-1 text-[14px] font-bold">Kelola Verifikator</h3>
+        <p class="text-[12.5px] leading-[1.5] text-text-abu">Tambah, ubah, atau hapus verifikator untuk arsip.</p>
+    </div>
 </div>
 @endsection

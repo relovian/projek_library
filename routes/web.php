@@ -171,6 +171,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/maintenance/cache',        [PengaturanController::class, 'clearCache'])->name('maintenance.cache')->middleware('role:admin');
         Route::post('/maintenance/log',          [PengaturanController::class, 'clearLog'])->name('maintenance.log')->middleware('role:admin');
         Route::post('/maintenance/draft',        [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');
+
+        // Verifikator
+        Route::get('/verifikator',          [PengaturanController::class, 'verifikator'])->name('verifikator')->middleware('role:admin');
+        Route::post('/verifikator',         [PengaturanController::class, 'storeVerifikator'])->name('verifikator.store')->middleware('role:admin');
+        Route::put('/verifikator/{verifikator}', [PengaturanController::class, 'updateVerifikator'])->name('verifikator.update')->middleware('role:admin');
+        Route::delete('/verifikator/{verifikator}', [PengaturanController::class, 'destroyVerifikator'])->name('verifikator.destroy')->middleware('role:admin');
     });
 
     // Surat Masuk (via SuratMasukController)

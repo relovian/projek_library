@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kategori;
 use App\Models\Divisi;
 use App\Models\User;
+use App\Models\Verifikator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -674,6 +675,55 @@ class PengaturanController extends Controller
     {
        // abort_if($sifat_surat->arsips()->count() > 0, 403, 'Sifat Surat masih memiliki arsip.');
         $sifat_surat->delete();
+        return back()->with('success', 'Sifat Surat berhasil dihapus.');
+    }
+    
+    public function verifikator(Request $request)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $verifikator = Verifikator::get();
+        return view('pengaturan.verifikator', compact('verifikator'));
+    }
+
+    public function storeVerifikator(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:verifikator,nama',
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        Verifikator::create([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Verifikator berhasil ditambahkan.');
+    }
+
+    public function updateVerifikator(Request $request, Verifikator $verifikator)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100|unique:verifikator,nama,' . $verifikator->id,
+        ],[
+            'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
+        ]);
+
+        Verifikator::update([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'is_aktif'  => $request->is_aktif ?? 1,
+        ]);
+
+        return back()->with('success', 'Verifikator berhasil diperbarui.');
+    }
+
+    public function destroyVerifikator(Verifikator $verifikator)
+    {
+       // abort_if($sifat_surat->arsips()->count() > 0, 403, 'Sifat Surat masih memiliki arsip.');
+        $verifikator->delete();
         return back()->with('success', 'Sifat Surat berhasil dihapus.');
     }
 
