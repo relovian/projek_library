@@ -28,6 +28,7 @@
             </div>
         </div>
 
+<body class="overflow-x-hidden overflow-y-hidden">
         <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Utama</div>
 
