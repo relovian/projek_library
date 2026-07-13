@@ -10,6 +10,8 @@ use App\Models\Divisi;
 use App\Models\SuratMasuk;
 use App\Models\ArsipKeluar;
 use App\Models\Klasifikasi;
+use App\Models\User;
+use App\Models\Tujuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -23,14 +25,15 @@ class ArsipController extends Controller
         
         // Tab Arsip Masuk
         if ($request->tab === 'masuk') {
-            $query = SuratMasuk::query();
+            $query = SuratMasuk::with(['usersDisposisi']);
             
-            // Filter pencarian
+            // Filter pencarian - cari berdasarkan kode arsip, nama file, perihal, asal instansi
             if ($request->filled('q')) {
                 $query->where(function ($q) use ($request) {
                     $q->where('perihal', 'like', '%' . $request->q . '%')
                       ->orWhere('kode_arsip_masuk', 'like', '%' . $request->q . '%')
-                      ->orWhere('nama_file', 'like', '%' . $request->q . '%');
+                      ->orWhere('nama_file', 'like', '%' . $request->q . '%')
+                      ->orWhere('asal_instansi', 'like', '%' . $request->q . '%');
                 });
             }
             
@@ -38,16 +41,31 @@ class ArsipController extends Controller
                 $query->where('asal_instansi', $request->asal_instansi);
             }
             
-            if ($request->filled('tahun')) {
-                $query->whereYear('tanggal_surat', $request->tahun);
+            // Filter tanggal diterima
+            if ($request->filled('tanggal_diterima')) {
+                $query->whereDate('tanggal_diterima', $request->tanggal_diterima);
+            }
+            
+            // Filter tanggal unggah
+            if ($request->filled('tanggal_unggah')) {
+                $query->whereDate('tanggal_unggah', $request->tanggal_unggah);
+            }
+            
+            // Filter disposisi user (multiple)
+            if ($request->filled('disposisi_user_id')) {
+                $query->whereHas('usersDisposisi', function ($q) use ($request) {
+                    $q->whereIn('users.id', $request->disposisi_user_id);
+                });
             }
             
             $suratMasuks = $query->latest()->paginate(15)->withQueryString();
             $asalInstansiList = SuratMasuk::select('asal_instansi')->distinct()->orderBy('asal_instansi')->pluck('asal_instansi');
             $tahunList = SuratMasuk::selectRaw('YEAR(tanggal_surat) as tahun')
                         ->distinct()->orderByDesc('tahun')->pluck('tahun');
+            $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
+            $tujuans = Tujuan::where('is_aktif', true)->get();
             
-            return view('arsip.index', compact('suratMasuks', 'asalInstansiList', 'tahunList'));
+            return view('arsip.index', compact('suratMasuks', 'asalInstansiList', 'tahunList', 'users', 'tujuans'));
         }
         
         // Tab Arsip Keluar

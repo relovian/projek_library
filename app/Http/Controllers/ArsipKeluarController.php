@@ -23,7 +23,7 @@ class ArsipKeluarController extends Controller
         $klasifikasis = Klasifikasi::where('is_aktif', true)->get();
         $sifats       = SifatSurat::where('is_aktif', true)->get();
         $subBagians   = SubBagian::where('is_aktif', true)->get();
-        $verifikators = Verifikator::where('is_aktif', true)->get();
+        $verifikators = Verifikator::where('is_aktif', true)->with('user')->get();
         $tujuans      = Tujuan::where('is_aktif', true)->get();
         $users        = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
