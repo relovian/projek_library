@@ -54,7 +54,7 @@ class ArsipController extends Controller
             // Filter disposisi user (multiple)
             if ($request->filled('disposisi_user_id')) {
                 $query->whereHas('usersDisposisi', function ($q) use ($request) {
-                    $q->whereIn('users.id', $request->disposisi_user_id);
+                    $q->whereIn('users.id', (array) $request->input('disposisi_user_id', []));
                 });
             }
             
