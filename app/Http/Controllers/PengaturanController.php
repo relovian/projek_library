@@ -188,10 +188,10 @@ class PengaturanController extends Controller
             'role'           => $request->role,
             'divisi_id'      => $request->divisi_id ?: null,
             'is_aktif'       => $request->is_aktif ?? 1,
-            'is_verifikator'       => $request->is_verifikator ?? 1,
+            'is_verifikator'       => $request->boolean('is_verifikator'),
         ]);
 
-        if ($user->is_verifikator == 1) { 
+        if ($user->is_verifikator) { 
             $user->dataVerifikator()->create([
                 'is_aktif' => 1,
             ]);
@@ -229,6 +229,8 @@ class PengaturanController extends Controller
             'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
         ]);
 
+        $isVerifikator = $request->boolean('is_verifikator');
+
         $user->update([
             'nama_lengkap'   => $request->nama_lengkap,
             'nama_panggilan' => $request->nama_panggilan,
@@ -237,17 +239,10 @@ class PengaturanController extends Controller
             'role'           => $request->role,
             'divisi_id'      => $request->divisi_id ?: null,
             'is_aktif'       => $request->is_aktif ?? 1,
-            'is_verifikator'       => $request->is_verifikator ?? 1,
+            'is_verifikator' => $isVerifikator,
         ]);
 
-            dd([
-        'apakah_ada_input_is_verifikator' => $request->has('is_verifikator'),
-        'nilai_is_verifikator_dari_form' => $request->is_verifikator,
-        'status_is_verifikator_di_user'  => $user->is_verifikator
-    ]);
-
-
-        if ($request->has('is_verifikator')) {
+        if ($isVerifikator) {
             $user->dataVerifikator()->updateOrCreate(
                 ['user_id' => $user->id],
                 ['is_aktif' => 1]

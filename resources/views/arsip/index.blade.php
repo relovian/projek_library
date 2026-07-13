@@ -14,6 +14,8 @@
     @foreach([
         '' => 'Semua Arsip',
         'saya'  => 'Arsip Saya',
+        'masuk' => 'Arsip Masuk',
+        'keluar' => 'Arsip Keluar',
     ] as $tabVal => $tabLabel)
     <a href="{{ route('arsip.index', array_merge(request()->except('tab','page'), $tabVal ? ['tab'=>$tabVal] : [])) }}"
       class="-mb-[2px] inline-block border-b-2 border-transparent px-[18px] py-2.5 text-[13.5px] font-semibold text-text-abu transition-colors duration-200 hover:text-text [&.active]:border-b-bawaslu-red [&.active]:text-bawaslu-red {{ request('tab', '') === $tabVal ? 'active' : '' }}">
@@ -29,23 +31,47 @@
 
     <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer w-[220px]" type="text" name="q" value="{{ request('q') }}" placeholder=" Cari judul dokumen... ">
 
-    <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="kategori_id">
-        <option value="">Semua Kategori</option>
-        @foreach($kategoris as $kat)
-        <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
-            {{ $kat->nama }}
-        </option>
-        @endforeach
-    </select>
+    @if(request('tab') === 'masuk' || request('tab') === 'keluar')
+        {{-- Filter khusus untuk arsip masuk/keluar --}}
+        @if(request('tab') === 'masuk')
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="asal_instansi">
+                <option value="">Semua Asal Instansi</option>
+                @foreach($asalInstansiList as $instansi)
+                <option value="{{ $instansi }}" {{ request('asal_instansi') == $instansi ? 'selected' : '' }}>
+                    {{ $instansi }}
+                </option>
+                @endforeach
+            </select>
+        @elseif(request('tab') === 'keluar')
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="klasifikasi_id">
+                <option value="">Semua Klasifikasi</option>
+                @foreach($klasifikasis as $klas)
+                <option value="{{ $klas->id }}" {{ request('klasifikasi_id') == $klas->id ? 'selected' : '' }}>
+                    {{ $klas->nama }}
+                </option>
+                @endforeach
+            </select>
+        @endif
+    @else
+        {{-- Filter untuk arsip utama --}}
+        <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="kategori_id">
+            <option value="">Semua Kategori</option>
+            @foreach($kategoris as $kat)
+            <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
+                {{ $kat->nama }}
+            </option>
+            @endforeach
+        </select>
 
-    <select class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="divisi_id">
-        <option value="">Semua Divisi</option>
-        @foreach($divisis as $div)
-        <option value="{{ $div->id }}" {{ request('divisi_id') == $div->id ? 'selected' : '' }}>
-            {{ $div->nama }}
-        </option>
-        @endforeach
-    </select>
+        <select class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="divisi_id">
+            <option value="">Semua Divisi</option>
+            @foreach($divisis as $div)
+            <option value="{{ $div->id }}" {{ request('divisi_id') == $div->id ? 'selected' : '' }}>
+                {{ $div->nama }}
+            </option>
+            @endforeach
+        </select>
+    @endif
 
     <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tahun">
         <option value="">Semua Tahun</option>
@@ -54,15 +80,26 @@
         @endforeach
     </select>
 
-    <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="status">
-        <option value="">Semua Status</option>
-        @foreach(['draft'=>'Draft','menunggu'=>'Menunggu','ditinjau'=>'Ditinjau','disetujui'=>'Disetujui','ditolak'=>'Ditolak'] as $val => $label)
-        <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
-        @endforeach
-    </select>
+    @if(request('tab') === 'masuk' || request('tab') === 'keluar')
+        {{-- Status filter untuk arsip masuk/keluar --}}
+        <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="status">
+            <option value="">Semua Status</option>
+            @foreach(['draft'=>'Draft','menunggu'=>'Menunggu','ditinjau'=>'Ditinjau','disetujui'=>'Disetujui','ditolak'=>'Ditolak'] as $val => $label)
+            <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
+        </select>
+    @else
+        {{-- Status filter untuk arsip utama --}}
+        <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="status">
+            <option value="">Semua Status</option>
+            @foreach(['draft'=>'Draft','menunggu'=>'Menunggu','ditinjau'=>'Ditinjau','disetujui'=>'Disetujui','ditolak'=>'Ditolak'] as $val => $label)
+            <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
+        </select>
+    @endif
 
     <button type="submit" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit]">Terapkan Filter</button>
-    @if(request()->hasAny(['q','kategori_id','divisi_id','tahun','status']))
+    @if(request()->hasAny(['q','kategori_id','divisi_id','klasifikasi_id','asal_instansi','tahun','status']))
         <a href="{{ route('arsip.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">Reset</a>
     @endif
 </form>
@@ -73,99 +110,222 @@
         <table class="w-full border-collapse text-[13.5px]">
             <thead>
                 <tr>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Kategori</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Divisi</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Ukuran</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
+                    @if(request('tab') === 'masuk')
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Asal Instansi</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Surat</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Diterima</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
+                    @elseif(request('tab') === 'keluar')
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Klasifikasi</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Surat</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Unggah</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
+                    @else
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Kategori</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Divisi</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Ukuran</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
-                @forelse($arsips as $arsip)
-                <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
-                    <td class="px-[14px] py-3 pl-5">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-[7px] flex items-center justify-center text-[15px] shrink-0">
-                               <img 
-                                    src="{{ $arsip->file_pertama?->ikon ?? asset('img/berkas.png') }}"
-                                    alt="icon"
-                                    class="w-[25px] h-[25px] object-contain"
-                                >
+                @if(request('tab') === 'masuk')
+                    @forelse($suratMasuks as $suratMasuk)
+                    <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
+                        <td class="px-[14px] py-3 pl-5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-[7px] flex items-center justify-center text-[15px] shrink-0">
+                                   <img 
+                                        src="{{ asset('img/berkas.png') }}"
+                                        alt="icon"
+                                        class="w-[25px] h-[25px] object-contain"
+                                    >
+                                </div>
+                                <div>
+                                    <div class="text-[13px] font-semibold">{{ Str::limit($suratMasuk->perihal, 45) }}</div>
+                                    <div class="text-[11px] text-abu mt-[1px]">{{ $suratMasuk->kode_arsip_masuk }}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-[13px] font-semibold">{{ Str::limit($arsip->judul, 45) }}</div>
-                                <div class="text-[11px] text-abu mt-[1px]">{{ $arsip->kode_arsip }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $arsip->kategori->nama }}</span></td>
-                    <td class="px-[14px] py-3">{{ $arsip->divisi->nama }}</td>
-                    <td class="px-[14px] py-3">{{ $arsip->tanggal_dokumen->format('d/m/Y') }}</td>
-                    <td class="px-[14px] py-3">
-                        <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
-                            @switch($arsip->status_color)
-                                @case('green') bg-[#ECFDF5] text-[#059669] @break
-                                @case('yellow') bg-[#FFFBEB] text-[#D97706] @break
-                                @case('blue') bg-[#EFF6FF] text-[#2563EB] @break
-                                @case('gray') bg-[#F5F5F5] text-[#6B7280] @break
-                                @case('red') bg-[#FEF2F2] text-[#DC2626] @break
-                                @default bg-[#F5F5F5] text-[#6B7280]
-                            @endswitch">
-                            {{ $arsip->status_label }}
-                        </span>
-                    </td>
-                    <td class="px-[14px] py-3">{{ $arsip->file_pertama?->ukuran_format ?? '-' }}</td>
-                    <td class="px-[14px] py-3">
-                        <div class="flex gap-1.5">
-                            <a href="{{ route('arsip.show', $arsip) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
-                                <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
-                            </a>
-                            
-                            {{-- Sesudah --}}
-                            @if(auth()->user()->role === 'admin' || auth()->user()->id === $arsip->uploader_id)
-                                <a href="{{ route('arsip.edit', $arsip) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Edit">
-                                    <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
+                        </td>
+                        <td class="px-[14px] py-3">{{ $suratMasuk->asal_instansi }}</td>
+                        <td class="px-[14px] py-3">{{ $suratMasuk->tanggal_surat->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">{{ $suratMasuk->tanggal_diterima->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">
+                            <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0 bg-[#F5F5F5] text-[#6B7280]">
+                                Disetujui
+                            </span>
+                        </td>
+                        <td class="px-[14px] py-3">
+                            <div class="flex gap-1.5">
+                                <a href="{{ $suratMasuk->link_file }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                 </a>
-
-                                <form method="POST" action="{{ route('arsip.destroy', $arsip->id) }}"
-                                    onsubmit="return confirm('Pindahkan arsip ini ke trash?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2" title="Hapus">
-                                        <img src="{{ asset('img/hapus.png') }}" class="w-[15px] h-[15px]" alt="">
-                                    </button>
-                                </form>
-
-                            @endif
-                          
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7">
-                        <div class="text-center py-10 px-5 text-abu">
-                            <div class="flex justify-center align-center text-[40px] mb-[10px]">
-                                <img src="{{ asset('img/arsip.png') }}" alt="">
                             </div>
-                            <p class="text-[14px]">Tidak ada arsip yang tersedia</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6">
+                            <div class="text-center py-10 px-5 text-abu">
+                                <div class="flex justify-center align-center text-[40px] mb-[10px]">
+                                    <img src="{{ asset('img/arsip.png') }}" alt="">
+                                </div>
+                                <p class="text-[14px]">Tidak ada arsip masuk yang tersedia</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                @elseif(request('tab') === 'keluar')
+                    @forelse($arsipKeluars as $arsipKeluar)
+                    <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
+                        <td class="px-[14px] py-3 pl-5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-[7px] flex items-center justify-center text-[15px] shrink-0">
+                                   <img 
+                                        src="{{ asset('img/berkas.png') }}"
+                                        alt="icon"
+                                        class="w-[25px] h-[25px] object-contain"
+                                    >
+                                </div>
+                                <div>
+                                    <div class="text-[13px] font-semibold">{{ Str::limit($arsipKeluar->perihal, 45) }}</div>
+                                    <div class="text-[11px] text-abu mt-[1px]">{{ $arsipKeluar->kode_arsip_keluar }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->klasifikasi->nama }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->tanggal_surat->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->tanggal_unggah->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">
+                            <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0 bg-[#F5F5F5] text-[#6B7280]">
+                                Disetujui
+                            </span>
+                        </td>
+                        <td class="px-[14px] py-3">
+                            <div class="flex gap-1.5">
+                                <a href="{{ $arsipKeluar->link_file }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6">
+                            <div class="text-center py-10 px-5 text-abu">
+                                <div class="flex justify-center align-center text-[40px] mb-[10px]">
+                                    <img src="{{ asset('img/arsip.png') }}" alt="">
+                                </div>
+                                <p class="text-[14px]">Tidak ada arsip keluar yang tersedia</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                @else
+                    @forelse($arsips as $arsip)
+                    <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
+                        <td class="px-[14px] py-3 pl-5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-[7px] flex items-center justify-center text-[15px] shrink-0">
+                                   <img 
+                                        src="{{ $arsip->file_pertama?->ikon ?? asset('img/berkas.png') }}"
+                                        alt="icon"
+                                        class="w-[25px] h-[25px] object-contain"
+                                    >
+                                </div>
+                                <div>
+                                    <div class="text-[13px] font-semibold">{{ Str::limit($arsip->judul, 45) }}</div>
+                                    <div class="text-[11px] text-abu mt-[1px]">{{ $arsip->kode_arsip }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $arsip->kategori->nama }}</span></td>
+                        <td class="px-[14px] py-3">{{ $arsip->divisi->nama }}</td>
+                        <td class="px-[14px] py-3">{{ $arsip->tanggal_dokumen->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">
+                            <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
+                                @switch($arsip->status_color)
+                                    @case('green') bg-[#ECFDF5] text-[#059669] @break
+                                    @case('yellow') bg-[#FFFBEB] text-[#D97706] @break
+                                    @case('blue') bg-[#EFF6FF] text-[#2563EB] @break
+                                    @case('gray') bg-[#F5F5F5] text-[#6B7280] @break
+                                    @case('red') bg-[#FEF2F2] text-[#DC2626] @break
+                                    @default bg-[#F5F5F5] text-[#6B7280]
+                                @endswitch">
+                                {{ $arsip->status_label }}
+                            </span>
+                        </td>
+                        <td class="px-[14px] py-3">{{ $arsip->file_pertama?->ukuran_format ?? '-' }}</td>
+                        <td class="px-[14px] py-3">
+                            <div class="flex gap-1.5">
+                                <a href="{{ route('arsip.show', $arsip) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
+                                </a>
+                                
+                                {{-- Hanya admin atau uploader yang bisa edit/hapus (hanya untuk Arsip Saya) --}}
+                                @if(request('tab') === 'saya' && (auth()->user()->role === 'admin' || auth()->user()->id === $arsip->uploader_id))
+                                    <a href="{{ route('arsip.edit', $arsip) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Edit">
+                                        <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
+                                    </a>
 
+                                    <form method="POST" action="{{ route('arsip.destroy', $arsip->id) }}"
+                                        onsubmit="return confirm('Pindahkan arsip ini ke trash?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2" title="Hapus">
+                                            <img src="{{ asset('img/hapus.png') }}" class="w-[15px] h-[15px]" alt="">
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7">
+                            <div class="text-center py-10 px-5 text-abu">
+                                <div class="flex justify-center align-center text-[40px] mb-[10px]">
+                                    <img src="{{ asset('img/arsip.png') }}" alt="">
+                                </div>
+                                <p class="text-[14px]">Tidak ada arsip yang tersedia</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                @endif
             
             </tbody>
         </table>
     </div>
 
-    <div class="px-4 py-5 border-t border-solid border-border flex justify-between items-center flex-wrap gap-[10px]">
-        <span class="text-xs text-abu">
-            Menampilkan {{ $arsips->firstItem() }}–{{ $arsips->lastItem() }} dari {{ number_format($arsips->total()) }} dokumen
-        </span>
-        {{ $arsips->withQueryString()->links() }}
-    </div>
+    @if(request('tab') === 'masuk')
+        <div class="px-4 py-5 border-t border-solid border-border flex justify-between items-center flex-wrap gap-[10px]">
+            <span class="text-xs text-abu">
+                Menampilkan {{ $suratMasuks->firstItem() ?? 0 }}–{{ $suratMasuks->lastItem() ?? 0 }} dari {{ number_format($suratMasuks->total()) }} dokumen
+            </span>
+            {{ $suratMasuks->withQueryString()->links() }}
+        </div>
+    @elseif(request('tab') === 'keluar')
+        <div class="px-4 py-5 border-t border-solid border-border flex justify-between items-center flex-wrap gap-[10px]">
+            <span class="text-xs text-abu">
+                Menampilkan {{ $arsipKeluars->firstItem() ?? 0 }}–{{ $arsipKeluars->lastItem() ?? 0 }} dari {{ number_format($arsipKeluars->total()) }} dokumen
+            </span>
+            {{ $arsipKeluars->withQueryString()->links() }}
+        </div>
+    @else
+        <div class="px-4 py-5 border-t border-solid border-border flex justify-between items-center flex-wrap gap-[10px]">
+            <span class="text-xs text-abu">
+                Menampilkan {{ $arsips->firstItem() }}–{{ $arsips->lastItem() }} dari {{ number_format($arsips->total()) }} dokumen
+            </span>
+            {{ $arsips->withQueryString()->links() }}
+        </div>
+    @endif
 </div>
 
 <div class="mt-3 text-right">

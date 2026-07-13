@@ -261,11 +261,11 @@
 
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Verifikator</label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('is_aktif') border-[#DC2626] border-[1.5px] @enderror" name="is_aktif" id="uStatus">
-                        <option value="1" {{ old('is_verifikator', request()->has('edit') && isset($editUser) ? $editUser->is_verifikator : '1') == '1' ? 'selected' : '' }}>Ya</option>
-                        <option value="0" {{ old('is_verifikator', request()->has('edit') && isset($editUser) ? $editUser->is_verifikator : '1') == '0' ? 'selected' : '' }}>Tidak</option>
+                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('is_verifikator') border-[#DC2626] border-[1.5px] @enderror" name="is_verifikator" id="uVerifikator">
+                        <option value="1" {{ old('is_verifikator', request()->has('edit') && isset($editUser) ? $editUser->is_verifikator : '') == '1' ? 'selected' : '' }}>Ya</option>
+                        <option value="0" {{ old('is_verifikator', request()->has('edit') && isset($editUser) ? $editUser->is_verifikator : '') == '0' ? 'selected' : '' }}>Tidak</option>
                     </select>
-                    @error('is_aktif')
+                    @error('is_verifikator')
                         <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
                     @enderror
                 </div>

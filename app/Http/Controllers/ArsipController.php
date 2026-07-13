@@ -7,6 +7,9 @@ use App\Models\ArsipFile;
 use App\Models\AktivitasLog;
 use App\Models\Kategori;
 use App\Models\Divisi;
+use App\Models\SuratMasuk;
+use App\Models\ArsipKeluar;
+use App\Models\Klasifikasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -16,10 +19,70 @@ class ArsipController extends Controller
     // ── Index (Daftar Arsip) ─────────────────────────────
     public function index(Request $request)
     {
+        $user = auth()->user();
+        
+        // Tab Arsip Masuk
+        if ($request->tab === 'masuk') {
+            $query = SuratMasuk::query();
+            
+            // Filter pencarian
+            if ($request->filled('q')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('perihal', 'like', '%' . $request->q . '%')
+                      ->orWhere('kode_arsip_masuk', 'like', '%' . $request->q . '%')
+                      ->orWhere('nama_file', 'like', '%' . $request->q . '%');
+                });
+            }
+            
+            if ($request->filled('asal_instansi')) {
+                $query->where('asal_instansi', $request->asal_instansi);
+            }
+            
+            if ($request->filled('tahun')) {
+                $query->whereYear('tanggal_surat', $request->tahun);
+            }
+            
+            $suratMasuks = $query->latest()->paginate(15)->withQueryString();
+            $asalInstansiList = SuratMasuk::select('asal_instansi')->distinct()->orderBy('asal_instansi')->pluck('asal_instansi');
+            $tahunList = SuratMasuk::selectRaw('YEAR(tanggal_surat) as tahun')
+                        ->distinct()->orderByDesc('tahun')->pluck('tahun');
+            
+            return view('arsip.index', compact('suratMasuks', 'asalInstansiList', 'tahunList'));
+        }
+        
+        // Tab Arsip Keluar
+        if ($request->tab === 'keluar') {
+            $query = ArsipKeluar::with(['klasifikasi', 'uploader']);
+            
+            // Filter pencarian
+            if ($request->filled('q')) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('perihal', 'like', '%' . $request->q . '%')
+                      ->orWhere('kode_arsip_keluar', 'like', '%' . $request->q . '%')
+                      ->orWhere('nama_file', 'like', '%' . $request->q . '%');
+                });
+            }
+            
+            if ($request->filled('klasifikasi_id')) {
+                $query->where('klasifikasi_id', $request->klasifikasi_id);
+            }
+            
+            if ($request->filled('tahun')) {
+                $query->whereYear('tanggal_surat', $request->tahun);
+            }
+            
+            $arsipKeluars = $query->latest()->paginate(15)->withQueryString();
+            $klasifikasis = Klasifikasi::where('is_aktif', true)->get();
+            $tahunList = ArsipKeluar::selectRaw('YEAR(tanggal_surat) as tahun')
+                        ->distinct()->orderByDesc('tahun')->pluck('tahun');
+            
+            return view('arsip.index', compact('arsipKeluars', 'klasifikasis', 'tahunList'));
+        }
+
+        // Tab Arsip utama (Semua Arsip & Arsip Saya)
         $query = Arsip::with(['kategori', 'divisi', 'uploader', 'files']);
 
         // Filter berdasarkan role — staff hanya lihat divisi sendiri dan publik
-        $user = auth()->user();
         if ($user->role === 'staff') {
             $query->where(function ($q) use ($user) {
                 $q->where('divisi_id', $user->divisi_id)
@@ -61,7 +124,7 @@ class ArsipController extends Controller
         $kategoris = Kategori::where('is_aktif', true)->get();
         $divisis   = Divisi::where('is_aktif', true)->get();
         $tahunList = Arsip::selectRaw('YEAR(tanggal_dokumen) as tahun')
-                        ->distinct()->orderByDesc('tahun')->pluck('tahun');
+                    ->distinct()->orderByDesc('tahun')->pluck('tahun');
 
         return view('arsip.index', compact('arsips', 'kategoris', 'divisis', 'tahunList'));
     }
