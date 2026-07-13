@@ -44,8 +44,8 @@
                 <img class="w-4 h-4" src="{{ asset('img/unduh.png') }}" alt="">Unggah Surat Masuk
             </a>
 
-            <a href="{{ route('unggah.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('unggah.*') ? 'active' : '' }}">
-                <img class="w-4 h-4" src="{{ asset('img/unggah.png') }}" alt="">Unggah Surat Keluar
+            <a href="{{ route('arsip-keluar.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('arsip-keluar.*') ? 'active' : '' }}">
+                <img class="w-4 h-4" src="{{ asset('img/unggah.png') }}" alt="">Unggah Arsip Keluar
             </a>
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Manajemen</div>

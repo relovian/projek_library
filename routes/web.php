@@ -3,7 +3,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArsipController;
-use App\Http\Controllers\UnggahController;
 use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AktivitasController;
@@ -93,14 +92,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{arsip}/unduh',       [ArsipController::class, 'download'])->name('download');
     });
 
-    // Unggah (dokumen arsip) + draft routes
-    Route::prefix('unggah')->name('unggah.')->group(function () {
-        Route::get('/',                    [UnggahController::class, 'create'])->name('create');
-        Route::post('/',                   [UnggahController::class, 'store'])->name('store');
-        Route::get('/draft/{arsip}/edit',  [UnggahController::class, 'editDraft'])->name('draft.edit');
-        Route::put('/draft/{arsip}',       [UnggahController::class, 'updateDraft'])->name('draft.update');
-    });
-
     // Aktivitas
     Route::get('/aktivitas', [AktivitasController::class, 'index'])->name('aktivitas.index');
 
@@ -177,11 +168,23 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/verifikator',         [PengaturanController::class, 'storeVerifikator'])->name('verifikator.store')->middleware('role:admin');
         Route::put('/verifikator/{verifikator}', [PengaturanController::class, 'updateVerifikator'])->name('verifikator.update')->middleware('role:admin');
         Route::delete('/verifikator/{verifikator}', [PengaturanController::class, 'destroyVerifikator'])->name('verifikator.destroy')->middleware('role:admin');
+        
+        // Tujuan
+        Route::get('/tujuan',          [PengaturanController::class, 'tujuan'])->name('tujuan')->middleware('role:admin');
+        Route::post('/tujuan',         [PengaturanController::class, 'storeTujuan'])->name('tujuan.store')->middleware('role:admin');
+        Route::put('/tujuan/{tujuan}', [PengaturanController::class, 'updateTujuan'])->name('tujuan.update')->middleware('role:admin');
+        Route::delete('/tujuan/{tujuan}', [PengaturanController::class, 'destroyTujuan'])->name('tujuan.destroy')->middleware('role:admin');
     });
 
-    // Surat Masuk (via SuratMasukController)
+    // Surat Masuk
     Route::prefix('surat-masuk')->name('surat-masuk.')->group(function () {
         Route::get('/create',  [SuratMasukController::class, 'create'])->name('create');
         Route::post('/',       [SuratMasukController::class, 'store'])->name('store');
+    });
+
+    // Arsip Keluar
+    Route::prefix('arsip-keluar')->name('arsip-keluar.')->group(function () {
+        Route::get('/create',  [\App\Http\Controllers\ArsipKeluarController::class, 'create'])->name('create');
+        Route::post('/',       [\App\Http\Controllers\ArsipKeluarController::class, 'store'])->name('store');
     });
 });

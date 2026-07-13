@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'nama_lengkap', 'nama_panggilan', 'nip', 'email', 'password',
-        'role', 'divisi_id', 'telepon', 'foto', 'is_aktif', 'last_login_at',
+        'role', 'divisi_id', 'telepon', 'foto', 'is_aktif', 'is_verifikator', 'last_login_at',
         'notif_arsip_baru', 'notif_arsip_disetujui', 'notif_arsip_ditolak',
         'notif_menunggu_persetujuan','notif_revisi_dokumen',
     ];
@@ -22,6 +23,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'is_aktif'      => 'boolean',
+        'is_verifikator'=> 'boolean',
         'last_login_at' => 'datetime',
     ];
 
@@ -44,6 +46,18 @@ class User extends Authenticatable
     public function aktivitasLogs(): HasMany
     {
         return $this->hasMany(AktivitasLog::class);
+    }
+
+    public function dataVerifikator(): HasOne
+    {
+        return $this->hasOne(Verifikator::class, 'user_id');
+    }
+
+
+    // ── Scopes ────────────────────────────────────────────
+    public function scopeVerifikator($query)
+    {
+        return $query->where('is_verifikator', true);
     }
 
     // ── Helpers ─────────────────────────────────────────────

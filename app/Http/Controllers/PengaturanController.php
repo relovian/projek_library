@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use App\Models\Divisi;
+use App\Models\Tujuan;
 use App\Models\User;
 use App\Models\Verifikator;
 use Illuminate\Http\Request;
@@ -152,6 +153,7 @@ class PengaturanController extends Controller
             'password'       => ['required', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
             'nip'            => 'required|digits:18|unique:users,nip', 
             'role'           => 'required|in:admin,staff,pimpinan,komisioner,kepala_sekretariat,kepala_sub_bagian',
+            'is_verifikator' => 'boolean',
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
             'nama_lengkap.string' => 'Nama harus berupa teks.',
@@ -177,7 +179,7 @@ class PengaturanController extends Controller
             'role.in' => 'Role yang dipilih tidak valid.',
         ]);
 
-        User::create([
+        $user = User::create([
             'nama_lengkap'   => $request->nama_lengkap,
             'nama_panggilan' => $request->nama_panggilan,
             'nip'            => $request->nip,
@@ -186,7 +188,14 @@ class PengaturanController extends Controller
             'role'           => $request->role,
             'divisi_id'      => $request->divisi_id ?: null,
             'is_aktif'       => $request->is_aktif ?? 1,
+            'is_verifikator'       => $request->is_verifikator ?? 1,
         ]);
+
+        if ($user->is_verifikator == 1) { 
+            $user->dataVerifikator()->create([
+                'is_aktif' => 1,
+            ]);
+        }
 
         return back()->with('success', 'User berhasil ditambahkan.');
     }
@@ -228,10 +237,29 @@ class PengaturanController extends Controller
             'role'           => $request->role,
             'divisi_id'      => $request->divisi_id ?: null,
             'is_aktif'       => $request->is_aktif ?? 1,
+            'is_verifikator'       => $request->is_verifikator ?? 1,
         ]);
 
+            dd([
+        'apakah_ada_input_is_verifikator' => $request->has('is_verifikator'),
+        'nilai_is_verifikator_dari_form' => $request->is_verifikator,
+        'status_is_verifikator_di_user'  => $user->is_verifikator
+    ]);
+
+
+        if ($request->has('is_verifikator')) {
+            $user->dataVerifikator()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['is_aktif' => 1]
+            );
+        } else {
+            $user->dataVerifikator()->delete();
+        }
+
         return back()->with('success', 'User berhasil diperbarui.');
+
     }
+    
 
     public function destroyUser(User $user)
     {
@@ -682,49 +710,58 @@ class PengaturanController extends Controller
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        $verifikator = Verifikator::get();
-        return view('pengaturan.verifikator', compact('verifikator'));
+        $users = User::verifikator()->with('dataVerifikator')->get();
+
+        return view('pengaturan.verifikator', compact('users'));
     }
 
-    public function storeVerifikator(Request $request)
+    public function tujuan(Request $request)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $tujuan = Tujuan::get();
+        return view('pengaturan.tujuan', compact('tujuan'));
+    }
+
+    public function storeTujuan(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:100|unique:verifikator,nama',
+            'nama' => 'required|string|max:100|unique:tujuan,nama',
         ],[
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        Verifikator::create([
+        Tujuan::create([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,
         ]);
 
-        return back()->with('success', 'Verifikator berhasil ditambahkan.');
+        return back()->with('success', 'Tujuan berhasil ditambahkan.');
     }
 
-    public function updateVerifikator(Request $request, Verifikator $verifikator)
+    public function updateTujuan(Request $request, Tujuan $tujuan)
     {
         $request->validate([
-            'nama' => 'required|string|max:100|unique:verifikator,nama,' . $verifikator->id,
+            'nama' => 'required|string|max:100|unique:tujuan,nama,' . $tujuan->id,
         ],[
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        Verifikator::update([
+        Tujuan::update([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,
         ]);
 
-        return back()->with('success', 'Verifikator berhasil diperbarui.');
+        return back()->with('success', 'Tujuan berhasil diperbarui.');
     }
 
-    public function destroyVerifikator(Verifikator $verifikator)
+    public function destroyTujuan(Tujuan $tujuan)
     {
        // abort_if($sifat_surat->arsips()->count() > 0, 403, 'Sifat Surat masih memiliki arsip.');
-        $verifikator->delete();
-        return back()->with('success', 'Sifat Surat berhasil dihapus.');
+        $tujuan->delete();
+        return back()->with('success', 'Tujuan berhasil dihapus.');
     }
 
 }
