@@ -31,7 +31,7 @@
 
     {{-- Baris 1: Search + Tujuan (untuk arsip masuk) atau kategori/divisi (untuk arsip utama) --}}
     <div class="flex items-center gap-2.5 flex-wrap">
-        <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer w-[220px]" type="text" name="q" value="{{ request('q') }}" placeholder=" Cari dokumen..." onkeyup="autoSearch()">
+        <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer flex-1 min-w-[300px]" type="text" name="q" value="{{ request('q') }}" placeholder=" Cari dokumen, asal instansi, perihal..." onkeyup="autoSearch()">
 
         @if(request('tab') === 'masuk')
             {{-- Dropdown Tujuan untuk arsip masuk --}}
@@ -78,17 +78,14 @@
     {{-- Baris 2: Filter lainnya --}}
     <div class="flex items-center gap-2.5 flex-wrap">
         @if(request('tab') === 'masuk')
-            {{-- Filter Asal Instansi - input text --}}
-            <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="text" name="asal_instansi" value="{{ request('asal_instansi') }}" placeholder="Cari asal instansi..." onkeyup="autoSearch()">
-
             <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_diterima" value="{{ request('tanggal_diterima') }}" onchange="autoSearch()">
 
             <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_unggah" value="{{ request('tanggal_unggah') }}" onchange="autoSearch()">
 
-            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="disposisi_user_id" onchange="autoSearch()">
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="disposisi_user_id[]" multiple size="1" onchange="autoSearch()" style="min-width: 180px;">
                 <option value="">Semua Disposisi</option>
                 @foreach($users ?? [] as $u)
-                <option value="{{ $u->id }}" {{ request('disposisi_user_id') == $u->id ? 'selected' : '' }}>
+                <option value="{{ $u->id }}" {{ in_array($u->id, request('disposisi_user_id', [])) ? 'selected' : '' }}>
                     {{ $u->nama_lengkap }}
                 </option>
                 @endforeach
@@ -109,9 +106,7 @@
             @endforeach
         </select>
 
-        @if(request()->filled('q') || request()->filled('kategori_id') || request()->filled('divisi_id') || request()->filled('klasifikasi_id') || request()->filled('asal_instansi') || request()->filled('tahun') || request()->filled('status') || request()->filled('tanggal_diterima') || request()->filled('tanggal_unggah') || request()->filled('disposisi_user_id') || request()->filled('tujuan_id'))
-            <a href="{{ route('arsip.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">Reset</a>
-        @endif
+        <a href="{{ route('arsip.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">Reset</a>
     </div>
 </form>
 
