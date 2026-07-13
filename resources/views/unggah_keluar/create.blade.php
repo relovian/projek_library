@@ -132,7 +132,7 @@
                     <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}" name="verifikator_id">
                         <option value="">Pilih verifikator…</option>
                         @foreach($verifikators as $v)
-                        <option value="{{ $v->id }}" {{ old('verifikator_id') == $v->id ? 'selected' : '' }}>{{ $v->nama }}</option>
+                        <option value="{{ $v->id }}" {{ old('verifikator_id') == $v->id ? 'selected' : '' }}>{{ $v->user->nama_lengkap ?? $v->user->name ?? 'Verifikator' }}</option>
                         @endforeach
                     </select>
                     @error('verifikator_id')
