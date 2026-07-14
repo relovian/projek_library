@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\File; // Diperbaiki: Menggunakan namespace penuh
 class SuratMasukController extends Controller
 {
     public function upload() {
-        $path = public_path('img/arsip.png'); // Sintaks lebih bersih
-        $filename = 'arsip.png';
+        $path = public_path('img/foto.png'); // Sintaks lebih bersih
+        $filename = 'foto.png';
 
         // Pastikan driver 'google' sudah dikonfigurasi di config/filesystems.php
         Storage::disk('google')->put($filename, File::get($path));

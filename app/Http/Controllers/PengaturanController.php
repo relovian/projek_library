@@ -152,7 +152,7 @@ class PengaturanController extends Controller
             'email'          => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password'       => ['required', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
             'nip'            => 'required|digits:18|unique:users,nip', 
-            'role'           => 'required|in:admin,staff,pimpinan,komisioner,kepala_sekretariat,kepala_sub_bagian',
+            'role'           => 'required|in:admin,komisioner,kepala_sekretariat,kepala_sub_bagian,staff',
             'is_verifikator' => 'boolean',
         ], [
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
@@ -220,7 +220,7 @@ class PengaturanController extends Controller
                 'max:50',
                 Rule::unique('users', 'nip')->ignore($user->id),
             ],
-            'role'           => 'required|in:admin,staff,pimpinan,komisioner,kepala_sekretariat,kepala_sub_bagian',
+            'role'           => 'required|in:admin,komisioner,kepala_sekretariat,kepala_sub_bagian,staff',
         ], [
             'nama_panggilan.required' => 'Nama panggilan wajib diisi.',
             'nama_panggilan.string' => 'Nama panggilan harus berupa teks.',
