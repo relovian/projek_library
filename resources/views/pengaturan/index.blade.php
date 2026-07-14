@@ -5,7 +5,7 @@
 @section('content')
 @php
     $user = auth()->user();
-    $canManage = $user->isAdmin() || $user->isPimpinan();
+    $canManage = $user->isAdmin();
 @endphp
 
 <div class="mb-7">
@@ -21,7 +21,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -38,7 +38,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -55,7 +55,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -88,7 +88,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -105,7 +105,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -122,7 +122,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -139,7 +139,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -156,7 +156,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">
@@ -173,7 +173,7 @@
         @if(!$canManage)
             <img src="{{ asset('img/lock.png') }}" class="absolute top-4 right-4 w-6 h-6" alt="Locked">
             <div class="absolute right-8 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                Fitur hanya bisa diakses Admin & Pimpinan
+                Fitur hanya bisa diakses Admin
             </div>
         @endif
         <div class="mb-3 text-[28px]">

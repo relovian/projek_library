@@ -11,6 +11,7 @@ use App\Services\GoogleDriveService;
 
 class SuratMasukController extends Controller
 {
+
     protected $googleDriveService;
 
     // Lakukan Dependency Injection melalui Constructor
