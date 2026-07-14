@@ -15,6 +15,10 @@ use App\Models\Tujuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\SifatSurat;
+use App\Models\SubBagian;
+use App\Models\Verifikator;
+
 
 class ArsipController extends Controller
 {
@@ -54,7 +58,7 @@ class ArsipController extends Controller
             // Filter disposisi user (multiple)
             if ($request->filled('disposisi_user_id')) {
                 $query->whereHas('usersDisposisi', function ($q) use ($request) {
-                    $q->whereIn('users.id', $request->disposisi_user_id);
+                     $q->whereIn('users.id', (array) $request->disposisi_user_id);
                 });
             }
             
@@ -70,32 +74,81 @@ class ArsipController extends Controller
         
         // Tab Arsip Keluar
         if ($request->tab === 'keluar') {
-            $query = ArsipKeluar::with(['klasifikasi', 'uploader']);
-            
-            // Filter pencarian
+            $query = ArsipKeluar::with([
+                'klasifikasi',
+                'sifatSurat',
+                'subBagian',
+                'verifikator.user',
+                'tujuan',
+                'pembuat',
+                'uploader'
+            ]);
+
+
+            // Filter pencarian (q)
             if ($request->filled('q')) {
                 $query->where(function ($q) use ($request) {
-                    $q->where('perihal', 'like', '%' . $request->q . '%')
-                      ->orWhere('kode_arsip_keluar', 'like', '%' . $request->q . '%')
-                      ->orWhere('nama_file', 'like', '%' . $request->q . '%');
+                    $q->where('kode_arsip_keluar', 'like', '%' . $request->q . '%')
+                      ->orWhere('nama_file', 'like', '%' . $request->q . '%')
+                      ->orWhere('perihal', 'like', '%' . $request->q . '%');
                 });
             }
-            
+
+            // Filter dropdown
+            if ($request->filled('tujuan_id')) {
+                $query->where('tujuan_id', $request->tujuan_id);
+            }
+
             if ($request->filled('klasifikasi_id')) {
                 $query->where('klasifikasi_id', $request->klasifikasi_id);
             }
-            
-            if ($request->filled('tahun')) {
-                $query->whereYear('tanggal_surat', $request->tahun);
+
+            if ($request->filled('sifat_id')) {
+                $query->where('sifat_id', $request->sifat_id);
             }
-            
+
+            if ($request->filled('sub_bagian_id')) {
+                $query->where('sub_bagian_id', $request->sub_bagian_id);
+            }
+
+            if ($request->filled('verifikator_id')) {
+                $query->where('verifikator_id', $request->verifikator_id);
+            }
+
+            if ($request->filled('pembuat_id')) {
+                $query->where('pembuat_id', $request->pembuat_id);
+            }
+
+            // Filter tanggal
+            if ($request->filled('tanggal_surat')) {
+                $query->whereDate('tanggal_surat', $request->tanggal_surat);
+            }
+
+            if ($request->filled('tanggal_unggah')) {
+                $query->whereDate('tanggal_unggah', $request->tanggal_unggah);
+            }
+
             $arsipKeluars = $query->latest()->paginate(15)->withQueryString();
+
             $klasifikasis = Klasifikasi::where('is_aktif', true)->get();
-            $tahunList = ArsipKeluar::selectRaw('YEAR(tanggal_surat) as tahun')
-                        ->distinct()->orderByDesc('tahun')->pluck('tahun');
-            
-            return view('arsip.index', compact('arsipKeluars', 'klasifikasis', 'tahunList'));
+            $sifats       = \App\Models\SifatSurat::where('is_aktif', true)->get();
+            $subBagians   = \App\Models\SubBagian::where('is_aktif', true)->get();
+            $verifikators = \App\Models\Verifikator::where('is_aktif', true)->with('user')->get();
+            $tujuans      = Tujuan::where('is_aktif', true)->get();
+            $users        = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
+
+            return view('arsip.index', compact(
+                'arsipKeluars',
+                'klasifikasis',
+                'sifats',
+                'subBagians',
+                'verifikators',
+                'tujuans',
+                'users'
+            ));
         }
+
+
 
         // Tab Arsip utama (Semua Arsip & Arsip Saya)
         $query = Arsip::with(['kategori', 'divisi', 'uploader', 'files']);

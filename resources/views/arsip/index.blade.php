@@ -31,7 +31,7 @@
 
     {{-- Baris 1: Search + Tujuan (untuk arsip masuk) atau kategori/divisi (untuk arsip utama) --}}
     <div class="flex items-center gap-2.5 flex-wrap">
-        <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer flex-1 min-w-[300px]" type="text" name="q" value="{{ request('q') }}" placeholder=" Cari dokumen, asal instansi, perihal..." onkeyup="autoSearch()">
+        <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer flex-1 min-w-[300px]" type="text" name="q" value="{{ request('q') }}" placeholder="Cari kode arsip keluar, nama file, perihal..." onkeyup="autoSearch()">
 
         @if(request('tab') === 'masuk')
             {{-- Dropdown Tujuan untuk arsip masuk --}}
@@ -44,16 +44,17 @@
                 @endforeach
             </select>
         @elseif(request('tab') === 'keluar')
-            {{-- Dropdown Klasifikasi untuk arsip keluar --}}
-            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="klasifikasi_id" onchange="autoSearch()">
-                <option value="">Semua Klasifikasi</option>
-                @foreach($klasifikasis ?? [] as $klas)
-                <option value="{{ $klas->id }}" {{ request('klasifikasi_id') == $klas->id ? 'selected' : '' }}>
-                    {{ $klas->nama }}
+            {{-- Dropdown Tujuan untuk arsip keluar --}}
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tujuan_id" onchange="autoSearch()">
+                <option value="">Semua Tujuan</option>
+                @foreach($tujuans ?? [] as $t)
+                <option value="{{ $t->id }}" {{ request('tujuan_id') == $t->id ? 'selected' : '' }}>
+                    {{ $t->nama }}
                 </option>
                 @endforeach
             </select>
         @else
+
             {{-- Filter untuk arsip utama --}}
             <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="kategori_id" onchange="autoSearch()">
                 <option value="">Semua Kategori</option>
@@ -90,24 +91,76 @@
                 </option>
                 @endforeach
             </select>
+
+        @elseif(request('tab') === 'keluar')
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="klasifikasi_id" onchange="autoSearch()">
+                <option value="">Semua Klasifikasi</option>
+                @foreach($klasifikasis ?? [] as $klas)
+                <option value="{{ $klas->id }}" {{ request('klasifikasi_id') == $klas->id ? 'selected' : '' }}>
+                    {{ $klas->nama }}
+                </option>
+                @endforeach
+            </select>
+
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="sifat_id" onchange="autoSearch()">
+                <option value="">Semua Sifat</option>
+                @foreach($sifats ?? [] as $s)
+                <option value="{{ $s->id }}" {{ request('sifat_id') == $s->id ? 'selected' : '' }}>
+                    {{ $s->nama }}
+                </option>
+                @endforeach
+            </select>
+
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="sub_bagian_id" onchange="autoSearch()">
+                <option value="">Semua Sub Bagian</option>
+                @foreach($subBagians ?? [] as $sb)
+                <option value="{{ $sb->id }}" {{ request('sub_bagian_id') == $sb->id ? 'selected' : '' }}>
+                    {{ $sb->nama }}
+                </option>
+                @endforeach
+            </select>
+
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="verifikator_id" onchange="autoSearch()">
+                <option value="">Semua Verifikator</option>
+                @foreach($verifikators ?? [] as $v)
+                <option value="{{ $v->id }}" {{ request('verifikator_id') == $v->id ? 'selected' : '' }}>
+                    {{ $v->user->nama_lengkap ?? $v->user->name ?? 'Verifikator' }}
+                </option>
+                @endforeach
+            </select>
+
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="pembuat_id" onchange="autoSearch()">
+                <option value="">Semua Pembuat</option>
+                @foreach($users ?? [] as $u)
+                <option value="{{ $u->id }}" {{ request('pembuat_id') == $u->id ? 'selected' : '' }}>
+                    {{ $u->nama_lengkap }}
+                </option>
+                @endforeach
+            </select>
+
+            <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_surat" value="{{ request('tanggal_surat') }}" onchange="autoSearch()">
+
+            <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_unggah" value="{{ request('tanggal_unggah') }}" onchange="autoSearch()">
+
+        @else
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tahun" onchange="autoSearch()">
+                <option value="">Semua Tahun</option>
+                @foreach($tahunList ?? [] as $tahun)
+                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
+                @endforeach
+            </select>
+
+            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="status" onchange="autoSearch()">
+                <option value="">Semua Status</option>
+                @foreach(['draft'=>'Draft','menunggu'=>'Menunggu','ditinjau'=>'Ditinjau','disetujui'=>'Disetujui','ditolak'=>'Ditolak'] as $val => $label)
+                <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
         @endif
-
-        <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tahun" onchange="autoSearch()">
-            <option value="">Semua Tahun</option>
-            @foreach($tahunList ?? [] as $tahun)
-            <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
-            @endforeach
-        </select>
-
-        <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="status" onchange="autoSearch()">
-            <option value="">Semua Status</option>
-            @foreach(['draft'=>'Draft','menunggu'=>'Menunggu','ditinjau'=>'Ditinjau','disetujui'=>'Disetujui','ditolak'=>'Ditolak'] as $val => $label)
-            <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
-            @endforeach
-        </select>
 
         <a href="{{ route('arsip.index') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">Reset</a>
     </div>
+
 </form>
 
 {{-- Tabel --}}
@@ -126,11 +179,20 @@
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
                     @elseif(request('tab') === 'keluar')
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Kode Arsip</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Nama File</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Perihal</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Klasifikasi</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Sifat</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Sub Bagian</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Verifikator</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tujuan</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Pembuat</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Surat</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Unggah</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
+
                     @else
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Dokumen</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Kategori</th>
@@ -201,6 +263,7 @@
                 @elseif(request('tab') === 'keluar')
                     @forelse($arsipKeluars as $arsipKeluar)
                     <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
+
                         <td class="px-[14px] py-3 pl-5">
                             <div class="flex items-center gap-2.5">
                                 <div class="w-8 h-8 rounded-[7px] flex items-center justify-center text-[15px] shrink-0">
@@ -216,9 +279,17 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-[14px] py-3">{{ $arsipKeluar->klasifikasi->nama }}</td>
-                        <td class="px-[14px] py-3">{{ $arsipKeluar->tanggal_surat->format('d/m/Y') }}</td>
-                        <td class="px-[14px] py-3">{{ $arsipKeluar->tanggal_unggah->format('d/m/Y') }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->kode_arsip_keluar }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->nama_file }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->perihal }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->klasifikasi?->nama ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->sifatSurat?->nama ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->subBagian?->nama ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->verifikator?->user?->nama_lengkap ?? $arsipKeluar->verifikator?->user?->name ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->tujuan?->nama ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ $arsipKeluar->pembuat?->nama_lengkap ?? $arsipKeluar->pembuat?->name ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ optional($arsipKeluar->tanggal_surat)->format('d/m/Y') ?? '-' }}</td>
+                        <td class="px-[14px] py-3">{{ optional($arsipKeluar->tanggal_unggah)->format('d/m/Y') ?? '-' }}</td>
                         <td class="px-[14px] py-3">
                             <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0 bg-[#F5F5F5] text-[#6B7280]">
                                 Disetujui
@@ -231,10 +302,12 @@
                                 </a>
                             </div>
                         </td>
+
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6">
+                        <td colspan="14">
+
                             <div class="text-center py-10 px-5 text-abu">
                                 <div class="flex justify-center align-center text-[40px] mb-[10px]">
                                     <img src="{{ asset('img/arsip.png') }}" alt="">

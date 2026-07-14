@@ -180,6 +180,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('surat-masuk')->name('surat-masuk.')->group(function () {
         Route::get('/create',  [SuratMasukController::class, 'create'])->name('create');
         Route::post('/',       [SuratMasukController::class, 'store'])->name('store');
+        Route::get('/upload',       [SuratMasukController::class, 'upload']);
     });
 
     // Arsip Keluar
