@@ -68,7 +68,7 @@ class User extends Authenticatable
 
     public function isPimpinan(): bool
     {
-        return $this->role === 'pimpinan';
+        return $this->role === 'kepala_sekretariat';
     }
 
     public function isStaff(): bool
@@ -105,7 +105,7 @@ class User extends Authenticatable
     {
         return match ($this->role) {
             'admin'               => 'Admin',
-            'pimpinan'            => 'Pimpinan',
+            'pimpinan'            => 'Kepala Sekretariat', // Backward compatibility
             'komisioner'          => 'Komisioner',
             'kepala_sekretariat'  => 'Kepala Sekretariat',
             'kepala_sub_bagian'   => 'Kepala Sub Bagian',

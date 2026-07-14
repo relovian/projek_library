@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('nip')->unique()->nullable();
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'staff', 'pimpinan'])->default('staff');
+            $table->enum('role', ['admin', 'komisioner', 'kepala_sekretariat', 'kepala_sub_bagian', 'staff'])->default('staff');
             $table->foreignId('divisi_id')->nullable()->constrained('divisi')->nullOnDelete();
             $table->string('telepon')->nullable();
             $table->string('foto')->nullable();

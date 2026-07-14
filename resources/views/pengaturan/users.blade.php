@@ -48,7 +48,6 @@
                     <td class="px-[14px] py-3">
                         <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
                             @if($u->role === 'admin') bg-[#FEF2F2] text-[#DC2626]
-                            @elseif($u->role === 'pimpinan') bg-[#EFF6FF] text-[#2563EB]
                             @elseif($u->role === 'komisioner') bg-[#FFF7ED] text-[#EA580C]
                             @elseif($u->role === 'kepala_sekretariat') bg-[#F0FDF4] text-[#16A34A]
                             @elseif($u->role === 'kepala_sub_bagian') bg-[#F5F3FF] text-[#7C3AED]
@@ -222,12 +221,11 @@
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Role <span class="text-bawaslu-red">*</span></label>
                     <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('role') border-[#DC2626] border-[1.5px] @enderror" name="role" id="uRole">
-                        <option value="staff" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'staff' ? 'selected' : '' }}>Staff</option>
-                        <option value="pimpinan" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'pimpinan' ? 'selected' : '' }}>Pimpinan</option>
+                        <option value="admin" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="komisioner" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'komisioner' ? 'selected' : '' }}>Komisioner</option>
                         <option value="kepala_sekretariat" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'kepala_sekretariat' ? 'selected' : '' }}>Kepala Sekretariat</option>
                         <option value="kepala_sub_bagian" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'kepala_sub_bagian' ? 'selected' : '' }}>Kepala Sub Bagian</option>
-                        <option value="admin" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="staff" {{ old('role', request()->has('edit') && isset($editUser) ? $editUser->role : '') == 'staff' ? 'selected' : '' }}>Staff</option>
                     </select>
                     @error('role')
                         <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
