@@ -250,7 +250,7 @@
                     <input type="file" id="fileInput" name="file" class="hidden"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                         onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? 'Maks. 50 MB per file'; document.getElementById('folderIcon').src = this.files[0] ? '{{ asset('img/folder_open.png') }}' : '{{ asset('img/folder_kosong.png') }}'">
-                    <p class="text-[11px] text-abu mt-1">File akan otomatis diupload ke Google Drive.</p>
+                                <p class="text-[11px] text-abu mt-1">File akan disimpan di server lokal.</p>
                     @error('file')
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
@@ -303,113 +303,12 @@
             <ul class="text-xs text-abu leading-[1.8] pl-4 mt-2">
                 <li>Isi semua field yang bertanda <span class="text-bawaslu-red">*</span></li>
                 <li>Pilih minimal satu tujuan/disposisi surat</li>
-                <li>File akan otomatis diupload ke Google Drive</li>
-                <li>Link Google Drive akan otomatis tersimpan di database</li>
-                <li>Format file: PDF, DOCX, XLSX, JPG, PNG (maks. 50 MB)</li>
+                <li>File akan disimpan di server lokal terlebih dahulu</li>
+                <li>Google Drive akan dicoba secara otomatis (opsional)</li>
+                <li>Format file: PDF, DOCX, XLSX, JPG, PNG </li>
             </ul>
         </div>
     </div>
 </div>
 @endsection
 
-@push('scripts')
-<script>
-    // Fungsi toggle upload metode (file atau link)
-    function toggleUploadMetode() {
-        const fileRadio = document.querySelector('input[name="metode_upload"][value="file"]');
-        const linkRadio = document.querySelector('input[name="metode_upload"][value="link"]');
-        const fileSection = document.getElementById('uploadFileSection');
-        const linkSection = document.getElementById('uploadLinkSection');
-
-        if (fileRadio && fileRadio.checked) {
-            fileSection.classList.remove('hidden');
-            linkSection.classList.add('hidden');
-            // Hapus required dari link input
-            document.querySelector('input[name="link_file"]').removeAttribute('required');
-        } else if (linkRadio && linkRadio.checked) {
-            fileSection.classList.add('hidden');
-            linkSection.classList.remove('hidden');
-            // Hapus required dari file input (karena pake link)
-            document.querySelector('input[name="file"]').removeAttribute('required');
-        }
-    }
-
-    // Fungsi copy link ke clipboard
-    function copyToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Tersalin!';
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-blue-600');
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('bg-blue-600');
-                    btn.classList.add('bg-green-600');
-                }, 2000);
-            }).catch(() => {
-                // Fallback
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('Link berhasil disalin!');
-            });
-        } else {
-            // Fallback untuk browser lama
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            alert('Link berhasil disalin!');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        const deselectAllBtn = document.getElementById('deselectAllBtn');
-        const checkAllHeader = document.getElementById('checkAllHeader');
-        const userCheckboxes = document.querySelectorAll('.user-checkbox');
-
-        function selectAll() {
-            userCheckboxes.forEach(cb => cb.checked = true);
-            if (checkAllHeader) checkAllHeader.checked = true;
-        }
-
-        function deselectAll() {
-            userCheckboxes.forEach(cb => cb.checked = false);
-            if (checkAllHeader) checkAllHeader.checked = false;
-        }
-
-        if (selectAllBtn) {
-            selectAllBtn.addEventListener('click', selectAll);
-        }
-        if (deselectAllBtn) {
-            deselectAllBtn.addEventListener('click', deselectAll);
-        }
-        if (checkAllHeader) {
-            checkAllHeader.addEventListener('change', function() {
-                if (this.checked) {
-                    selectAll();
-                } else {
-                    deselectAll();
-                }
-            });
-        }
-
-        userCheckboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                if (checkAllHeader) {
-                    const allChecked = Array.from(userCheckboxes).every(c => c.checked);
-                    checkAllHeader.checked = allChecked;
-                }
-            });
-        });
-    });
-</script>
-@endpush

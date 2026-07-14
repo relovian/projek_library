@@ -17,4 +17,9 @@ class SubBagian extends Model
     {
         return $this->hasMany(Arsip::class);
     }
+
+    public function arsipKeluars(): HasMany
+    {
+        return $this->hasMany(ArsipKeluar::class, 'sub_bagian_id');
+    }
 }

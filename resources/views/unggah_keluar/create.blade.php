@@ -259,7 +259,7 @@
                     <input type="file" id="fileInput" name="file" class="hidden"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                         onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? 'Maks. 50 MB per file'; document.getElementById('folderIcon').src = this.files[0] ? '{{ asset('img/folder_open.png') }}' : '{{ asset('img/folder_kosong.png') }}'">
-                    <p class="text-[11px] text-abu mt-1">File akan otomatis diupload ke Google Drive.</p>
+                    <p class="text-[11px] text-abu mt-1">File akan disimpan di server lokal.</p>
                     @error('file')
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
@@ -305,8 +305,8 @@
             <ul class="text-xs text-abu leading-[1.8] pl-4 mt-2">
                 <li>Isi semua field yang bertanda <span class="text-bawaslu-red">*</span></li>
                 <li>No. Arsip otomatis tergenerate dari klasifikasi + tanggal</li>
-                <li>File akan otomatis diupload ke Google Drive</li>
-                <li>Link akan otomatis tersimpan di database</li>
+                <li>File akan disimpan di server lokal terlebih dahulu</li>
+                <li>Google Drive akan dicoba secara otomatis (opsional)</li>
                 <li>Format file: PDF, DOCX, XLSX, JPG, PNG (maks. 50 MB)</li>
             </ul>
         </div>

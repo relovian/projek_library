@@ -13,64 +13,166 @@
     <div class="group relative overflow-hidden rounded-[14px] border border-border bg-surface p-[22px] transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-bawaslu-red"></div>
         <div class="mb-[14px] flex size-[42px] items-center justify-center rounded-[10px] bg-[#FEF2F2]">
-            <img src="{{ asset('img/arsip.png') }}" class="size-5" alt="">
+            <img src="{{ asset('img/unggah.png') }}" class="size-5" alt="">
         </div>
-        <div class="text-[30px] font-extrabold leading-none text-text">{{ number_format($stats['total_arsip']) }}</div>
-        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Total Arsip Tersimpan</div>
+        <div class="text-[30px] font-extrabold leading-none text-text">{{ number_format($stats['total_arsip_masuk']) }}</div>
+        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Total Arsip Masuk</div>
     </div>
 
     <div class="group relative overflow-hidden rounded-[14px] border border-border bg-surface p-[22px] transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-blue-500"></div>
         <div class="mb-[14px] flex size-[42px] items-center justify-center rounded-[10px] bg-[#EFF6FF]">
-            <img src="{{ asset('img/deadline.png') }}" class="size-5" alt="">
+            <img src="{{ asset('img/unduh.png') }}" class="size-5" alt="">
         </div>
-        <div class="text-[30px] font-extrabold leading-none text-text">{{ $stats['menunggu'] }}</div>
-        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Menunggu Persetujuan</div>
-        @if($stats['menunggu'] > 0)
-            <div class="mt-2 inline-flex items-center rounded-full bg-[#FFFBEB] px-2 py-[2px] text-[11px] font-semibold text-[#D97706]">Perlu ditinjau</div>
-        @endif
+        <div class="text-[30px] font-extrabold leading-none text-text">{{ number_format($stats['total_arsip_keluar']) }}</div>
+        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Total Arsip Keluar</div>
     </div>
 
     <div class="group relative overflow-hidden rounded-[14px] border border-border bg-surface p-[22px] transition-all duration-200 hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)]">
         <div class="absolute inset-x-0 top-0 h-[3px] bg-emerald-500"></div>
         <div class="mb-[14px] flex size-[42px] items-center justify-center rounded-[10px] bg-[#ECFDF5]">
-            <img src="{{ asset('img/group.png') }}" class="size-5" alt="">
+            <img src="{{ asset('img/arsip.png') }}" class="size-5" alt="">
         </div>
-        <div class="text-[30px] font-extrabold leading-none text-text">{{ $stats['user_aktif'] }}</div>
-        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Pengguna Aktif</div>
+        <div class="text-[30px] font-extrabold leading-none text-text">{{ number_format($stats['total_arsip_semua']) }}</div>
+        <div class="mt-[6px] text-[12.5px] font-medium text-text-abu">Total Semua Arsip</div>
     </div>
 </div>
 
-{{-- Arsip Per Kategori --}}
+{{-- Statistik Arsip (Chart Bulat) --}}
 <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
     <div class="flex items-center justify-between mb-5">
         <div>
-            <div class="text-[15px] font-bold">Arsip Per Kategori</div>
-            <div class="text-[12px] text-abu mt-[2px]">Jumlah dokumen berdasarkan kategori</div>
+            <div class="text-[15px] font-bold">Statistik Arsip</div>
+            <div class="text-[12px] text-abu mt-[2px]">Sub Bagian, Klasifikasi, Sifat Surat, Verifikator, dan Tujuan</div>
         </div>
-        <a class="text-[12px] text-bawaslu-red font-semibold cursor-pointer no-underline" href="{{ route('arsip.index') }}">Lihat semua →</a>
+        <button id="btnTampilkanStat" type="button"
+            class="px-3 py-[7px] rounded-lg bg-bawaslu-red text-white text-[12px] font-semibold [font-family:inherit] transition-opacity duration-200 hover:opacity-[0.9]">
+            Tampilkan Statistik
+        </button>
     </div>
-    <div class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 pt-4 pb-1">
-        @forelse($arsipPerKategori as $kat)
-        <a href="{{ route('arsip.index', ['kategori_id' => $kat->id]) }}"
-            class="flex flex-col gap-[6px] bg-[var(--bg-secondary,#f9fafb)] border border-[var(--border,#e5e7eb)] rounded-[10px] px-4 py-[14px] no-underline transition-colors duration-[0.12s]"
-           onmouseover="this.style.background='#f0f4ff'"
-           onmouseout="this.style.background='var(--bg-secondary, #f9fafb)'">
-            <div class="w-2 h-2 rounded-full" style="background-color: {{ $kat->warna ?? '#6b7280' }};"></div>
-            <div class="text-xl font-bold text-[#111827]">
-                {{ number_format($kat->arsips_count) }}
+
+    <div id="statCharts" class="hidden">
+        {{-- Baris 1: 3 kolom --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div class="bg-surface2 border border-border rounded-[14px] p-4">
+                <div class="text-[13px] font-bold mb-2">Sub Bagian</div>
+                <div class="flex items-center justify-center">
+                    <canvas id="chartSubBagian" class="w-full" height="220"></canvas>
+                </div>
             </div>
-            <div class="text-xs text-abu">
-                {{ $kat->nama }}
+
+            <div class="bg-surface2 border border-border rounded-[14px] p-4">
+                <div class="text-[13px] font-bold mb-2">Klasifikasi</div>
+                <div class="flex items-center justify-center">
+                    <canvas id="chartKlasifikasi" class="w-full" height="220"></canvas>
+                </div>
             </div>
-        </a>
-        @empty
-        <div class="text-xs text-abu px-[8px] py-0">
-            Belum ada kategori tersedia.
+
+            <div class="bg-surface2 border border-border rounded-[14px] p-4">
+                <div class="text-[13px] font-bold mb-2">Sifat Surat</div>
+                <div class="flex items-center justify-center">
+                    <canvas id="chartSifat" class="w-full" height="220"></canvas>
+                </div>
+            </div>
         </div>
-        @endforelse
+
+        {{-- Baris 2: 2 kolom (Verifikator & Tujuan sejajar) --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+            <div class="bg-surface2 border border-border rounded-[14px] p-4">
+                <div class="text-[13px] font-bold mb-2">Verifikator</div>
+                <div class="flex items-center justify-center">
+                    <canvas id="chartVerifikator" class="w-full" height="220"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-surface2 border border-border rounded-[14px] p-4">
+                <div class="text-[13px] font-bold mb-2">Tujuan</div>
+                <div class="flex items-center justify-center">
+                    <canvas id="chartTujuan" class="w-full" height="240"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@push('styles')
+    <style>
+        #statCharts canvas { max-width: 420px; }
+    </style>
+@endpush
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartData = @json($chartData);
+            const chartInstances = {};
+
+            function makePieConfig(labels, values) {
+                const colors = [
+                    '#C0272D', '#2563EB', '#059669', '#D97706', '#7C3AED',
+                    '#DC2626', '#10B981', '#6B7280', '#111827', '#3B82F6'
+                ];
+                const bg = values.map(function(_, i) { return colors[i % colors.length]; });
+
+                return {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: bg,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + ctx.parsed; } } }
+                        }
+                    }
+                };
+            }
+
+            function renderCharts() {
+                var ids = [
+                    ['chartSubBagian', 'sub_bagian'],
+                    ['chartKlasifikasi', 'klasifikasi'],
+                    ['chartSifat', 'sifat'],
+                    ['chartVerifikator', 'verifikator'],
+                    ['chartTujuan', 'tujuan'],
+                ];
+
+                ids.forEach(function(item) {
+                    var canvasId = item[0];
+                    var key = item[1];
+                    var canvas = document.getElementById(canvasId);
+                    if (!canvas) return;
+
+                    if (chartInstances[canvasId]) {
+                        chartInstances[canvasId].destroy();
+                    }
+
+                    var labels = (chartData[key] && chartData[key].labels) ? chartData[key].labels : [];
+                    var values = (chartData[key] && chartData[key].values) ? chartData[key].values : [];
+
+                    chartInstances[canvasId] = new Chart(canvas.getContext('2d'), makePieConfig(labels, values));
+                });
+            }
+
+            var btn = document.getElementById('btnTampilkanStat');
+            var wrap = document.getElementById('statCharts');
+
+            if (btn && wrap) {
+                btn.addEventListener('click', function() {
+                    wrap.classList.remove('hidden');
+                    renderCharts();
+                });
+            }
+        });
+    </script>
+@endpush
 
 {{-- Grid Konten --}}
 <div class="grid grid-cols-[1fr_340px] gap-5">

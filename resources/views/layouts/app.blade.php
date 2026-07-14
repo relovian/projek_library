@@ -7,6 +7,7 @@
     <title>@yield('title', 'SIARSIP') — Bawaslu RI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('styles')
 </head>
 <body class="overflow-x-hidden ">
@@ -221,21 +222,6 @@
         </div>
 
     </div>
-
-    @stack('scripts')
-        <script>
-        function toggleNotif() {
-            const dd = document.getElementById('notifDropdown');
-            dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
-        }
-
-        document.addEventListener('click', function(e) {
-            const wrapper = document.getElementById('notifWrapper');
-            if (wrapper && !wrapper.contains(e.target)) {
-                document.getElementById('notifDropdown').style.display = 'none';
-            }
-        });
-        </script>
 
     @stack('scripts')
 

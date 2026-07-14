@@ -17,4 +17,9 @@ class Tujuan extends Model
     {
         return $this->hasMany(Arsip::class);
     }
+
+    public function arsipKeluars(): HasMany
+    {
+        return $this->hasMany(ArsipKeluar::class, 'tujuan_id');
+    }
 }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\GoogleDriveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ArsipKeluarController extends Controller
 {
@@ -32,9 +33,6 @@ class ArsipKeluarController extends Controller
         ));
     }
 
-    /**
-     * Simpan arsip keluar baru + upload file ke Google Drive.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -70,39 +68,14 @@ class ArsipKeluarController extends Controller
             'link_file.url'                   => 'Format link tidak valid.',
         ]);
 
-        // ── Upload file ke Google Drive atau copy dari link ──
-        $driveLink = null;
-        $googleDrive = new GoogleDriveService();
-
-        if ($request->metode_upload === 'file' && $request->hasFile('file')) {
-            try {
-                $file = $request->file('file');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $driveLink = $googleDrive->upload($file, $fileName);
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Gagal upload ke Google Drive: ' . $e->getMessage());
-            }
-        } elseif ($request->metode_upload === 'link' && $request->filled('link_file')) {
-            try {
-                $driveLink = $googleDrive->copyFromLink($request->link_file);
-            } catch (\Exception $e) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Gagal copy file dari link: ' . $e->getMessage());
-            }
-        }
-
         // ── Generate kode arsip ──────────────────────────────
         $klasifikasi = Klasifikasi::findOrFail($request->klasifikasi_id);
-        // Ambil 2 huruf pertama dari nama klasifikasi sebagai kode
         $singkatan = strtoupper(substr($klasifikasi->nama, 0, 2));
         $kodeArsip = ArsipKeluar::generateKode($singkatan, $request->tanggal_unggah);
 
-        // ── Simpan ke Database ──────────────────────────────
+        // ── Simpan ke Database TERLEBIH DAHULU ──────────────
         $arsipKeluar = null;
-        DB::transaction(function () use ($request, $driveLink, $kodeArsip, &$arsipKeluar) {
+        DB::transaction(function () use ($request, $kodeArsip, &$arsipKeluar) {
             $arsipKeluar = ArsipKeluar::create([
                 'kode_arsip_keluar' => $kodeArsip,
                 'nama_file'         => $request->nama_file,
@@ -115,13 +88,61 @@ class ArsipKeluarController extends Controller
                 'pembuat_id'        => $request->pembuat_id,
                 'tanggal_surat'     => $request->tanggal_surat,
                 'tanggal_unggah'    => $request->tanggal_unggah,
-                'link_file'         => $driveLink,
                 'uploader_id'       => auth()->id(),
             ]);
         });
 
+        // ── Simpan file secara lokal (jika upload file) ──
+        $filePath = null;
+        $driveLink = null;
+
+        if ($request->metode_upload === 'file' && $request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileName = $kodeArsip . '_' . time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/arsip_keluar', $fileName, 'public');
+            
+            // Update link_file dengan path lokal
+            $arsipKeluar->link_file = Storage::url($filePath);
+            $arsipKeluar->save();
+        } elseif ($request->metode_upload === 'link' && $request->filled('link_file')) {
+            $arsipKeluar->link_file = $request->link_file;
+            $arsipKeluar->save();
+        }
+
+        // ── Coba upload ke Google Drive (opsional, tidak memblokir) ──
+        try {
+            $googleDrive = new GoogleDriveService();
+
+            if ($request->metode_upload === 'file' && $filePath) {
+                $fullPath = Storage::disk('public')->path($filePath);
+                $file = new \Illuminate\Http\UploadedFile($fullPath, basename($filePath));
+                $fileName = $kodeArsip . '_' . time() . '_' . basename($filePath);
+                $driveLink = $googleDrive->upload($file, $fileName);
+                
+                if ($driveLink) {
+                    $arsipKeluar->link_file = $driveLink;
+                    $arsipKeluar->save();
+                }
+            } elseif ($request->metode_upload === 'link' && $request->filled('link_file')) {
+                $driveLink = $googleDrive->copyFromLink($request->link_file);
+                if ($driveLink) {
+                    $arsipKeluar->link_file = $driveLink;
+                    $arsipKeluar->save();
+                }
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal upload ke Google Drive: ' . $e->getMessage());
+        }
+
+        $message = 'Arsip keluar berhasil ditambahkan ke database!';
+        if ($driveLink) {
+            $message .= ' File sudah tersimpan di Google Drive.';
+        } else {
+            $message .= ' (Google Drive tidak tersedia, file tersimpan secara lokal)';
+        }
+
         return redirect()->route('arsip-keluar.create')
-            ->with('success', 'Arsip keluar berhasil ditambahkan! File sudah tersimpan di Google Drive.')
+            ->with('success', $message)
             ->with('drive_link', $driveLink)
             ->with('kode_arsip', $kodeArsip);
     }
