@@ -15,45 +15,119 @@
     --sidebar-w: 260px;
 }
 
-.switch { 
-    position: relative; 
-    display: inline-block; 
-    width: 44px; 
-    height: 24px; 
-    flex-shrink: 0; 
+/* Smooth transitions for interactive elements only */
+button, a, input, select, textarea, .transition-all {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
 }
 
-.switch input { 
-    opacity: 0; 
-    width: 0; 
-    height: 0; 
+/* Switch toggle */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
-.slider { 
-    position: absolute; 
-    cursor: pointer; 
-    inset: 0; 
-    background:#d1d5db; 
-    border-radius: 24px; 
-    transition: .3s; 
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-.slider::before { 
-    content:''; 
-    position:absolute; 
-    width:18px; 
-    height:18px; 
-    left:3px; 
-    bottom:3px; 
-    background:#fff; 
-    border-radius:50%; 
-    transition:.3s; 
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #d1d5db;
+    border-radius: 24px;
+    transition: .3s;
 }
 
-input:checked + .slider { 
-    background:var(--bawaslu-red, #9b1c1c); 
+.slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .3s;
 }
 
-input:checked + .slider::before { 
-    transform:translateX(20px); 
+input:checked+.slider {
+    background: var(--bawaslu-red, #9b1c1c);
+}
+
+input:checked+.slider::before {
+    transform: translateX(20px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Card hover effect */
+.card-hover {
+    transition: transform 200ms, box-shadow 200ms;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 300ms ease-out;
+}
+
+/* Notification badge pulse */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-pulse-badge {
+    animation: pulse 2s infinite;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-bawaslu {
+    background: linear-gradient(135deg, var(--bawaslu-red) 0%, #8B1A1F 100%);
+}
+
+/* Status badges */
+.badge-draft { background: #F5F5F5; color: #6B7280; }
+.badge-menunggu { background: #FFFBEB; color: #D97706; }
+.badge-ditinjau { background: #EFF6FF; color: #2563EB; }
+.badge-disetujui { background: #ECFDF5; color: #059669; }
+.badge-ditolak { background: #FEF2F2; color: #DC2626; }
+
+/* Modal backdrop */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
 }

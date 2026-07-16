@@ -5,8 +5,9 @@ use App\Http\Controllers\ArsipKeluarController;
 use App\Http\Controllers\ArsipMasukController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengaturanController;
-use App\Http\Controllers\PersetujuanController;
+use App\Http\Controllers\AboutController;
 use Illuminate\Support\Facades\Route;
+
 // ── Redirect root ke dashboard ──────────────────────────
 Route::get('/', fn() => redirect()->route('dashboard'));
 // ── Auth routes (login/register/password/etc) ─────────
@@ -54,6 +55,9 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         Route::post('/{arsip}/tolak', [PersetujuanController::class, 'tolak'])->name('tolak');
         Route::post('/bulk-setujui', [PersetujuanController::class, 'bulkSetujui'])->name('bulk-setujui');
     });
+
+    // About
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     // Pengaturan
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
