@@ -55,13 +55,41 @@ class LoginRequest extends FormRequest
             $field = 'email';
         }
 
-        if (! Auth::attempt([$field => $loginValue, 'password' => $credentials['password']], $this->boolean('remember'))) {
+        // 1) Cek user berdasarkan kredensial (tanpa password)
+        $userQuery = \App\Models\User::query();
+        $userQuery->where($field, $loginValue);
+        $user = $userQuery->first();
+
+        // 2) Pesan custom: user tidak ditemukan / password salah / user nonaktif
+        //    Catatan: Auth::attempt akan tetap hashing password.
+        if (!$user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Email atau NIP tidak sesuai.',
             ]);
         }
+
+        if (!$user->is_aktif) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan. Silakan hubungi admin.',
+            ]);
+        }
+
+        if (! Auth::attempt([
+            $field => $loginValue,
+            'password' => $credentials['password'],
+            'is_aktif' => true,
+        ], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Password salah. Silakan coba lagi.',
+            ]);
+        }
+
 
         RateLimiter::clear($this->throttleKey());
     }

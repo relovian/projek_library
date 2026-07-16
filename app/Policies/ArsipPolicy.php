@@ -37,7 +37,13 @@ class ArsipPolicy
      */
     public function update(User $user, Arsip $arsip): bool
     {
-        return false;
+        // Komisioner tidak bisa edit
+        if ($user->role === 'komisioner') {
+            return false;
+        }
+
+        // Admin atau uploader bisa edit
+        return $user->role === 'admin' || $user->id === $arsip->uploader_id;
     }
 
     /**
@@ -45,7 +51,8 @@ class ArsipPolicy
      */
     public function delete(User $user, Arsip $arsip): bool
     {
-        return false;
+        // Hanya admin yang bisa hapus
+        return $user->role === 'admin';
     }
 
     /**

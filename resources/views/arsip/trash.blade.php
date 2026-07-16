@@ -17,7 +17,7 @@
         <div class="flex gap-2.5 items-center">
             <a href="{{ route('arsip.index') }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali ke Arsip</a>
 
-            @if($arsip->count() > 0)
+            @if($arsip->count() > 0 && auth()->user()->role === 'admin')
             <form method="POST" action="{{ route('arsip.empty-trash') }}"
                 onsubmit="return confirm('Yakin ingin menghapus SEMUA arsip di trash secara permanen? Tindakan ini tidak dapat dibatalkan.')">
                 @csrf
@@ -92,6 +92,7 @@
                     <td class="px-4 py-3 text-[#6b7280] align-middle">
                         <div class="flex gap-2 justify-center">
 
+                            @if(auth()->user()->role === 'admin')
                             {{-- Pulihkan --}}
                             <form method="POST" action="{{ route('arsip.restore', $item->id) }}">
                                 @csrf
@@ -106,6 +107,9 @@
                                 @method('DELETE')
                                 <button type="submit" class="text-[12px] font-medium text-[#dc2626] bg-[#fef2f2] border border-[#fecaca] px-3 py-[5px] rounded-[6px] cursor-pointer hover:bg-[#fee2e2]">🗑 Hapus Permanen</button>
                             </form>
+                            @else
+                                <span class="text-[12px] text-abu">Menunggu admin</span>
+                            @endif
 
                         </div>
                     </td>

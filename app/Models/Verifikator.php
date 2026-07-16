@@ -18,12 +18,12 @@ class Verifikator extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function arsips(): HasMany
+    public function arsip(): HasMany
     {
         return $this->hasMany(Arsip::class);
     }
 
-    public function arsipKeluars(): HasMany
+    public function arsipKeluar(): HasMany
     {
         return $this->hasMany(ArsipKeluar::class, 'verifikator_id');
     }

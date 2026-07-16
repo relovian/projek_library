@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ArsipKeluar extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'arsip_keluar';
 
     protected $fillable = [
@@ -70,7 +73,7 @@ class ArsipKeluar extends Model
     public static function generateKode(string $klasifikasiSingkatan, string $tanggal): string
     {
         // Format: KLASIFIKASI-TAHUNBULANTANGGAL-NNN
-        // Contoh: PM20260720-001
+        // Contoh: PM-20260720-001
         $tgl = str_replace('-', '', $tanggal); // 2026-07-20 -> 20260720
         
         // Cari nomor urut terakhir hari ini
@@ -78,9 +81,14 @@ class ArsipKeluar extends Model
             ->orderBy('id', 'desc')
             ->first();
 
-        $urutan = $last ? ((int) substr($last->kode_arsip_keluar, -3)) + 1 : 1;
+        // Ambil nomor urut dari kode arsip terakhir hari ini
+        if ($last && preg_match('/\d{3}$/', $last->kode_arsip_keluar, $m)) {
+            $urutan = (int) $m[0] + 1;
+        } else {
+            $urutan = 1;
+        }
         $urutan = str_pad($urutan, 3, '0', STR_PAD_LEFT);
 
-        return $klasifikasiSingkatan . $tgl . '-' . $urutan;
+        return $klasifikasiSingkatan . '-' . $tgl . '-' . $urutan;
     }
 }
