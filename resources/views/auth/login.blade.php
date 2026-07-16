@@ -1,122 +1,127 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Arsip Bawaslu</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-gray-50">
 
-    {{-- Judul halaman --}}
-    <div style="text-align:center; margin-bottom:24px;">
-        <h1 style="font-size:22px; font-weight:700; color:#111827; margin:0;">
-            Login Arsip Bawaslu
-        </h1>
-        <p style="font-size:13px; color:#6b7280; margin:6px 0 0;">
-            Sistem Pengelolaan Arsip — Bawaslu Kota Surabaya
-        </p>
+<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-md border-2 border-gray-100 p-7">
 
-        @if (session('message'))
-            <div class="mt-5 mb-5 p-4 rounded-md {{ session('status') == 'success' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200' }}">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    <p class="text-sm font-medium">{{ session('message') }}</p>
-                </div>
+        <div style="text-align:center; margin-bottom:18px;">
+            <h1 class="text-2xl font-bold text-gray-900 m-0">Login Arsip Bawaslu</h1>
+            <p class="text-sm text-gray-500 mt-2">Sistem Pengelolaan Arsip — Bawaslu Kota Surabaya</p>
+        </div>
+
+        @if (session('error'))
+            <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                {{ session('error') }}
             </div>
         @endif
-    </div>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-
-        <!-- Email / NIP -->
-        <div>
-            <x-input-label for="email" :value="__('Email / NIP')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="text" name="email"
-                :value="old('email')" required autofocus autocomplete="username" placeholder="Masukkan email atau NIP" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password + toggle mata -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <div style="position:relative;">
-                <x-text-input id="password" class="block mt-1 w-full"
-                    type="password" name="password"
-                    required autocomplete="current-password"
-                    style="padding-right:42px;" />
-                <button type="button" onclick="togglePassword('password', 'eye-login')"
-                    style="
-                        position:absolute; right:10px; top:50%; transform:translateY(-50%);
-                        background:none; border:none; cursor:pointer;
-                        color:#9ca3af; padding:4px;
-                    ">
-                    <svg id="eye-login" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                        fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                </button>
+        @if (session('message'))
+            <div class="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+                {{ session('message') }}
             </div>
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        @endif
 
-        <!-- Remember me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
-                    name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+        @if ($errors->any())
+            <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                {{ $errors->first() }}
+            </div>
+        @endif
 
-        <!-- Forgot password + tombol login -->
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+        <form method="POST" action="{{ route('login') }}" class="space-y-4">
+            @csrf
 
-    </form>
+            <div>
+                <label for="email" class="block text-sm font-semibold text-gray-700">Email / NIP</label>
+                <input
+                    id="email"
+                    type="text"
+                    name="email"
+                    value="{{ old('email') }}"
+                    required
+                    autofocus
+                    autocomplete="username"
+                    placeholder="Masukkan email atau NIP"
+                    class="mt-1 block w-full rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500"
+                >
+            </div>
 
-    {{-- Link register --}}
-    @if (Route::has('register'))
-    <div style="text-align:center; margin-top:20px; padding-top:16px; border-top:1px solid #e5e7eb;">
-        <span style="font-size:13px; color:#6b7280;">Belum punya akun? </span>
-        <a href="{{ route('register') }}"
-            style="font-size:13px; color:#185FA5; text-decoration:none; font-weight:600;">
-            Daftar di sini
-        </a>
+            <div>
+                <label for="password" class="block text-sm font-semibold text-gray-700">Password</label>
+
+                <div class="relative">
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        required
+                        autocomplete="current-password"
+                        class="mt-1 block w-full rounded-xl border-gray-200 pr-12 focus:border-red-500 focus:ring-red-500"
+                        placeholder="Masukkan password"
+                    >
+
+                    <button
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                        onclick="togglePassword()"
+                        aria-label="Tampilkan password"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="eyeIcon">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <label class="inline-flex items-center">
+                    <input
+                        id="remember"
+                        type="checkbox"
+                        name="remember"
+                        class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500"
+                    >
+                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-[#b71b23] hover:bg-[#cd1720] text-white font-semibold py-2.5 rounded-xl">
+                Log in
+            </button>
+        </form>
+
     </div>
-    @endif
-
-</x-guest-layout>
+</div>
 
 <script>
-function togglePassword(inputId, iconId) {
-    const input = document.getElementById(inputId);
-    const icon  = document.getElementById(iconId);
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
 
-    if (input.type === 'password') {
-        input.type = 'text';
-        // icon mata dicoret
-        icon.innerHTML = `
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-        `;
-        icon.style.color = '#374151';
-    } else {
-        input.type = 'password';
-        // icon mata normal
-        icon.innerHTML = `
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-        `;
-        icon.style.color = '#9ca3af';
+        if (input.type === 'password') {
+            input.type = 'text';
+            eyeIcon.innerHTML = `
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+            `;
+        } else {
+            input.type = 'password';
+            eyeIcon.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            `;
+        }
     }
-}
 </script>
+
+</body>
+</html>
+

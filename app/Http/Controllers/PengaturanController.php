@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kategori;
+use App\Models\AktivitasLog;
 use App\Models\Divisi;
+use App\Models\Kategori;
+use App\Models\Klasifikasi;
+use App\Models\SifatSurat;
+use App\Models\SubBagian;
 use App\Models\Tujuan;
 use App\Models\User;
 use App\Models\Verifikator;
+use Ifsnop\Mysqldump as MysqlDump;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
-use Ifsnop\Mysqldump as MysqlDump;
 
 class PengaturanController extends Controller
 {
@@ -19,68 +23,6 @@ class PengaturanController extends Controller
     public function index()
     {
         return view('pengaturan.index');
-    }
-
-    public function storeKategori(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:100|unique:kategori,nama',
-            'kode' => 'required|string|max:50|unique:kategori,kode', // ← kategori bukan kategoris
-            'warna'=> 'required|string',
-        ],[
-            'nama.unique' => 'kategori telah digunakan, silakan gunakan kategori yang berbeda',
-            'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
-            'kode.required' => 'Kolom Kategori Wajib Di isi',
-            'nama.required' => 'Kolom Kode Wajib Di isi',
-            'nama.string'  => 'Nama kategori harus berupa teks valid.',
-            'kode.string'  => 'Kode harus berupa teks valid.',
-            'warna.string' => 'Pilihan warna harus berupa format teks yang valid.',
-            'nama.max' => 'Nama kategori terlalu panjang, maksimal 100 karakter.',
-            'kode.max' => 'Kode terlalu panjang, maksimal 50 karakter.',
-        ]);
-
-        Kategori::create([
-            'nama'      => $request->nama,
-            'kode'      => strtoupper($request->kode),
-            'warna'     => $request->warna,
-            'deskripsi' => $request->deskripsi,
-            'is_aktif'  => $request->is_aktif ?? 1,
-        ]);
-
-        return back()->with('success', 'Kategori berhasil ditambahkan.');
-    }
-
-    public function updateKategori(Request $request, Kategori $kategori)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:100|unique:kategori,nama,' . $kategori->id,
-            'kode' => 'required|string|max:50|unique:kategori,kode,' . $kategori->id, // ← kategori
-            'warna'=> 'required|string',
-        ], [
-            'nama.unique' => 'kategori telah digunakan, silakan gunakan kategori yang berbeda',
-            'kode.unique' => 'Kode sudah digunakan, silakan gunakan Kode yang berbeda',
-            'nama.string'  => 'Nama kategori harus berupa teks valid.',
-            'kode.string'  => 'Kode harus berupa teks valid.',
-            'warna.string' => 'Pilihan warna harus berupa format teks yang valid.',
-            'nama.max' => 'Nama kategori terlalu panjang, maksimal 100 karakter.',
-            'kode.max' => 'Kode terlalu panjang, maksimal 50 karakter.',
-        ]);
-
-        $kategori->update([
-            'nama'      => $request->nama,
-            'kode'      => strtoupper($request->kode),
-            'warna'     => $request->warna,
-            'deskripsi' => $request->deskripsi,
-            'is_aktif'  => $request->is_aktif ?? 1,
-        ]);
-
-        return back()->with('success', 'Kategori berhasil diperbarui.');
-    }
-
-    public function destroyKategori(Kategori $kategori)
-    {
-        $kategori->delete();
-        return back()->with('success', 'Kategori berhasil dihapus.');
     }
 
     // ── Profil & Password ─────────────────────────────────
@@ -151,7 +93,7 @@ class PengaturanController extends Controller
             'nama_panggilan' => ['required', 'string', 'max:100'],
             'email'          => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password'       => ['required', Rules\Password::min(8)->mixedCase()->numbers()->symbols()],
-            'nip'            => 'required|digits:18|unique:users,nip', 
+            'nip'            => 'nullable|digits:18|unique:users,nip', 
             'role'           => 'required|in:admin,komisioner,kepala_sekretariat,kepala_sub_bagian,staff',
             'is_verifikator' => 'boolean',
         ], [
@@ -172,7 +114,6 @@ class PengaturanController extends Controller
             'password.mixed' => 'Kata sandi harus mengandung huruf besar dan huruf kecil.',
             'password.numbers' => 'Kata sandi harus mengandung minimal satu angka.',
             'password.symbols' => 'Kata sandi harus mengandung minimal satu simbol.',
-            'nip.required' => 'NIP wajib diisi.',
             'nip.digits' => 'NIP harus terdiri dari tepat 18 angka.',
             'nip.unique' => 'NIP sudah terdaftar di sistem.',
             'role.required' => 'Pilih role pengguna.',
@@ -310,43 +251,54 @@ class PengaturanController extends Controller
         return back()->with('success', 'Divisi berhasil dihapus.');
     }
 
-    // ── Kelola Kategori (Admin) ───────────────────────────
-    public function kategoris()
-    {
-        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
-
-        $kategoris = Kategori::withCount('arsips')->get();
-        return view('pengaturan.kategoris', compact('kategoris'));
-    }
-
     // ── Kelola User (Admin) ───────────────────────────────
     public function users(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        // Cek kalau ada parameter ?edit= tapi user tidak ditemukan
-        if ($request->has('edit') && !User::find($request->get('edit'))) {
-            return redirect()->route('pengaturan.users')
-                ->with('error', 'User dengan ID ' . $request->get('edit') . ' tidak ditemukan.');
-        }
-
         $users   = User::with('divisi')->paginate(8);
-        $divisis = Divisi::where('is_aktif', true)->get();
-        return view('pengaturan.users', compact('users', 'divisis'));
+        $divisi = Divisi::where('is_aktif', true)->get();
+        return view('pengaturan.users', compact('users', 'divisi'));
+    }
+
+    // ── Halaman Tambah User (Halaman Terpisah) ─────────────
+    public function createUser()
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $divisi = Divisi::where('is_aktif', true)->get();
+        return view('pengaturan.user_form', [
+            'user' => null,
+            'divisi' => $divisi,
+            'mode' => 'create',
+        ]);
+    }
+
+    // ── Halaman Edit User (Halaman Terpisah) ──────────────
+    public function editUser(User $user)
+    {
+        abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
+
+        $divisi = Divisi::where('is_aktif', true)->get();
+        return view('pengaturan.user_form', [
+            'user' => $user,
+            'divisi' => $divisi,
+            'mode' => 'edit',
+        ]);
     }
 
     // ── Kelola Divisi (Admin) ─────────────────────────────
-    public function divisis(Request $request)
+    public function divisi(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
         if ($request->has('edit') && !User::find($request->get('edit'))) {
-            return redirect()->route('pengaturan.divisis')
+            return redirect()->route('pengaturan.divisi')
             ->with('error', 'Divisi dengan ID ' . $request->get('edit') . ' tidak ditemukan.');
         }
 
-        $divisis = Divisi::withCount('arsips')->get();
-        return view('pengaturan.divisis', compact('divisis'));
+        $divisi = Divisi::withCount('arsips')->get();
+        return view('pengaturan.divisi', compact('divisi'));
     }
 
     public function notifikasi()
@@ -529,7 +481,7 @@ class PengaturanController extends Controller
         abort_if(!auth()->user()->isAdmin(), 403);
 
         try {
-            $deleted = \App\Models\AktivitasLog::where('created_at', '<', now()->subDays(30))->delete();
+            $deleted = AktivitasLog::where('created_at', '<', now()->subDays(30))->delete();
             
             if ($deleted > 0) {
                 return back()->with('success', "{$deleted} log aktivitas berusia lebih dari 90 hari berhasil dihapus.");
@@ -553,9 +505,9 @@ class PengaturanController extends Controller
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        $subBagians = \App\Models\SubBagian::get();//withCount('arsips')->
-        // $divisis = Divisi::where('is_aktif', true)->get();
-        return view('pengaturan.sub_bagians', compact('subBagians'));
+        $subBagian = SubBagian::get();//withCount('arsips')->
+        // $divisi = Divisi::where('is_aktif', true)->get();
+        return view('pengaturan.sub_bagian', compact('subBagian'));
     }
 
     public function storeSubBagian(Request $request)
@@ -566,7 +518,7 @@ class PengaturanController extends Controller
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        \App\Models\SubBagian::create([
+        SubBagian::create([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,
@@ -587,7 +539,6 @@ class PengaturanController extends Controller
         $sub_bagian->update([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
-           
             'is_aktif'  => $request->is_aktif ?? 1,
         ]);
 
@@ -602,12 +553,12 @@ class PengaturanController extends Controller
     }
 
     // ── Kelola Kode Klasifikasi (Admin) ─────────────────────
-    public function klasifikasis(Request $request)
+    public function klasifikasi(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        $klasifikasis = \App\Models\Klasifikasi::get();//withCount('arsips')->
-        return view('pengaturan.klasifikasis', compact('klasifikasis'));
+        $klasifikasi = Klasifikasi::get();//withCount('arsips')->
+        return view('pengaturan.klasifikasi', compact('klasifikasi'));
     }
 
     public function storeKlasifikasi(Request $request)
@@ -618,7 +569,7 @@ class PengaturanController extends Controller
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        \App\Models\Klasifikasi::create([
+        Klasifikasi::create([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,
@@ -644,7 +595,7 @@ class PengaturanController extends Controller
         return back()->with('success', 'Kode Klasifikasi berhasil diperbarui.');
     }
 
-    public function destroyKlasifikasi(\App\Models\Klasifikasi $klasifikasi)
+    public function destroyKlasifikasi(Klasifikasi $klasifikasi)
     {
         // abort_if($klasifikasi->arsips()->count() > 0, 403, 'Kode Klasifikasi masih memiliki arsip.');
         $klasifikasi->delete();
@@ -652,12 +603,12 @@ class PengaturanController extends Controller
     }
 
     // ── Kelola Sifat Surat (Admin) ──────────────────────────
-    public function sifatSurats(Request $request)
+    public function sifatSurat(Request $request)
     {
         abort_if(!auth()->user()->isAdmin(), 403, 'Akses ditolak.');
 
-        $sifatSurats = \App\Models\SifatSurat::get();//withCount('arsips')->
-        return view('pengaturan.sifat_surats', compact('sifatSurats'));
+        $sifatSurat = SifatSurat::get();//withCount('arsips')->
+        return view('pengaturan.sifat_surat', compact('sifatSurat'));
     }
 
     public function storeSifatSurat(Request $request)
@@ -668,7 +619,7 @@ class PengaturanController extends Controller
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        \App\Models\SifatSurat::create([
+        SifatSurat::create([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,

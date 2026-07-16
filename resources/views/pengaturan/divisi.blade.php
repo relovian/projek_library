@@ -26,13 +26,12 @@
                 <tr>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Nama Divisi</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Kode</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Jumlah Arsip</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($divisis as $div)
+                @forelse($divisi as $div)
                 <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
                     <td class="px-[14px] py-3 pl-5">
                         <div class="font-semibold">{{ $div->nama }}</div>
@@ -41,7 +40,6 @@
                         @endif
                     </td>
                     <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $div->kode }}</span></td>
-                    <td class="px-[14px] py-3">{{ $div->arsips_count }} arsip</td>
                     <td class="px-[14px] py-3">
                         <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
                             @if($div->is_aktif) bg-[#ECFDF5] text-[#059669]
@@ -52,14 +50,14 @@
                     <td class="px-[14px] py-3">
                         <div class="flex gap-1.5">
                             {{-- TOMBOL EDIT --}}
-                            <a href="{{ route('pengaturan.divisis', ['edit' => $div->id]) }}" 
+                            <a href="{{ route('pengaturan.divisi', ['edit' => $div->id]) }}" 
                                class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" 
                                title="Edit">
                                 <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
                             </a>
                             
                             @if($div->arsips_count == 0)
-                            <form method="POST" action="{{ route('pengaturan.divisis.destroy', $div) }}"
+                            <form method="POST" action="{{ route('pengaturan.divisi.destroy', $div) }}"
                                 onsubmit="return confirm('Hapus divisi ini?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2">
@@ -91,11 +89,11 @@
 
         <form method="POST" id="formDivisi" 
               action="@if(request()->has('edit') && $editDivisi = \App\Models\Divisi::find(request()->get('edit'))) 
-                        {{ route('pengaturan.divisis.update', $editDivisi) }} 
+                        {{ route('pengaturan.divisi.update', $editDivisi) }} 
                       @elseif(old('_method') == 'PUT' && old('divisi_id')) 
-                        {{ route('pengaturan.divisis.update', old('divisi_id')) }} 
+                        {{ route('pengaturan.divisi.update', old('divisi_id')) }} 
                       @else 
-                        {{ route('pengaturan.divisis.store') }} 
+                        {{ route('pengaturan.divisi.store') }} 
                       @endif">
             @csrf
             @if(request()->has('edit') && isset($editDivisi))
@@ -157,7 +155,7 @@
             <div class="flex gap-[10px]">
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">Simpan</button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.divisis') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-center">Batal</a>
+                <a href="{{ route('pengaturan.divisi') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-center">Batal</a>
                 @endif
                 <button type="button" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4" onclick="resetDivisiForm()">Reset</button>
             </div>
@@ -169,7 +167,7 @@
 @push('scripts')
 <script>
 function resetDivisiForm() {
-    window.location.href = '{{ route('pengaturan.divisis') }}';
+    window.location.href = '{{ route('pengaturan.divisi') }}';
 }
 
 document.getElementById('dKode').addEventListener('input', function() {

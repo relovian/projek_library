@@ -33,7 +33,7 @@ class User extends Authenticatable
         return $this->belongsTo(Divisi::class);
     }
 
-    public function arsips(): HasMany
+    public function arsip(): HasMany
     {
         return $this->hasMany(Arsip::class, 'uploader_id');
     }

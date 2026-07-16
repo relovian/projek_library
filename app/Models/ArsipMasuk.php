@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class SuratMasuk extends Model
+class ArsipMasuk extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'surat_masuk';
 
     protected $fillable = [
@@ -20,6 +23,7 @@ class SuratMasuk extends Model
         'tanggal_unggah',
         'link_file',
         'uploader_id',
+        'tujuan_id',
     ];
 
     protected $casts = [
@@ -32,6 +36,11 @@ class SuratMasuk extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploader_id');
+    }
+
+    public function tujuan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Tujuan::class, 'tujuan_id');
     }
 
     /**

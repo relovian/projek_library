@@ -52,7 +52,7 @@ class Arsip extends Model
         return $this->belongsTo(Arsip::class, 'arsip_induk_id');
     }
 
-    public function revisis(): HasMany
+    public function revisi(): HasMany
     {
         return $this->hasMany(Arsip::class, 'arsip_induk_id');
     }

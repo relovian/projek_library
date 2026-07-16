@@ -7,7 +7,7 @@ use App\Models\ArsipFile;
 use App\Models\AktivitasLog;
 use App\Models\Kategori;
 use App\Models\Divisi;
-use App\Models\SuratMasuk;
+use App\Models\ArsipMasuk;
 use App\Models\ArsipKeluar;
 use App\Models\Klasifikasi;
 use App\Models\User;
@@ -26,10 +26,18 @@ class ArsipController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+
+        // Redirect ke tab "saya" jika tab tidak di-set atau tidak valid
+        if (!in_array($request->tab, ['masuk', 'keluar', 'saya'])) {
+            if($user->role == 'komisioner') {
+                return redirect()->route('arsip.index', ['tab' => 'masuk']);
+            }
+            return redirect()->route('arsip.index', ['tab' => 'saya']);
+        }
         
         // Tab Arsip Masuk
         if ($request->tab === 'masuk') {
-            $query = SuratMasuk::with(['usersDisposisi']);
+            $query = ArsipMasuk::with(['usersDisposisi', 'tujuan']);
             
             // Filter pencarian - cari berdasarkan kode arsip, nama file, perihal, asal instansi
             if ($request->filled('q')) {
@@ -62,14 +70,14 @@ class ArsipController extends Controller
                 });
             }
             
-            $suratMasuks = $query->latest()->paginate(15)->withQueryString();
-            $asalInstansiList = SuratMasuk::select('asal_instansi')->distinct()->orderBy('asal_instansi')->pluck('asal_instansi');
-            $tahunList = SuratMasuk::selectRaw('YEAR(tanggal_surat) as tahun')
+            $ArsipMasuk = $query->latest()->paginate(15)->withQueryString();
+            $asalInstansiList = ArsipMasuk::select('asal_instansi')->distinct()->orderBy('asal_instansi')->pluck('asal_instansi');
+            $tahunList = ArsipMasuk::selectRaw('YEAR(tanggal_surat) as tahun')
                         ->distinct()->orderByDesc('tahun')->pluck('tahun');
             $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
-            $tujuans = Tujuan::where('is_aktif', true)->get();
+            $tujuan = Tujuan::where('is_aktif', true)->get();
             
-            return view('arsip.index', compact('suratMasuks', 'asalInstansiList', 'tahunList', 'users', 'tujuans'));
+            return view('arsip.index', compact('ArsipMasuk', 'asalInstansiList', 'tahunList', 'users', 'tujuan'));
         }
         
         // Tab Arsip Keluar
@@ -128,29 +136,29 @@ class ArsipController extends Controller
                 $query->whereDate('tanggal_unggah', $request->tanggal_unggah);
             }
 
-            $arsipKeluars = $query->latest()->paginate(15)->withQueryString();
+            $arsipKeluar = $query->latest()->paginate(15)->withQueryString();
 
-            $klasifikasis = Klasifikasi::where('is_aktif', true)->get();
-            $sifats       = \App\Models\SifatSurat::where('is_aktif', true)->get();
-            $subBagians   = \App\Models\SubBagian::where('is_aktif', true)->get();
-            $verifikators = \App\Models\Verifikator::where('is_aktif', true)->with('user')->get();
-            $tujuans      = Tujuan::where('is_aktif', true)->get();
-            $users        = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
+            $klasifikasi = Klasifikasi::where('is_aktif', true)->get();
+            $sifat = SifatSurat::where('is_aktif', true)->get();
+            $subBagian = SubBagian::where('is_aktif', true)->get();
+            $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
+            $tujuan = Tujuan::where('is_aktif', true)->get();
+            $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
             return view('arsip.index', compact(
-                'arsipKeluars',
-                'klasifikasis',
-                'sifats',
-                'subBagians',
-                'verifikators',
-                'tujuans',
+                'arsipKeluar',
+                'klasifikasi',
+                'sifat',
+                'subBagian',
+                'verifikator',
+                'tujuan',
                 'users'
             ));
         }
 
 
 
-        // Tab Arsip utama (Semua Arsip & Arsip Saya)
+        // Tab Arsip Saya
         $query = Arsip::with(['kategori', 'divisi', 'uploader', 'files']);
 
         // Filter berdasarkan role — staff hanya lihat divisi sendiri dan publik
@@ -188,16 +196,112 @@ class ArsipController extends Controller
 
         // Tab khusus "arsip saya"
         if ($request->tab === 'saya') {
+            // Jika user memilih filter "Arsip Masuk" di dropdown
+            if ($request->arsip_id === 'arsip_masuk') {
+                $queryMasuk = ArsipMasuk::with(['usersDisposisi', 'tujuan']);
+
+                if ($request->filled('q')) {
+                    $queryMasuk->where(function ($q) use ($request) {
+                        $q->where('perihal', 'like', '%' . $request->q . '%')
+                          ->orWhere('kode_arsip_masuk', 'like', '%' . $request->q . '%')
+                          ->orWhere('nama_file', 'like', '%' . $request->q . '%')
+                          ->orWhere('asal_instansi', 'like', '%' . $request->q . '%');
+                    });
+                }
+
+                $ArsipMasuk = $queryMasuk->latest()->paginate(15)->withQueryString();
+                $asalInstansiList = ArsipMasuk::select('asal_instansi')->distinct()->orderBy('asal_instansi')->pluck('asal_instansi');
+                $tahunList = ArsipMasuk::selectRaw('YEAR(tanggal_surat) as tahun')
+                            ->distinct()->orderByDesc('tahun')->pluck('tahun');
+                $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
+                $tujuan = Tujuan::where('is_aktif', true)->get();
+
+                return view('arsip.index', compact('ArsipMasuk', 'asalInstansiList', 'tahunList', 'users', 'tujuan'));
+            }
+
+            // Jika user memilih filter "Arsip Keluar" di dropdown
+            if ($request->arsip_id === 'arsip_keluar') {
+                $queryKeluar = ArsipKeluar::with([
+                    'klasifikasi',
+                    'sifatSurat',
+                    'subBagian',
+                    'verifikator.user',
+                    'tujuan',
+                    'pembuat',
+                    'uploader'
+                ]);
+
+                if ($request->filled('q')) {
+                    $queryKeluar->where(function ($q) use ($request) {
+                        $q->where('kode_arsip_keluar', 'like', '%' . $request->q . '%')
+                          ->orWhere('nama_file', 'like', '%' . $request->q . '%')
+                          ->orWhere('perihal', 'like', '%' . $request->q . '%');
+                    });
+                }
+
+                if ($request->filled('tujuan_id')) {
+                    $queryKeluar->where('tujuan_id', $request->tujuan_id);
+                }
+
+                if ($request->filled('klasifikasi_id')) {
+                    $queryKeluar->where('klasifikasi_id', $request->klasifikasi_id);
+                }
+
+                if ($request->filled('sifat_id')) {
+                    $queryKeluar->where('sifat_id', $request->sifat_id);
+                }
+
+                if ($request->filled('sub_bagian_id')) {
+                    $queryKeluar->where('sub_bagian_id', $request->sub_bagian_id);
+                }
+
+                if ($request->filled('verifikator_id')) {
+                    $queryKeluar->where('verifikator_id', $request->verifikator_id);
+                }
+
+                if ($request->filled('pembuat_id')) {
+                    $queryKeluar->where('pembuat_id', $request->pembuat_id);
+                }
+
+                if ($request->filled('tanggal_surat')) {
+                    $queryKeluar->whereDate('tanggal_surat', $request->tanggal_surat);
+                }
+
+                if ($request->filled('tanggal_unggah')) {
+                    $queryKeluar->whereDate('tanggal_unggah', $request->tanggal_unggah);
+                }
+
+                $arsipKeluar = $queryKeluar->latest()->paginate(15)->withQueryString();
+
+                $klasifikasi = Klasifikasi::where('is_aktif', true)->get();
+                $sifat = SifatSurat::where('is_aktif', true)->get();
+                $subBagian = SubBagian::where('is_aktif', true)->get();
+                $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
+                $tujuan = Tujuan::where('is_aktif', true)->get();
+                $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
+
+                return view('arsip.index', compact(
+                    'arsipKeluar',
+                    'klasifikasi',
+                    'sifat',
+                    'subBagian',
+                    'verifikator',
+                    'tujuan',
+                    'users'
+                ));
+            }
+
+            // Default: tampilkan arsip milik user (Arsip Saya tanpa filter spesifik)
             $query->where('uploader_id', $user->id);
         }
 
-        $arsips    = $query->latest()->paginate(15)->withQueryString();
-        $kategoris = Kategori::where('is_aktif', true)->get();
-        $divisis   = Divisi::where('is_aktif', true)->get();
+        $arsip = $query->latest()->paginate(15)->withQueryString();
+        $kategori = Kategori::where('is_aktif', true)->get();
+        $divisi = Divisi::where('is_aktif', true)->get();
         $tahunList = Arsip::selectRaw('YEAR(tanggal_dokumen) as tahun')
                     ->distinct()->orderByDesc('tahun')->pluck('tahun');
 
-        return view('arsip.index', compact('arsips', 'kategoris', 'divisis', 'tahunList'));
+        return view('arsip.index', compact('arsip', 'kategori', 'divisi', 'tahunList'));
     }
 
     // ── Show (Detail Arsip) ──────────────────────────────
@@ -221,19 +325,27 @@ class ArsipController extends Controller
     {
         $user = auth()->user();
 
+        if ($user->role === 'komisioner') {
+            abort(403, 'Komisioner tidak dapat mengedit arsip.');
+        }
+
         if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
         }
 
-        $kategoris = Kategori::where('is_aktif', true)->get();
-        $divisis   = Divisi::where('is_aktif', true)->get();
-        return view('arsip.edit', compact('arsip', 'kategoris', 'divisis'));
+        $kategori = Kategori::where('is_aktif', true)->get();
+        $divisi  = Divisi::where('is_aktif', true)->get();
+        return view('arsip.edit', compact('arsip', 'kategori', 'divisi'));
     }
 
     // ── Update ───────────────────────────────────────────
     public function update(Request $request, Arsip $arsip)
     {
         $user = auth()->user();
+
+        if ($user->role === 'komisioner') {
+            abort(403, 'Komisioner tidak dapat mengedit arsip.');
+        }
 
         if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit arsip ini.');
@@ -263,15 +375,22 @@ class ArsipController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role !== 'admin' && $user->id !== $arsip->uploader_id) {
-            abort(403, 'Anda tidak memiliki akses untuk menghapus arsip ini.');
+        // Komisioner: tidak boleh menghapus
+        if ($user->role === 'komisioner') {
+            abort(403, 'Komisioner tidak dapat menghapus arsip.');
+        }
+
+        // Selain admin: hanya boleh hapus arsip miliknya sendiri (uploader_id)
+        if ($user->role !== 'admin' && $arsip->uploader_id !== $user->id) {
+            abort(403, 'Anda hanya dapat menghapus arsip milik Anda sendiri.');
         }
 
         AktivitasLog::catat('hapus', $arsip->id, "Menghapus dokumen: {$arsip->judul}");
-        $arsip->delete();
+        $arsip->delete(); // soft delete ke trash
 
-        return redirect()->route('arsip.index')->with('success', 'Arsip berhasil dipindahkan ke trash.');
+        return redirect()->route('arsip.index', ['tab' => 'saya'])->with('success', 'Arsip berhasil dipindahkan ke trash.');
     }
+
 
     // ── Trash (Daftar Arsip Terhapus) ────────────────────
     public function trash()

@@ -25,13 +25,12 @@
             <thead>
                 <tr>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Nama Klasifikasi</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Jumlah Arsip</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($klasifikasis as $klas)
+                @forelse($klasifikasi as $klas)
                 <tr class="border-b border-border transition-colors duration-[.15s] cursor-pointer hover:bg-surface2 last:border-b-0">
                     <td class="px-[14px] py-3 pl-5">
                         <div class="font-semibold">{{ $klas->nama }}</div>
@@ -39,7 +38,6 @@
                         <div class="text-xs text-abu">{{ $klas->deskripsi }}</div>
                         @endif
                     </td>
-                    <td class="px-[14px] py-3">{{ $klas->arsips_count }} arsip</td>
                     <td class="px-[14px] py-3">
                         <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
                             @if($klas->is_aktif) bg-[#ECFDF5] text-[#059669]
@@ -50,14 +48,14 @@
                     <td class="px-[14px] py-3">
                         <div class="flex gap-1.5">
                             {{-- TOMBOL EDIT --}}
-                            <a href="{{ route('pengaturan.klasifikasis', ['edit' => $klas->id]) }}" 
+                            <a href="{{ route('pengaturan.klasifikasi', ['edit' => $klas->id]) }}" 
                                class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" 
                                title="Edit">
                                 <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
                             </a>
                             
                             @if($klas->arsips_count == 0)
-                            <form method="POST" action="{{ route('pengaturan.klasifikasis.destroy', $klas) }}"
+                            <form method="POST" action="{{ route('pengaturan.klasifikasi.destroy', $klas) }}"
                                 onsubmit="return confirm('Hapus kode klasifikasi ini?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2">
@@ -89,11 +87,11 @@
 
         <form method="POST" id="formKlasifikasi" 
               action="@if(request()->has('edit') && $editKlasifikasi = \App\Models\Klasifikasi::find(request()->get('edit'))) 
-                        {{ route('pengaturan.klasifikasis.update', $editKlasifikasi) }} 
+                        {{ route('pengaturan.klasifikasi.update', $editKlasifikasi) }} 
                       @elseif(old('_method') == 'PUT' && old('klasifikasi_id')) 
-                        {{ route('pengaturan.klasifikasis.update', old('klasifikasi_id')) }} 
+                        {{ route('pengaturan.klasifikasi.update', old('klasifikasi_id')) }} 
                       @else 
-                        {{ route('pengaturan.klasifikasis.store') }} 
+                        {{ route('pengaturan.klasifikasi.store') }} 
                       @endif">
             @csrf
             @if(request()->has('edit') && isset($editKlasifikasi))
@@ -142,7 +140,7 @@
             <div class="flex gap-[10px]">
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">Simpan</button>
                 @if(request()->has('edit') || old('_method') == 'PUT')
-                <a href="{{ route('pengaturan.klasifikasis') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-center">Batal</a>
+                <a href="{{ route('pengaturan.klasifikasi') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-center">Batal</a>
                 @endif
                 <button type="button" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4" onclick="resetKlasifikasiForm()">Reset</button>
             </div>
@@ -154,7 +152,7 @@
 @push('scripts')
 <script>
 function resetKlasifikasiForm() {
-    window.location.href = '{{ route('pengaturan.klasifikasis') }}';
+    window.location.href = '{{ route('pengaturan.klasifikasi') }}';
 };
 </script>
 @endpush

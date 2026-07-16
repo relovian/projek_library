@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Arsip;
 use App\Models\AktivitasLog;
 use App\Models\ArsipKeluar;
+use App\Models\ArsipMasuk;
 use App\Models\Kategori;
 use App\Models\Klasifikasi;
 use App\Models\SifatSurat;
@@ -22,54 +23,54 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $stats = [
-            'total_arsip_masuk'  => \App\Models\SuratMasuk::count(),
-            'total_arsip_keluar' => \App\Models\ArsipKeluar::count(),
-            'total_arsip_semua'  => \App\Models\SuratMasuk::count() + \App\Models\ArsipKeluar::count(),
-            'total_arsip'        => Arsip::count(),
-            'menunggu'           => Arsip::menunggu()->count(),
-            'user_aktif'         => User::where('is_aktif', true)->count(),
+            'total_arsip_masuk' => ArsipMasuk::count(),
+            'total_arsip_keluar' => ArsipKeluar::count(),
+            'total_arsip_semua' => ArsipMasuk::count() + ArsipKeluar::count(),
+            'total_arsip' => Arsip::count(),
+            'menunggu' => Arsip::menunggu()->count(),
+            'user_aktif' => User::where('is_aktif', true)->count(),
         ];
 
         $limitTop = 7;
 
         // ── Statistik dari ArsipKeluar (tabel yang punya foreign key) ──
         $subbaganStats = SubBagian::where('is_aktif', true)
-            ->withCount(['arsipKeluars'])
-            ->orderByDesc('arsip_keluars_count')
+            ->withCount(['arsipKeluar'])
+            ->orderByDesc('arsip_keluar_count')
             ->get(['id', 'nama'])
-            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluars_count])
+            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluar_count])
             ->toArray();
 
         $klasifikasiStats = Klasifikasi::where('is_aktif', true)
-            ->withCount(['arsipKeluars'])
-            ->orderByDesc('arsip_keluars_count')
+            ->withCount(['arsipKeluar'])
+            ->orderByDesc('arsip_keluar_count')
             ->get(['id', 'nama'])
-            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluars_count])
+            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluar_count])
             ->toArray();
 
         $sifatStats = SifatSurat::where('is_aktif', true)
-            ->withCount(['arsipKeluars'])
-            ->orderByDesc('arsip_keluars_count')
+            ->withCount(['arsipKeluar'])
+            ->orderByDesc('arsip_keluar_count')
             ->get(['id', 'nama'])
-            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluars_count])
+            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluar_count])
             ->toArray();
 
         $verifikatorStats = Verifikator::where('is_aktif', true)
-            ->withCount(['arsipKeluars'])
+            ->withCount(['arsipKeluar'])
             ->with(['user'])
-            ->orderByDesc('arsip_keluars_count')
+            ->orderByDesc('arsip_keluar_count')
             ->get()
             ->map(function ($item) {
                 $label = $item->user?->nama_lengkap ?? 'Verifikator';
-                return ['label' => $label, 'value' => $item->arsip_keluars_count];
+                return ['label' => $label, 'value' => $item->arsip_keluar_count];
             })
             ->toArray();
 
         $tujuanStats = Tujuan::where('is_aktif', true)
-            ->withCount(['arsipKeluars'])
-            ->orderByDesc('arsip_keluars_count')
+            ->withCount(['arsipKeluar'])
+            ->orderByDesc('arsip_keluar_count')
             ->get(['id', 'nama'])
-            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluars_count])
+            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluar_count])
             ->toArray();
 
         // helper untuk top N + lainnya
@@ -95,31 +96,20 @@ class DashboardController extends Controller
             'tujuan'      => $makePieData($tujuanStats, $limitTop),
         ];
 
-        // 5 arsip terbaru
-        $arsipTerbaru = Arsip::with(['kategori', 'divisi', 'uploader', 'files'])
+        // 5 arsip masuk terbaru
+        $arsipMasukTerbaru = ArsipMasuk::with(['uploader'])
             ->latest()
             ->take(5)
             ->get();
 
-        // Antrian persetujuan untuk admin/pimpinan
-        $menungguPersetujuan = [];
-        if ($user && ($user->isAdmin() || $user->isPimpinan())) {
-            $menungguPersetujuan = Arsip::with(['uploader', 'divisi'])
-                ->menunggu()
-                ->latest()
-                ->take(5)
-                ->get();
-        }
-
-        // Aktivitas terakhir milik user
-        $aktivitasSaya = AktivitasLog::with(['arsip'])
-            ->where('user_id', $user->id)
+        // 5 arsip keluar terbaru
+        $arsipKeluarTerbaru = ArsipKeluar::with(['uploader', 'tujuan'])
             ->latest()
             ->take(5)
             ->get();
 
         return view('dashboard.index', compact(
-            'stats', 'chartData', 'arsipTerbaru', 'menungguPersetujuan', 'aktivitasSaya'
+            'stats', 'chartData', 'arsipMasukTerbaru', 'arsipKeluarTerbaru'
         ));
     }
 }

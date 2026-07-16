@@ -29,7 +29,6 @@ use App\Models\Tujuan;
             <thead>
                 <tr>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border pl-5">Nama Tujuan</th>
-                    <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Jumlah Arsip</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Status</th>
                     <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
                 </tr>
@@ -40,7 +39,6 @@ use App\Models\Tujuan;
                     <td class="px-[14px] py-3 pl-5">
                         <div class="font-semibold">{{ $tuj->nama }}</div>
                     </td>
-                    <td class="px-[14px] py-3">{{ $tuj->arsips_count }} arsip</td>
                     <td class="px-[14px] py-3">
                         <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
                             @if($tuj->is_aktif) bg-[#ECFDF5] text-[#059669]

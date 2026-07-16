@@ -58,13 +58,6 @@
             </div>
 
             <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Telepon</label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]" type="text" name="telepon"
-                    value="{{ old('telepon', $user->telepon) }}"
-                    placeholder="+62 812-xxxx-xxxx">
-            </div>
-
-            <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">NIP</label>
                 <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface2 text-hitam outline-none cursor-not-allowed" type="text" value="{{ $user->nip ?? '-' }}"
                     readonly>
@@ -166,41 +159,21 @@
                 @enderror
             </div>
 
-            <div class="bg-surface2 rounded-lg px-3 py-[14px] mt-[18px] mb-4 text-xs leading-[1.7]">
-                <strong>Syarat password:</strong><br>
-                • Minimal 8 karakter<br>
-                • Kombinasi huruf dan angka disarankan
+            <div class="flex-col bg-surface2 rounded-lg px-3 py-[14px] mt-[18px] mb-4 text-xs leading-[1.7]">
+                <strong>Syarat password:</strong>
+                <div class="">
+                    <ol class="list-disc list-inside">
+                        <li>Minimal 8 karakter</li>
+                        <li>Kombinasi huruf, angka dan simbol</li>
+                        <li>Gunakan Kombinasi Huruf Besar Dan Kecil</li>
+                    </ol>
+                </div>
             </div>
 
             <button type="submit" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit]"> Ubah Password</button>
         </form>
     </div>
 
-</div>
-
-{{-- Info Akun --}}
-<div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px] mt-6">
-    <div class="text-[15px] font-bold mb-4">Statistik Akun</div>
-    <div class="grid grid-cols-3 gap-4">
-        <div class="p-4 bg-surface2 rounded-lg">
-            <div class="text-2xl font-extrabold text-bawaslu-red">
-                {{ auth()->user()->arsips()->count() }}
-            </div>
-            <div class="text-xs text-abu mt-1">Total Arsip Diunggah</div>
-        </div>
-        <div class="p-4 bg-surface2 rounded-lg">
-            <div class="text-2xl font-extrabold text-[#059669]">
-                {{ auth()->user()->arsips()->where('status','disetujui')->count() }}
-            </div>
-            <div class="text-xs text-abu mt-1">Arsip Disetujui</div>
-        </div>
-        <div class="p-4 bg-surface2 rounded-lg">
-            <div class="text-2xl font-extrabold text-[#D97706]">
-                {{ auth()->user()->arsips()->where('status','menunggu')->count() }}
-            </div>
-            <div class="text-xs text-abu mt-1">Menunggu Persetujuan</div>
-        </div>
-    </div>
 </div>
 @endsection
 

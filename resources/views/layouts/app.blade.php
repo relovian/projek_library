@@ -27,9 +27,13 @@
             <div class="text-white text-[13px] font-bold italic">{{ auth()->user()->nama_lengkap }}</div>
             <div class="inline-block mt-[3px] rounded-lg bg-white/10 px-1 py-[1px] text-[10px] uppercase tracking-[0.4px] text-white/50">{{ auth()->user()->role_label }}</div>
         </div>
+      about
     </div>
 
     <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
+        
+        <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
+
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Utama</div>
 
             <a href="{{ route('dashboard') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -40,8 +44,8 @@
                 <img class="w-4 h-4" src="{{ asset('img/arsip.png') }}" alt=""> Arsip
             </a>
 
-            <a href="{{ route('surat-masuk.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('surat-masuk.*') ? 'active' : '' }}">
-                <img class="w-4 h-4" src="{{ asset('img/unduh.png') }}" alt="">Unggah Surat Masuk
+            <a href="{{ route('arsip-masuk.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('arsip-masuk.*') ? 'active' : '' }}">
+                <img class="w-4 h-4" src="{{ asset('img/unduh.png') }}" alt="">Unggah Arsip Masuk
             </a>
 
             <a href="{{ route('arsip-keluar.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('arsip-keluar.*') ? 'active' : '' }}">
@@ -84,13 +88,6 @@
                 </div>
             </div>
 
-            <form action="{{ route('arsip.index') }}" method="GET" class="flex w-[280px] items-center gap-2 rounded-lg border border-border bg-surface2 px-[14px] py-[7px]">
-                <span>
-                    <img class="size-[15px] mt-[5px]" src="{{ asset('img/search.png') }}" alt="">
-                </span>
-                <input class="w-full border-none bg-transparent p-0 text-[13px] text-hitam outline-none focus:ring-0 [font-family:inherit] placeholder:text-abu" type="text" name="q" value="{{ request('q') }}" placeholder="Cari arsip, dokumen…">
-            </form>
-
         <div class="relative" id="notifWrapper">
 
             <div class="relative flex size-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface text-[16px]" id="notifBtn" onclick="toggleNotif()">
@@ -112,58 +109,10 @@
 
                     {{-- Daftar Notifikasi --}}
                     <div class="max-h-42 overflow-y-auto">
-
-                        {{-- Menunggu Persetujuan --}}
-                        @php
-                            $user = auth()->user();
-
-                            // Hanya tampilkan arsip menunggu kalau preferensi aktif
-                            $arsipMenunggu = collect();
-                            if ($user->notif_menunggu_persetujuan) {
-                                $arsipMenunggu = \App\Models\Arsip::with(['uploader','divisi'])
-                                    ->menunggu()->latest()->take(4)->get();
-                            }
-
-                            // Filter aktivitas berdasarkan preferensi yang aktif
-                            $aksiFilter = [];
-                            if ($user->notif_arsip_baru)      $aksiFilter[] = 'unggah';
-                            if ($user->notif_arsip_disetujui) $aksiFilter[] = 'setujui';
-                            if ($user->notif_arsip_ditolak)   $aksiFilter[] = 'tolak';
-                            if ($user->notif_revisi_dokumen)  $aksiFilter[] = 'revisi';
-
-                            $aktivitasTerbaru = collect();
-                            if (!empty($aksiFilter)) {
-                                $aktivitasTerbaru = \App\Models\AktivitasLog::with(['user','arsip'])
-                                    ->where('user_id', $user->id)
-                                    ->whereIn('aksi', $aksiFilter)
-                                    ->latest()->take(3)->get();
-                            }
-
-                        @endphp
-
-                        @if($arsipMenunggu->count() > 0)
-
-                            <div class="pt-2 pb-1 px-4 text-xs font-bold text-abu uppercase tracking-[.8px]">
-                                Menunggu Persetujuan
-                            </div>
-
-                            @foreach($arsipMenunggu as $a)
-                                <a href="{{ route('arsip.show', $a) }}" class="flex items-start gap-2 px-2 py-4 no-underline text-hitam transition-colors duration-150 " onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">
-                                    <div class="w-8 h-8 rounded-2xl bg-[#FFFBEB] flex items-center justify-center text-sm shrink-0 mt-[1px]" >⏳</div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-xs font-semibold overflow-hidden overflow-ellipsis whitespace-nowrap">{{ $a->judul }}</div>
-                                        <div class="text-xs text-abu mt-[2px] ">
-                                            📤 {{ $a->uploader->nama_lengkap }} · {{ $a->created_at->diffForHumans() }}
-                                        </div>
-                                    </div>
-                                    <span class="text-[9px] font-bold px-[2px] py-[7px] rounded-[20px] bg-[#FFFBEB] text-[#D97706] flex-shrink-0 mt-1" >Menunggu</span>
-                                </a>
-                            @endforeach
-
-                        @endif
-
                         {{-- Aktivitas Terbaru --}}
+                        @php($aktivitasTerbaru = $aktivitasTerbaru ?? collect())
                         @if($aktivitasTerbaru->count() > 0)
+
                             <div class="pt-2 px-4 pb-1 text-[10px] font-bold text-abu uppercase tracking-[0.8px] border-t border-solid border-border">
                                 Aktivitas Terbaru
                             </div>
@@ -189,7 +138,9 @@
 
                         @endif
 
+                        @php($arsipMenunggu = $arsipMenunggu ?? collect())
                         @if($arsipMenunggu->count() === 0 && $aktivitasTerbaru->count() === 0)
+
                         <div class="px-3 py-xl text-center text-abu text-xs" >
                             <div class="text-3xl mb-[8px]">🎉</div>
                             Tidak ada notifikasi baru
