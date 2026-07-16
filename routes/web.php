@@ -7,6 +7,7 @@ use App\Http\Controllers\SuratMasukController;
 use App\Http\Controllers\PersetujuanController;
 use App\Http\Controllers\AktivitasController;
 use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\AboutController;
 use Google\Client;
 use Google\Service\Drive;
 // ── Redirect root ke dashboard ──────────────────────────
@@ -102,6 +103,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{arsip}/tolak',         [PersetujuanController::class, 'tolak'])->name('tolak');
         Route::post('/bulk-setujui',          [PersetujuanController::class, 'bulkSetujui'])->name('bulk-setujui');
     });
+
+    // About
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     // Pengaturan
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {

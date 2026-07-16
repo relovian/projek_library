@@ -21,16 +21,15 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2.5 border-b border-white/10 px-5 py-4">
-            <div class="size-9 flex items-center justify-center rounded-full bg-white/20 font-bold text-white text-sm shrink-0">{{ auth()->user()->inisial }}</div>
-            <div class="text-white text-[13px] font-semibold">
-                <div class="text-white text-[13px] font-semibold">{{ auth()->user()->nama_lengkap }}</div>
-                <div class="inline-block mt-[3px] rounded-lg bg-white/10 px-1 py-[1px] text-[10px] uppercase tracking-[0.4px] text-white/50">{{ auth()->user()->role_label }}</div>
-            </div>
+    <div class="flex items-center gap-2.5 border-b border-white/10 px-5 py-4">
+        <div class="size-9 flex items-center justify-center rounded-full bg-white/20 font-bold text-white text-sm shrink-0">{{ auth()->user()->inisial }}</div>
+        <div class="text-white text-[13px] font-semibold">
+            <div class="text-white text-[13px] font-bold italic">{{ auth()->user()->nama_lengkap }}</div>
+            <div class="inline-block mt-[3px] rounded-lg bg-white/10 px-1 py-[1px] text-[10px] uppercase tracking-[0.4px] text-white/50">{{ auth()->user()->role_label }}</div>
         </div>
+    </div>
 
-<body class="overflow-x-hidden overflow-y-hidden">
-        <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
+    <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Utama</div>
 
             <a href="{{ route('dashboard') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -59,6 +58,11 @@
 
             <a href="{{ route('pengaturan.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('pengaturan.*') ? 'active' : '' }}">
                 <img class="w-4 h-4" src="{{ asset('img/pengaturan.png') }}" alt=""> Pengaturan
+            </a>
+
+            <a href="{{ route('about') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold">
+                <img class="w-4 h-4" src="{{ asset('img/info.png') }}" alt="">
+                <span>Tentang</span>
             </a>
         </nav>
 
@@ -217,13 +221,10 @@
             <div class="px-3 py-6 text-xs font-semibold flex items-center gap-2 bg-[#FEF2F2] text-[#DC2626] border-b border-solid border-[#FECACA]">{{ session('error') }}</div>
         @endif
 
-        <div class="p-8 flex-1">
-            @yield('content')
-        </div>
-
+    <div class="p-8 flex-1">
+        @yield('content')
     </div>
 
-    @stack('scripts')
-
+    </div>
 </body>
 </html>
