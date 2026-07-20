@@ -76,18 +76,13 @@ class ArsipKeluar extends Model
         // Contoh: PM-20260720-001
         $tgl = str_replace('-', '', $tanggal); // 2026-07-20 -> 20260720
         
-        // Cari nomor urut terakhir hari ini
-        $last = self::whereDate('created_at', today())
-            ->orderBy('id', 'desc')
-            ->first();
-
-        // Ambil nomor urut dari kode arsip terakhir hari ini
-        if ($last && preg_match('/\d{3}$/', $last->kode_arsip_keluar, $m)) {
-            $urutan = (int) $m[0] + 1;
-        } else {
-            $urutan = 1;
-        }
-        $urutan = str_pad($urutan, 3, '0', STR_PAD_LEFT);
+        // Hitung jumlah semua arsip keluar hari ini (termasuk yang sudah dihapus/soft deleted)
+        // supaya nomor urut terus naik dan tidak ada nomor yang dipakai ulang
+        $count = self::withTrashed()
+            ->whereDate('created_at', today())
+            ->count();
+        
+        $urutan = str_pad($count + 1, 3, '0', STR_PAD_LEFT);
 
         return $klasifikasiSingkatan . '-' . $tgl . '-' . $urutan;
     }

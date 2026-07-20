@@ -1,12 +1,20 @@
-# TODO
+# TODO: Implementasi Drag & Drop Upload + Preserve Form Data on Refresh
 
-- [ ] Update DashboardController stats:
-    - total_arsip_masuk dari tabel `surat_masuk`
-    - total_arsip_keluar dari tabel `arsip_keluar`
-    - total_arsip_semua = total masuk + keluar
-- [ ] Update `resources/views/dashboard/index.blade.php` cards:
-    - Card 1 => Total Arsip Masuk
-    - Card 2 => Total Arsip Keluar
-    - Card 3 => Total Semua Arsip
-- [ ] Pastikan ikon/teks tetap konsisten dengan style yang ada
-- [ ] (Opsional) Pastikan query tidak bentrok dengan existing variabel `stats['total_arsip']/['menunggu']/'user_aktif'` (bila masih dipakai komponen lain)
+## Step 1: Edit `arsip_masuk/create.blade.php`
+
+- [x] Tambahkan event listener drag & drop (dragenter, dragover, dragleave, drop) pada area upload
+- [x] Tambahkan visual highlight saat drag over
+- [x] Tambahkan sessionStorage untuk menyimpan data form (termasuk nama file) saat refresh
+- [x] Tambahkan script restore data pada DOMContentLoaded
+
+## Step 2: Edit `arsip_keluar/create.blade.php`
+
+- [x] Tambahkan event listener drag & drop (dragenter, dragover, dragleave, drop) pada area upload
+- [x] Tambahkan visual highlight saat drag over
+- [x] Tambahkan sessionStorage untuk menyimpan data form (termasuk nama file) saat refresh
+- [x] Tambahkan script restore data pada DOMContentLoaded
+
+## Testing
+
+- [x] Verifikasi drag & drop berfungsi
+- [x] Verifikasi preserve data setelah refresh

@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AktivitasLog;
 use App\Models\ArsipKeluar;
 use App\Models\Klasifikasi;
 use App\Models\SifatSurat;
 use App\Models\SubBagian;
-use App\Models\Verifikator;
 use App\Models\Tujuan;
 use App\Models\User;
+use App\Models\Verifikator;
 use App\Services\GoogleDriveService;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,17 +19,46 @@ use Illuminate\Support\Facades\Storage;
 class ArsipKeluarController extends Controller
 {
     protected $googleDriveService;
+    protected $notifikasiService;
     /**
      * Tampilkan form tambah arsip keluar.
      */
 
-    public function __construct(GoogleDriveService $googleDriveService)
+    public function __construct(GoogleDriveService $googleDriveService, NotifikasiService $notifikasiService)
     {
         $this->googleDriveService = $googleDriveService;
+        $this->notifikasiService = $notifikasiService;
+    }
+
+    /**
+     * Lihat/preview file arsip keluar (catat aktivitas)
+     */
+    public function lihat(ArsipKeluar $arsipKeluar)
+    {
+        // Catat aktivitas melihat dengan user yang sedang login (bukan pemilik file)
+        AktivitasLog::create([
+            'user_id'          => Auth::id(),
+            'arsip_id'         => null,
+            'arsip_keluar_id'  => $arsipKeluar->id,
+            'aksi'             => 'lihat',
+            'keterangan'       => "Melihat file arsip keluar: {$arsipKeluar->nama_file}",
+            'ip_address'       => request()->ip(),
+        ]);
+
+        // Redirect ke link file (Google Drive)
+        if ($arsipKeluar->link_file) {
+            return redirect()->away($arsipKeluar->link_file);
+        }
+
+        return redirect()->back()->with('error', 'File tidak tersedia.');
     }
 
     public function create()
     {
+        if (auth()->user()->role === 'komisioner') {
+            abort(403, 'Komisioner tidak dapat mengunggah arsip.');
+        }
+
         $klasifikasi = Klasifikasi::where('is_aktif', true)->get();
         $sifat = SifatSurat::where('is_aktif', true)->get();
         $subBagian = SubBagian::where('is_aktif', true)->get();
@@ -49,6 +80,11 @@ class ArsipKeluarController extends Controller
             abort(403, 'Komisioner tidak dapat mengedit arsip.');
         }
 
+        // Selain admin: hanya boleh edit arsip miliknya sendiri
+        if ($user->role !== 'admin' && $arsipKeluar->uploader_id !== $user->id) {
+            abort(403, 'Anda hanya dapat mengedit arsip milik Anda sendiri.');
+        }
+
         $klasifikasi = Klasifikasi::where('is_aktif', true)->get();
         $sifat = SifatSurat::where('is_aktif', true)->get();
         $subBagian  = SubBagian::where('is_aktif', true)->get();
@@ -56,7 +92,7 @@ class ArsipKeluarController extends Controller
         $tujuan = Tujuan::where('is_aktif', true)->get();
         $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
-        return view('unggah_keluar.edit', compact(
+        return view('arsip_keluar.edit', compact(
             'arsipKeluar', 'klasifikasi', 'sifat', 'subBagian', 'verifikator', 'tujuan', 'users'
         ));
     }
@@ -68,6 +104,11 @@ class ArsipKeluarController extends Controller
         // Komisioner tidak bisa edit
         if ($user->role === 'komisioner') {
             abort(403, 'Komisioner tidak dapat mengedit arsip.');
+        }
+
+        // Selain admin: hanya boleh edit arsip miliknya sendiri
+        if ($user->role !== 'admin' && $arsipKeluar->uploader_id !== $user->id) {
+            abort(403, 'Anda hanya dapat mengedit arsip milik Anda sendiri.');
         }
 
         $request->validate([
@@ -96,6 +137,12 @@ class ArsipKeluarController extends Controller
             'tanggal_unggah' => $request->tanggal_unggah,
         ]);
 
+        // Catat aktivitas edit
+        AktivitasLog::catat('edit', null, "Memperbarui arsip keluar: {$arsipKeluar->nama_file}");
+
+        // Kirim notifikasi ke pengelola
+        $this->notifikasiService->notifyUpdate('ArsipKeluar', $arsipKeluar, $arsipKeluar->nama_file);
+
         return redirect()->route('arsip.index', ['tab' => 'keluar'])
             ->with('success', 'Arsip keluar berhasil diperbarui.');
     }
@@ -115,6 +162,18 @@ class ArsipKeluarController extends Controller
         }
 
         $arsipKeluar->delete(); // soft delete ke trash
+
+        AktivitasLog::create([
+            'user_id' => $user->id,
+            'arsip_id' => null,
+            'arsip_keluar_id' => $arsipKeluar->id,
+            'aksi' => 'hapus',
+            'keterangan' => "Menghapus arsip keluar: {$arsipKeluar->nama_file}",
+            'ip_address' => request()->ip(),
+        ]);
+
+        // Kirim notifikasi ke pengelola
+        $this->notifikasiService->notifyDelete('ArsipKeluar', $arsipKeluar, $arsipKeluar->nama_file);
 
         return redirect()->route('arsip.index', ['tab' => 'keluar'])
             ->with('success', 'Arsip keluar berhasil dipindahkan ke trash.');
@@ -148,11 +207,32 @@ class ArsipKeluarController extends Controller
         $arsip = ArsipKeluar::onlyTrashed()->findOrFail($id);
         $arsip->restore();
 
+        // 1) Ubah status log hapus lama milik uploader menjadi pulihkan
+        AktivitasLog::where('user_id', $arsip->uploader_id)
+            ->where('aksi', 'hapus')
+            ->where('arsip_keluar_id', $arsip->id)
+            ->update([
+                'aksi' => 'pulihkan',
+                'keterangan' => "Arsip keluar sudah dipulihkan oleh admin: {$arsip->nama_file}",
+            ]);
+
+        // 2) Buat aktivitas baru pulihkan (biar ada aktivitas tambahan)
+        AktivitasLog::create([
+            'user_id' => $arsip->uploader_id,
+            'arsip_id' => null,
+            'arsip_keluar_id' => $arsip->id,
+            'aksi' => 'pulihkan',
+            'keterangan' => "Arsip keluar dipulihkan oleh admin: {$arsip->nama_file}",
+            'ip_address' => request()->ip(),
+        ]);
+
+        $this->notifikasiService->notifyRestore('ArsipKeluar', $arsip, $arsip->nama_file, $arsip->uploader_id);
+
         return redirect()->route('arsip-keluar.trash')
             ->with('success', 'Arsip keluar "' . $arsip->nama_file . '" berhasil dipulihkan.');
     }
 
-    // ── Force Delete (Hapus Permanen) ─────────────────────
+    // ── Force Delete (Hapus Permanen) 
     public function forceDelete($id)
     {
         if (auth()->user()->role !== 'admin') {
@@ -160,6 +240,20 @@ class ArsipKeluarController extends Controller
         }
 
         $arsip = ArsipKeluar::onlyTrashed()->findOrFail($id);
+
+        // Catat aktivitas untuk uploader
+        $uploaderId = $arsip->uploader_id;
+
+        AktivitasLog::create([
+            'user_id'    => $uploaderId,
+            'arsip_id'   => null,
+            'aksi'       => 'hapus_permanen',
+            'keterangan' => "Arsip keluar dihapus permanen oleh admin: {$arsip->nama_file}",
+            'ip_address' => request()->ip(),
+        ]);
+
+        $this->notifikasiService->notifyForceDelete('ArsipKeluar', $arsip, $arsip->nama_file, $arsip->uploader_id);
+
         $arsip->forceDelete();
 
         return redirect()->route('arsip-keluar.trash')
@@ -168,6 +262,10 @@ class ArsipKeluarController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->role === 'komisioner') {
+            abort(403, 'Komisioner tidak dapat mengunggah arsip.');
+        }
+
         $request->validate([
             'nama_file' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
@@ -201,22 +299,6 @@ class ArsipKeluarController extends Controller
         $kodeArsip = ArsipKeluar::generateKode($singkatan, $request->tanggal_unggah);
 
         $arsipKeluar = null;
-        DB::transaction(function () use ($request, $kodeArsip, &$arsipKeluar) {
-            $arsipKeluar = ArsipKeluar::create([
-                'kode_arsip_keluar' => $kodeArsip,
-                'nama_file' => $request->nama_file,
-                'perihal' => $request->perihal,
-                'klasifikasi_id' => $request->klasifikasi_id,
-                'sifat_id' => $request->sifat_id,
-                'sub_bagian_id' => $request->sub_bagian_id,
-                'verifikator_id' => $request->verifikator_id,
-                'tujuan_id' => $request->tujuan_id,
-                'pembuat_id' => $request->pembuat_id,
-                'tanggal_surat' => $request->tanggal_surat,
-                'tanggal_unggah' => $request->tanggal_unggah,
-                'uploader_id' => auth()->id(),
-            ]);
-        });
 
         $linkFile = null;
         $driveId = null;
@@ -235,6 +317,27 @@ class ArsipKeluarController extends Controller
             $driveId  = $driveData['id'];
         }
 
+        $arsipKeluar = ArsipKeluar::create([
+            'kode_arsip_keluar' => $kodeArsip,
+            'nama_file' => $request->nama_file,
+            'perihal' => $request->perihal,
+            'klasifikasi_id' => $request->klasifikasi_id,
+            'sifat_id' => $request->sifat_id,
+            'sub_bagian_id' => $request->sub_bagian_id,
+            'verifikator_id' => $request->verifikator_id,
+            'tujuan_id' => $request->tujuan_id,
+            'pembuat_id' => $request->pembuat_id,
+            'tanggal_surat' => $request->tanggal_surat,
+            'tanggal_unggah' => $request->tanggal_unggah,
+            'link_file' => $linkFile,
+            'uploader_id' => auth()->id(),
+        ]);
+
+        // Catat aktivitas unggah
+        AktivitasLog::catat('unggah', null, "Mengunggah arsip keluar: {$arsipKeluar->nama_file}");
+
+        // Kirim notifikasi ke semua user aktif
+        $this->notifikasiService->notifyCreate('ArsipKeluar', $arsipKeluar, $arsipKeluar->nama_file);
 
         return redirect()->route('arsip-keluar.create')
             ->with('success', 'Arsip keluar berhasil ditambahkan ' . ($linkFile ? 'dan file berhasil diupload ke Google Drive.' : '.'))

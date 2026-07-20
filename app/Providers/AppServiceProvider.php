@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\NotifikasiService;
+use App\View\Composers\NotifikasiComposer;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(NotifikasiService::class, fn() => new NotifikasiService());
     }
 
     /**
@@ -19,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share notifications to all views that use layouts.app (via composer)
+        View::composer('layouts.app', NotifikasiComposer::class);
     }
 }

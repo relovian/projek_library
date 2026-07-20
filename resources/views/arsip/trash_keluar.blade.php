@@ -15,7 +15,14 @@
             </p>
         </div>
         <div>
-            <a href="{{ route('arsip.index', ['tab' => 'keluar']) }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali</a>
+            @php
+                $from = request('from', 'keluar');
+            @endphp
+            @if($from === 'saya_keluar')
+                <a href="{{ route('arsip.index', ['tab' => 'saya', 'arsip_id' => 'arsip_keluar']) }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali</a>
+            @else
+                <a href="{{ route('arsip.index', ['tab' => 'keluar']) }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali</a>
+            @endif
         </div>
     </div>
 

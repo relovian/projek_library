@@ -45,7 +45,7 @@
                     <select name="klasifikasi_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
                         <option value="">-- Pilih --</option>
-                        @foreach($klasifikasis as $klas)
+                        @foreach($klasifikasi as $klas)
                         <option value="{{ $klas->id }}" {{ old('klasifikasi_id', $arsipKeluar->klasifikasi_id) == $klas->id ? 'selected' : '' }}>{{ $klas->nama }}</option>
                         @endforeach
                     </select>
@@ -56,7 +56,7 @@
                     <select name="sifat_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
                         <option value="">-- Pilih --</option>
-                        @foreach($sifats as $s)
+                        @foreach($sifat as $s)
                         <option value="{{ $s->id }}" {{ old('sifat_id', $arsipKeluar->sifat_id) == $s->id ? 'selected' : '' }}>{{ $s->nama }}</option>
                         @endforeach
                     </select>
@@ -69,7 +69,7 @@
                     <select name="sub_bagian_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
                         <option value="">-- Pilih --</option>
-                        @foreach($subBagians as $sb)
+                        @foreach($subBagian as $sb)
                         <option value="{{ $sb->id }}" {{ old('sub_bagian_id', $arsipKeluar->sub_bagian_id) == $sb->id ? 'selected' : '' }}>{{ $sb->nama }}</option>
                         @endforeach
                     </select>
@@ -80,7 +80,7 @@
                     <select name="verifikator_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
                         <option value="">-- Pilih --</option>
-                        @foreach($verifikators as $v)
+                        @foreach($verifikator as $v)
                         <option value="{{ $v->id }}" {{ old('verifikator_id', $arsipKeluar->verifikator_id) == $v->id ? 'selected' : '' }}>
                             {{ $v->user->nama_lengkap ?? $v->user->name ?? 'Verifikator' }}
                         </option>
@@ -95,7 +95,7 @@
                     <select name="tujuan_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
                         <option value="">-- Pilih --</option>
-                        @foreach($tujuans as $t)
+                        @foreach($tujuan as $t)
                         <option value="{{ $t->id }}" {{ old('tujuan_id', $arsipKeluar->tujuan_id) == $t->id ? 'selected' : '' }}>{{ $t->nama }}</option>
                         @endforeach
                     </select>

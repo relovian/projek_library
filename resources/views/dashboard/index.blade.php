@@ -67,8 +67,8 @@
             <div class="bg-surface2 border border-border rounded-[14px] p-4">
                 <div class="text-[13px] font-bold mb-2">Klasifikasi</div>
                 <div class="relative min-h-[220px] w-full flex items-center justify-center">
-                    <canvas id="chartSubBagian" class="w-full chart-canvas"></canvas>
-                    <p id="emptySubBagian" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
+                    <canvas id="chartKlasifikasi" class="w-full chart-canvas"></canvas>
+                    <p id="emptyKlasifikasi" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
                         Tidak ada statistik arsip per klasifikasi.
                     </p>
                 </div>
@@ -77,8 +77,8 @@
             <div class="bg-surface2 border border-border rounded-[14px] p-4">
                 <div class="text-[13px] font-bold mb-2">Sifat Surat</div>
                 <div class="relative min-h-[220px] w-full flex items-center justify-center">
-                    <canvas id="chartSubBagian" class="w-full chart-canvas"></canvas>
-                    <p id="emptySubBagian" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
+                    <canvas id="chartSifat" class="w-full chart-canvas"></canvas>
+                    <p id="emptySifat" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
                         Tidak ada statistik arsip per sifat surat.
                     </p>
                 </div>
@@ -90,8 +90,8 @@
             <div class="bg-surface2 border border-border rounded-[14px] p-4">
                 <div class="text-[13px] font-bold mb-2">Verifikator</div>
                 <div class="relative min-h-[220px] w-full flex items-center justify-center">
-                    <canvas id="chartSubBagian" class="w-full chart-canvas"></canvas>
-                    <p id="emptySubBagian" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
+                    <canvas id="chartVerifikator" class="w-full chart-canvas"></canvas>
+                    <p id="emptyVerifikator" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
                         Tidak ada statistik arsip per verifikator.
                     </p>
                 </div>
@@ -100,8 +100,8 @@
             <div class="bg-surface2 border border-border rounded-[14px] p-4">
                 <div class="text-[13px] font-bold mb-2">Tujuan</div>
                 <div class="relative min-h-[220px] w-full flex items-center justify-center">
-                    <canvas id="chartSubBagian" class="w-full chart-canvas"></canvas>
-                    <p id="emptySubBagian" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
+                    <canvas id="chartTujuan" class="w-full chart-canvas"></canvas>
+                    <p id="emptyTujuan" class="absolute inset-0 flex items-center justify-center text-[13px] text-abu px-4 text-center">
                         Tidak ada statistik arsip per tujuan.
                     </p>
                 </div>

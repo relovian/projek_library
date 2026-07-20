@@ -18,10 +18,18 @@ use Illuminate\Support\Str;
 use App\Models\SifatSurat;
 use App\Models\SubBagian;
 use App\Models\Verifikator;
+use App\Services\NotifikasiService;
 
 
 class ArsipController extends Controller
 {
+    protected NotifikasiService $notifikasiService;
+
+    public function __construct(NotifikasiService $notifikasiService)
+    {
+        $this->notifikasiService = $notifikasiService;
+    }
+
     // ── Index (Daftar Arsip) ─────────────────────────────
     public function index(Request $request)
     {
@@ -198,7 +206,8 @@ class ArsipController extends Controller
         if ($request->tab === 'saya') {
             // Jika user memilih filter "Arsip Masuk" di dropdown
             if ($request->arsip_id === 'arsip_masuk') {
-                $queryMasuk = ArsipMasuk::with(['usersDisposisi', 'tujuan']);
+                $queryMasuk = ArsipMasuk::with(['usersDisposisi', 'tujuan'])
+                    ->where('uploader_id', $user->id);
 
                 if ($request->filled('q')) {
                     $queryMasuk->where(function ($q) use ($request) {
@@ -229,7 +238,7 @@ class ArsipController extends Controller
                     'tujuan',
                     'pembuat',
                     'uploader'
-                ]);
+                ])->where('uploader_id', $user->id);
 
                 if ($request->filled('q')) {
                     $queryKeluar->where(function ($q) use ($request) {
@@ -312,14 +321,6 @@ class ArsipController extends Controller
         return view('arsip.show', compact('arsip'));
     }
 
-    // ── Download ─────────────────────────────────────────
-    public function download(Arsip $arsip)
-    {
-        $file = $arsip->files()->firstOrFail();
-        AktivitasLog::catat('unduh', $arsip->id, "Mengunduh dokumen: {$arsip->judul}");
-        return Storage::download($file->path, $file->nama_asli);
-    }
-
     // ── Edit (Form) ──────────────────────────────────────
     public function edit(Arsip $arsip)
     {
@@ -365,7 +366,9 @@ class ArsipController extends Controller
             'tingkat_akses', 'tags',
         ]));
 
-        AktivitasLog::catat('edit', $arsip->id, "Memperbarui metadata: {$arsip->judul}");
+        AktivitasLog::catat('edit', $arsip->id, "Arsip diperbarui: {$arsip->judul}");
+
+        $this->notifikasiService->notifyUpdate('Arsip', $arsip, $arsip->judul);
 
         return redirect()->route('arsip.show', $arsip)->with('success', 'Arsip berhasil diperbarui.');
     }
@@ -387,6 +390,8 @@ class ArsipController extends Controller
 
         AktivitasLog::catat('hapus', $arsip->id, "Menghapus dokumen: {$arsip->judul}");
         $arsip->delete(); // soft delete ke trash
+
+        $this->notifikasiService->notifyDelete('Arsip', $arsip, $arsip->judul);
 
         return redirect()->route('arsip.index', ['tab' => 'saya'])->with('success', 'Arsip berhasil dipindahkan ke trash.');
     }
@@ -422,6 +427,9 @@ class ArsipController extends Controller
 
         AktivitasLog::catat('pulihkan', $arsip->id, "Memulihkan dokumen: {$arsip->judul}");
 
+        // Kirim notifikasi ke uploader & admin
+        $this->notifikasiService->notifyRestore('Arsip', $arsip, $arsip->judul, $arsip->uploader_id);
+
         return redirect()->route('arsip.trash')
             ->with('success', 'Arsip "' . $arsip->judul . '" berhasil dipulihkan.');
     }
@@ -441,7 +449,11 @@ class ArsipController extends Controller
             }
         }
 
-        AktivitasLog::catat('hapus_permanen', $arsip->id, "Menghapus permanen: {$arsip->judul}");
+        AktivitasLog::catat('hapus_permanen', $arsip->id, "Dihapus permanen oleh admin: {$arsip->judul}");
+
+        // Kirim notifikasi ke uploader & admin
+        $this->notifikasiService->notifyForceDelete('Arsip', $arsip, $arsip->judul, $arsip->uploader_id);
+
         $arsip->forceDelete();
 
         return redirect()->route('arsip.trash')
@@ -463,7 +475,7 @@ class ArsipController extends Controller
                     Storage::delete($file->path);
                 }
             }
-            AktivitasLog::catat('hapus_permanen', $arsip->id, "Menghapus permanen: {$arsip->judul}");
+            AktivitasLog::catat('hapus_permanen', $arsip->id, "Dihapus permanen oleh admin: {$arsip->judul}");
             $arsip->forceDelete();
         }
 

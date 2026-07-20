@@ -151,7 +151,7 @@ class PengaturanController extends Controller
                 ->with('error', 'User dengan ID tersebut tidak ditemukan.');
         }
 
-        $request->validate([
+        $rules = [
             'nama_lengkap'   => 'required|string|max:255',
             'nama_panggilan' => 'required|string|max:100',
             'email'          => 'required|email|unique:users,email,' . $user->id,
@@ -162,17 +162,31 @@ class PengaturanController extends Controller
                 Rule::unique('users', 'nip')->ignore($user->id),
             ],
             'role'           => 'required|in:admin,komisioner,kepala_sekretariat,kepala_sub_bagian,staff',
-        ], [
+        ];
+
+        $messages = [
             'nama_panggilan.required' => 'Nama panggilan wajib diisi.',
             'nama_panggilan.string' => 'Nama panggilan harus berupa teks.',
             'nama_panggilan.max' => 'Nama panggilan maksimal 100 karakter.',
             'nip.unique' => 'NIP sudah digunakan. Silakan gunakan NIP yang berbeda.',
             'email.unique' => 'Email sudah digunakan. Silakan gunakan email yang berbeda.',
-        ]);
+        ];
+
+        // Only validate password if field is filled
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', Rules\Password::min(8)->mixedCase()->numbers()->symbols()];
+            $messages['password.required'] = 'Kata sandi wajib diisi jika ingin mengubahnya.';
+            $messages['password.min'] = 'Kata sandi minimal 8 karakter.';
+            $messages['password.mixed'] = 'Kata sandi harus mengandung huruf besar dan huruf kecil.';
+            $messages['password.numbers'] = 'Kata sandi harus mengandung minimal satu angka.';
+            $messages['password.symbols'] = 'Kata sandi harus mengandung minimal satu simbol.';
+        }
+
+        $request->validate($rules, $messages);
 
         $isVerifikator = $request->boolean('is_verifikator');
 
-        $user->update([
+        $data = [
             'nama_lengkap'   => $request->nama_lengkap,
             'nama_panggilan' => $request->nama_panggilan,
             'nip'            => $request->nip,
@@ -181,7 +195,14 @@ class PengaturanController extends Controller
             'divisi_id'      => $request->divisi_id ?: null,
             'is_aktif'       => $request->is_aktif ?? 1,
             'is_verifikator' => $isVerifikator,
-        ]);
+        ];
+
+        // Update password only if filled
+        if ($request->filled('password')) {
+            $data['password'] = \Hash::make($request->password);
+        }
+
+        $user->update($data);
 
         if ($isVerifikator) {
             $user->dataVerifikator()->updateOrCreate(

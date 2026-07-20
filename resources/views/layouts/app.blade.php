@@ -27,7 +27,6 @@
             <div class="text-white text-[13px] font-bold italic">{{ auth()->user()->nama_lengkap }}</div>
             <div class="inline-block mt-[3px] rounded-lg bg-white/10 px-1 py-[1px] text-[10px] uppercase tracking-[0.4px] text-white/50">{{ auth()->user()->role_label }}</div>
         </div>
-      about
     </div>
 
     <nav class="flex-1 overflow-y-auto px-3 py-[14px]">
@@ -44,6 +43,7 @@
                 <img class="w-4 h-4" src="{{ asset('img/arsip.png') }}" alt=""> Arsip
             </a>
 
+            @if(!auth()->user()->isKomisioner())
             <a href="{{ route('arsip-masuk.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('arsip-masuk.*') ? 'active' : '' }}">
                 <img class="w-4 h-4" src="{{ asset('img/unduh.png') }}" alt="">Unggah Arsip Masuk
             </a>
@@ -51,12 +51,16 @@
             <a href="{{ route('arsip-keluar.create') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('arsip-keluar.*') ? 'active' : '' }}">
                 <img class="w-4 h-4" src="{{ asset('img/unggah.png') }}" alt="">Unggah Arsip Keluar
             </a>
+            @endif
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Manajemen</div>
 
-            <a href="{{ route('aktivitas.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('aktivitas.*') ? 'active' : '' }}">
-                <img class="w-4 h-4" src="{{ asset('img/aktivitas.png') }}" alt=""> Aktivitas
-            </a>
+            @if(!auth()->user()->isKomisioner())
+                <a href="{{ route('aktivitas.index') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('aktivitas.*') ? 'active' : '' }}">
+                    <img class="w-4 h-4" src="{{ asset('img/aktivitas.png') }}" alt=""> Aktivitas
+                </a>
+            @endif
+
 
             <div class="mt-2 px-2 pb-[6px] pt-2 text-[9.5px] font-bold uppercase tracking-[1.2px] text-white/35">Sistem</div>
 
@@ -64,8 +68,8 @@
                 <img class="w-4 h-4" src="{{ asset('img/pengaturan.png') }}" alt=""> Pengaturan
             </a>
 
-            <a href="{{ route('about') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold">
-                <img class="w-4 h-4" src="{{ asset('img/info.png') }}" alt="">
+            <a href="{{ route('about') }}" class="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 no-underline transition duration-200 mb-0.5 hover:bg-white/10 hover:text-white [&.active]:bg-white/[0.18] [&.active]:text-white [&.active]:font-semibold {{ request()->routeIs('about') ? 'active' : '' }}">
+                <img class="w-4 h-4" src="{{ asset('img/about.png') }}" alt="">
                 <span>Tentang</span>
             </a>
         </nav>
@@ -92,73 +96,103 @@
 
             <div class="relative flex size-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface text-[16px]" id="notifBtn" onclick="toggleNotif()">
                 <img class="size-[18px]" src="{{asset('img/notfikasi.png')}}" alt="">
-                @php $jmlNotif = \App\Models\Arsip::menunggu()->count(); @endphp
-                @if($jmlNotif > 0)
-                    <span class="absolute right-[6px] top-[6px] size-[7px] rounded-full border-[1.5px] border-white bg-bawaslu-red"></span>
-                @endif
+                @if($unreadCount > 0)
+                    <span class="absolute right-[6px] top-[6px] size-[7px] rounded-full border-[1.5px] border-white bg-bawaslu-red notif-badge-red" id="mainNotifBadge"></span>
+                @endif  
             </div>
 
-            <div id="notifDropdown" class="hidden absolute top-11 right-0 w-85 bg-[#FFFFFF] border border-[#E2DDD8] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[999] overflow-hidden">
-                    {{-- Header --}}
-                    <div class="px-4 py-5 border-b border border-[#E2DDD8] flex justify-between items-center">
-                        <div class="text-sm font-bold" >Notifikasi</div>
-                        <a href="{{ route('aktivitas.index') }}" class="text-sm text-bawaslu-red font-medium">
-                            Lihat semua 
-                        </a>
+            <div id="notifDropdown" class="hidden absolute top-11 right-0 w-[360px] bg-white border border-[#E2DDD8] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[999] overflow-hidden">
+                {{-- Header --}}
+                <div class="px-5 py-[18px] border-b border-[#E2DDD8] flex justify-between items-center">
+                    <div class="flex items-center gap-2.5">
+                        <div class="size-[18px] relative">
+                            <img class="size-full" src="{{asset('img/notfikasi.png')}}" alt="">
+                            @if($unreadCount > 0)
+                                <span class="absolute -top-[2px] -right-[2px] size-2 rounded-full bg-bawaslu-red border border-white notif-badge-red"></span>
+                            @endif
+                        </div>
+                        <span class="text-sm font-bold text-hitam">Notifikasi</span>
+                        @if($unreadCount > 0)
+                            <span class="text-[10px] font-semibold bg-bawaslu-red text-white px-[7px] py-[2px] rounded-full leading-none notif-unread-count">{{ $unreadCount }}</span>
+                        @endif
                     </div>
+                    @if(!auth()->user()->isKomisioner())
+                        <a href="{{ route('aktivitas.index') }}" class="text-xs font-semibold text-bawaslu-red no-underline hover:underline">
+                            Lihat semua
+                        </a>
+                    @endif
+                </div>
 
-                    {{-- Daftar Notifikasi --}}
-                    <div class="max-h-42 overflow-y-auto">
-                        {{-- Aktivitas Terbaru --}}
-                        @php($aktivitasTerbaru = $aktivitasTerbaru ?? collect())
-                        @if($aktivitasTerbaru->count() > 0)
-
-                            <div class="pt-2 px-4 pb-1 text-[10px] font-bold text-abu uppercase tracking-[0.8px] border-t border-solid border-border">
-                                Aktivitas Terbaru
-                            </div>
-
-                            @foreach($aktivitasTerbaru as $log)
-                                <div class="flex items-start gap-2 px-2 py-4">
-                                    <div class="w-8 h-8 rounded-full bg-surface2 flex items-center justify-center text-sm shrink-0">
-                                        <img src="{{ $log->aksi_ikon }}" width="18" height="18" alt="">
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-xs font-semibold">{{ $log->aksi_label }}</div>
-                                        @if($log->arsip)
-                                        <div class="text-xs text-abu mt-[1px] overflow-hidden overflow-ellipsis whitespace-nowrap">
-                                            {{ $log->arsip->judul }}
-                                        </div>
+                {{-- Daftar Notifikasi --}}
+                <div class="max-h-[320px] overflow-y-auto divide-y divide-[#F3F2F0]">
+                    @if($notifications->count() > 0)
+                        @foreach($notifications as $notif)
+                            <a href="{{ $notif->link ?? route('aktivitas.index') }}"
+                               class="flex items-start gap-3 px-5 py-[14px] no-underline transition-all duration-150
+                                      {{ $notif->is_read ? 'bg-white hover:bg-[#FAFAF9]' : 'bg-[#FFF8F7] hover:bg-[#FFF0EE] notif-item-unread' }}">
+                                {{-- Icon --}}
+                                <div class="size-9 rounded-full flex items-center justify-center shrink-0
+                                    {{ $notif->type === 'create' ? 'bg-emerald-50' : ($notif->type === 'update' ? 'bg-blue-50' : ($notif->type === 'restore' ? 'bg-amber-50' : 'bg-red-50')) }}">
+                                    @if($notif->type === 'create')
+                                        <img class="size-[18px]" src="{{ asset('img/unggah.png') }}" alt="upload">
+                                    @elseif($notif->type === 'update')
+                                        <img class="size-[18px]" src="{{ asset('img/edit.png') }}" alt="edit">
+                                    @elseif($notif->type === 'restore')
+                                        <img class="size-[18px]" src="{{ asset('img/pulihkan.png') }}" alt="restore">
+                                    @elseif($notif->type === 'force_delete' || $notif->type === 'soft_delete')
+                                        <img class="size-[18px]" src="{{ asset('img/hapus.png') }}" alt="delete">
+                                    @else
+                                        <span class="text-gray-400 text-base">●</span>
+                                    @endif
+                                </div>
+                                {{-- Content --}}
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-[2px]">
+                                        <span class="text-[12.5px] font-bold {{ $notif->is_read ? 'text-hitam' : 'text-bawaslu-red' }} {{ !$notif->is_read ? 'notif-title-unread' : '' }}">
+                                            @php
+                                                $labelMap = [
+                                                    'ArsipMasuk' => 'Arsip Masuk',
+                                                    'ArsipKeluar' => 'Arsip Keluar',
+                                                    'Arsip' => 'Arsip',
+                                                ];
+                                                $entityLabel = $labelMap[$notif->entity_type] ?? 'Arsip';
+                                            @endphp
+                                            {{ $notif->type === 'create' ? $entityLabel . ' Baru' : ($notif->type === 'update' ? $entityLabel . ' Diperbarui' : ($notif->type === 'restore' ? $entityLabel . ' Dipulihkan' : ($notif->type === 'force_delete' ? 'Dihapus Permanen oleh Admin' : $entityLabel . ' Dihapus'))) }}
+                                        </span>
+                                        @if(!$notif->is_read)
+                                            <span class="size-[6px] rounded-full bg-bawaslu-red shrink-0 notif-unread-dot"></span>
                                         @endif
-                                        <div class="text-xs text-abu mt-[2px]">
-                                            {{ $log->created_at->diffForHumans() }}
-                                        </div>
+                                    </div>
+                                    <div class="text-[12px] text-[#6B7280] leading-snug line-clamp-2">
+                                        {{ $notif->message }}
+                                    </div>
+                                    <div class="text-[11px] text-[#9CA3AF] mt-[3px]">
+                                        {{ $notif->created_at->diffForHumans() }}
                                     </div>
                                 </div>
-                            @endforeach
-
-                        @endif
-
-                        @php($arsipMenunggu = $arsipMenunggu ?? collect())
-                        @if($arsipMenunggu->count() === 0 && $aktivitasTerbaru->count() === 0)
-
-                        <div class="px-3 py-xl text-center text-abu text-xs" >
-                            <div class="text-3xl mb-[8px]">🎉</div>
-                            Tidak ada notifikasi baru
+                            </a>
+                        @endforeach
+                    @else
+                        <div class="flex flex-col items-center justify-center py-[40px] px-5">
+                            <div class="size-[48px] rounded-full bg-green-50 flex items-center justify-center mb-3">
+                                <span class="text-[22px]">✅</span>
+                            </div>
+                            <div class="text-[13px] font-semibold text-hitam mb-1">Tidak ada notifikasi baru</div>
+                            <div class="text-[12px] text-[#6B7280] text-center">Anda akan mendapat notifikasi saat ada aktivitas arsip baru.</div>
                         </div>
-                        @endif
-                    </div>
+                    @endif
+                </div>
 
-                    {{-- Footer --}}
-                    <div class="px-3 py-5 border-t border-[#E2DDD8] flex gap-3">
-                        <a href="{{ route('aktivitas.index') }}" class="inline-flex cursor-pointer items-center rounded-md border-none px-3 py-[5px] text-xs font-semibold [font-family:inherit] no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border border-border flex-1 text-center justify-center p-2">
-                            Semua Aktivitas
+                {{-- Footer --}}
+                @if(!auth()->user()->isKomisioner() && $notifications->count() > 0)
+                    <div class="px-5 py-4 border-t border-[#E2DDD8] bg-[#FAFAF9]">
+                        <a href="{{ route('aktivitas.index') }}"
+                           class="flex items-center justify-center gap-2 w-full rounded-lg border border-[#E2DDD8] bg-white px-4 py-[10px] text-xs font-semibold text-hitam no-underline transition-all duration-150 hover:bg-[#F3F2F0] [font-family:inherit]">
+                            <span>Lihat Semua Aktivitas</span>
+                            <span class="text-base leading-none">→</span>
                         </a>
-                        @if(auth()->user()->isAdmin() || auth()->user()->isPimpinan())
-                        <a href="{{ route('persetujuan.index') }}" class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] text-xs justify-center flex-1">
-                            Persetujuan ({{ $jmlNotif }})
-                        </a>
-                        @endif
                     </div>
+                @endif
             </div>
         </div>
         </header>
@@ -177,5 +211,65 @@
     </div>
 
     </div>
+
+    <script>
+        function toggleNotif() {
+            const dropdown = document.getElementById('notifDropdown');
+            const isOpening = dropdown.classList.contains('hidden');
+            dropdown.classList.toggle('hidden');
+
+            // Saat dropdown dibuka, tandai semua notifikasi sebagai sudah dibaca
+            if (isOpening) {
+                markAllNotificationsRead();
+            }
+        }
+
+        /**
+         * Tandai semua notifikasi sebagai sudah dibaca.
+         * Hilangkan badge merah & style unread langsung di frontend.
+         */
+        function markAllNotificationsRead() {
+            // Hilangkan semua badge merah
+            document.querySelectorAll('.notif-badge-red').forEach(el => el.remove());
+            document.querySelectorAll('.notif-unread-dot').forEach(el => el.remove());
+            document.querySelectorAll('.notif-unread-count').forEach(el => el.remove());
+
+            // Hilangkan background merah muda -> putih (cari semua item notifikasi yang belum dibaca)
+            document.querySelectorAll('.notif-item-unread').forEach(el => {
+                el.classList.remove('bg-[#FFF8F7]');
+                el.classList.remove('hover:bg-[#FFF0EE]');
+                el.classList.add('bg-white');
+                el.classList.add('hover:bg-[#FAFAF9]');
+            });
+
+            // Ubah warna teks judul yang merah jadi hitam
+            document.querySelectorAll('.notif-title-unread').forEach(el => {
+                el.classList.remove('text-bawaslu-red');
+                el.classList.add('text-hitam');
+            });
+
+            // Panggil API untuk simpan ke database
+            fetch('{{ route("notifications.mark-all-read") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+            }).catch(function(err) {
+                console.error('Gagal mark all read:', err);
+            });
+        }
+
+        // Tutup dropdown saat klik di luar
+        document.addEventListener('click', function(event) {
+            const wrapper = document.getElementById('notifWrapper');
+            const dropdown = document.getElementById('notifDropdown');
+            if (wrapper && dropdown && !wrapper.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+
+    @stack('scripts')
 </body>
 </html>

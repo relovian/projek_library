@@ -259,8 +259,8 @@
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
-                                    {{-- Edit: Semua role bisa edit kecuali komisioner --}}
-                                    @if(auth()->user()->role !== 'komisioner')
+                                    {{-- Edit: Admin bisa semua, selain itu hanya arsip milik sendiri --}}
+                                    @if(auth()->user()->role !== 'komisioner' && (auth()->user()->role === 'admin' || auth()->user()->id === $am->uploader_id))
                                     <a href="{{ route('arsip-masuk.edit', $am) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Edit">
                                         <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
@@ -327,8 +327,8 @@
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
-                                    {{-- Edit: Semua role bisa edit kecuali komisioner --}}
-                                    @if(auth()->user()->role !== 'komisioner')
+                                    {{-- Edit: Admin bisa semua, selain itu hanya arsip milik sendiri --}}
+                                    @if(auth()->user()->role !== 'komisioner' && (auth()->user()->role === 'admin' || auth()->user()->id === $ak->uploader_id))
                                     <a href="{{ route('arsip-keluar.edit', $ak) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Edit">
                                         <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
@@ -402,8 +402,8 @@
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
                                     
-                                    {{-- Edit: Semua role bisa edit kecuali komisioner --}}
-                                    @if(request('tab') === 'saya' && auth()->user()->role !== 'komisioner' && (auth()->user()->role === 'admin' || auth()->user()->id === $ap->uploader_id))
+                                    {{-- Edit: Admin bisa semua, selain itu hanya arsip milik sendiri --}}
+                                    @if(auth()->user()->role !== 'komisioner' && (auth()->user()->role === 'admin' || auth()->user()->id === $ap->uploader_id))
                                         <a href="{{ route('arsip.edit', $ap) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Edit">
                                             <img src="{{ asset('img/edit.png') }}" class="w-[15px] h-[15px]" alt="">
                                         </a>
@@ -429,7 +429,7 @@
                                 <div class="flex justify-center align-center text-[40px] mb-[10px]">
                                     <img src="{{ asset('img/arsip.png') }}" alt="">
                                 </div>
-                                <p class="text-[14px]">Pilih Arsp Terlebih Dahulu</p>
+                                <p class="text-[14px]">Pilih Arsip Terlebih Dahulu</p>
                             </div>
                         </td>
                     </tr>
@@ -468,11 +468,18 @@
     @php
         $trashRoute = '#';
         if (request('tab') === 'masuk') {
-            $trashRoute = route('arsip-masuk.trash');
+            $trashRoute = route('arsip-masuk.trash', ['from' => 'masuk']);
         } elseif (request('tab') === 'keluar') {
-            $trashRoute = route('arsip-keluar.trash');
+            $trashRoute = route('arsip-keluar.trash', ['from' => 'keluar']);
+        } elseif (request('tab') === 'saya') {
+            // Default ke trash arsip masuk milik user, bisa ganti sesuai dropdown
+            if (request('arsip_id') === 'arsip_keluar') {
+                $trashRoute = route('arsip-keluar.trash', ['from' => 'saya_keluar']);
+            } else {
+                $trashRoute = route('arsip-masuk.trash', ['from' => 'saya_masuk']);
+            }
         } else {
-            $trashRoute = route('arsip.trash');
+            $trashRoute = route('arsip-masuk.trash', ['from' => 'masuk']);
         }
     @endphp
     <a href="{{ $trashRoute }}" class="inline-flex items-center justify-center w-[50px] h-[50px] fixed bottom-[30px] right-[30px] bg-[#db3f44] rounded-full transition-all duration-200 ease-in-out hover:bg-[#c0272d]">

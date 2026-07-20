@@ -175,7 +175,9 @@
                 </label>
 
                 <div id="uploadFileSection">
-                    <div class="border-2 border-dashed border-border rounded-[14px] py-12 text-center cursor-pointer transition-colors duration-200 hover:border-bawaslu-red hover:bg-[#FEF2F2] bg-surface2" onclick="document.getElementById('fileInput').click()">
+                    <div id="dropZone"
+                        class="border-2 border-dashed border-border rounded-[14px] py-12 text-center cursor-pointer transition-all duration-200 hover:border-bawaslu-red hover:bg-[#FEF2F2] bg-surface2"
+                        onclick="document.getElementById('fileInput').click()">
                         <div class="text-5xl mb-4">
                             <img id="folderIcon" src="{{ asset('img/folder_kosong.png') }}" class="mx-auto" alt="">
                         </div>
@@ -192,7 +194,7 @@
                     </div>
                     <input type="file" id="fileInput" name="file" class="hidden"
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                        onchange="document.getElementById('fileName').textContent = this.files[0]?.name ?? ''; document.getElementById('folderIcon').src = this.files[0] ? '{{ asset('img/folder_open.png') }}' : '{{ asset('img/folder_kosong.png') }}'">
+                        onchange="handleFileSelect(this)">
                     @error('file')
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
@@ -300,5 +302,164 @@
             generateKodeArsip();
         }
     });
+
+    // ── Drag & Drop Upload + SessionStorage untuk Preserve Data ──
+    (function () {
+        const STORAGE_KEY = 'formArsipKeluar_data';
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const folderIcon = document.getElementById('folderIcon');
+        const fileNameEl = document.getElementById('fileName');
+        const form = document.getElementById('formArsipKeluar');
+        const folderOpenSrc = '{{ asset("img/folder_open.png") }}';
+        const folderKosongSrc = '{{ asset("img/folder_kosong.png") }}';
+
+        // ── Fungsi handle file select ──
+        window.handleFileSelect = function (input) {
+            const file = input.files[0];
+            if (file) {
+                fileNameEl.textContent = file.name;
+                folderIcon.src = folderOpenSrc;
+                sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
+            } else {
+                fileNameEl.textContent = '';
+                folderIcon.src = folderKosongSrc;
+                sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+            }
+        };
+
+        // ── Drag & Drop Events ──
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        dropZone.addEventListener('dragenter', function () {
+            dropZone.classList.add('!border-bawaslu-red', '!bg-[#FEF2F2]');
+            dropZone.style.borderStyle = 'solid';
+        });
+
+        dropZone.addEventListener('dragover', function () {
+            dropZone.classList.add('!border-bawaslu-red', '!bg-[#FEF2F2]');
+            dropZone.style.borderStyle = 'solid';
+        });
+
+        dropZone.addEventListener('dragleave', function () {
+            dropZone.classList.remove('!border-bawaslu-red', '!bg-[#FEF2F2]');
+            dropZone.style.borderStyle = 'dashed';
+        });
+
+        dropZone.addEventListener('drop', function (e) {
+            dropZone.classList.remove('!border-bawaslu-red', '!bg-[#FEF2F2]');
+            dropZone.style.borderStyle = 'dashed';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const allowedTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png'];
+                const fileName = file.name.toLowerCase();
+                const isValid = allowedTypes.some(ext => fileName.endsWith(ext));
+
+                if (!isValid) {
+                    alert('Tipe file tidak didukung. Gunakan: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG');
+                    return;
+                }
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+
+                fileNameEl.textContent = file.name;
+                folderIcon.src = folderOpenSrc;
+
+                sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
+            }
+        });
+
+        // ── SessionStorage: Simpan data form ──
+        function saveFormData() {
+            const data = {
+                klasifikasi_id: document.querySelector('select[name="klasifikasi_id"]')?.value || '',
+                sifat_id: document.querySelector('select[name="sifat_id"]')?.value || '',
+                sub_bagian_id: document.querySelector('select[name="sub_bagian_id"]')?.value || '',
+                verifikator_id: document.querySelector('select[name="verifikator_id"]')?.value || '',
+                tujuan_id: document.querySelector('select[name="tujuan_id"]')?.value || '',
+                pembuat_id: document.querySelector('select[name="pembuat_id"]')?.value || '',
+                nama_file: document.querySelector('input[name="nama_file"]')?.value || '',
+                perihal: document.querySelector('input[name="perihal"]')?.value || '',
+                tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
+                tanggal_unggah: document.querySelector('input[name="tanggal_unggah"]')?.value || '',
+            };
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // ── SessionStorage: Pulihkan data form ──
+        function restoreFormData() {
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+
+            try {
+                const data = JSON.parse(saved);
+
+                // Isi select fields
+                ['klasifikasi_id', 'sifat_id', 'sub_bagian_id', 'verifikator_id', 'tujuan_id', 'pembuat_id'].forEach(field => {
+                    const select = document.querySelector(`select[name="${field}"]`);
+                    if (select && data[field] && !select.value) {
+                        const option = select.querySelector(`option[value="${data[field]}"]`);
+                        if (option) {
+                            select.value = data[field];
+                        }
+                    }
+                });
+
+                // Isi input text
+                ['nama_file', 'perihal', 'tanggal_surat', 'tanggal_unggah'].forEach(field => {
+                    const input = document.querySelector(`input[name="${field}"]`);
+                    if (input && data[field] && !input.value) {
+                        input.value = data[field];
+                    }
+                });
+
+                // Pulihkan nama file
+                const savedFileName = sessionStorage.getItem(STORAGE_KEY + '_fileName');
+                if (savedFileName && fileNameEl) {
+                    fileNameEl.textContent = savedFileName;
+                    folderIcon.src = folderOpenSrc;
+                }
+            } catch (e) {
+                console.warn('Gagal memulihkan data form:', e);
+            }
+        }
+
+        // ── Listen perubahan pada form ──
+        form.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', saveFormData);
+            el.addEventListener('input', saveFormData);
+        });
+
+        // ── Hapus sessionStorage saat submit ──
+        form.addEventListener('submit', function () {
+            setTimeout(function () {
+                sessionStorage.removeItem(STORAGE_KEY);
+                sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+            }, 100);
+        });
+
+        // ── Restore data ──
+        const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
+        if (!hasErrors) {
+            restoreFormData();
+        }
+
+        @if(session('success'))
+            sessionStorage.removeItem(STORAGE_KEY);
+            sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+        @endif
+    })();
 </script>
 @endpush

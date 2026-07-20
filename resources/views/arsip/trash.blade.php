@@ -14,24 +14,9 @@
                 Arsip yang dihapus akan tersimpan di sini. Bisa dipulihkan atau dihapus permanen.
             </p>
         </div>
-        <div class="flex gap-2.5 items-center">
-            <a href="{{ route('arsip.index') }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali ke Arsip</a>
-
-            @if($arsip->count() > 0 && auth()->user()->role === 'admin')
-            <form method="POST" action="{{ route('arsip.empty-trash') }}"
-                onsubmit="return confirm('Yakin ingin menghapus SEMUA arsip di trash secara permanen? Tindakan ini tidak dapat dibatalkan.')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="text-[13px] font-medium text-white bg-[#dc2626] px-3.5 py-[7px] border-none rounded-lg cursor-pointer hover:bg-[#b91c1c]">🗑 Kosongkan Trash</button>
-            </form>
-            @endif
+        <div>
+            <a href="{{ route('arsip.index', ['tab' => 'saya']) }}" class="text-[13px] text-[#6b7280] no-underline px-3.5 py-[7px] border border-[#e5e7eb] rounded-lg bg-white"> Kembali</a>
         </div>
-    </div>
-
-    {{-- Warning banner --}}
-    <div class="flex items-center gap-2.5 bg-[#fffbeb] border border-[#fde68a] rounded-lg px-4 py-3 text-[13px] text-[#92400e] mb-4">
-        <span class="text-lg">⚠️</span>
-        <span>Arsip di trash akan <strong>dihapus permanen otomatis setelah 7 hari</strong>. Pulihkan arsip jika masih dibutuhkan.</span>
     </div>
 
     {{-- Empty state --}}
@@ -53,23 +38,15 @@
         <table class="w-full border-collapse text-[13px]">
             <thead>
                 <tr class="bg-[#f9fafb] border-b border-[#e5e7eb]">
-                    <th class="px-4 py-3 text-left font-medium text-[#6b7280]">Judul Arsip</th>
-                    <th class="px-4 py-3 text-left font-medium text-[#6b7280]">Kategori</th>
-                    <th class="px-4 py-3 text-left font-medium text-[#6b7280]">Dihapus oleh</th>
+                    <th class="px-4 py-3 text-left font-medium text-[#6b7280">Judul Arsip</th>
+                    <th class="px-4 py-3 text-left font-medium text-[#6b7280">Kategori</th>
+                    <th class="px-4 py-3 text-left font-medium text-[#6b7280">Dihapus oleh</th>
                     <th class="px-4 py-3 text-left font-medium text-[#6b7280]">Tanggal dihapus</th>
-                    <th class="px-4 py-3 text-left font-medium text-[#6b7280]">Dihapus permanen</th>
                     <th class="px-4 py-3 text-center font-medium text-[#6b7280]">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($arsip as $item)
-                @php
-                    $hariTersisa  = now()->diffInDays($item->deleted_at->addDays(7), false);
-                    $sudahLewat   = $hariTersisa <= 0;
-                    $countdownClass = $hariTersisa <= 2
-                        ? 'text-[#dc2626]'
-                        : ($hariTersisa <= 5 ? 'text-[#d97706]' : 'text-[#6b7280]');
-                @endphp
                 <tr class="border-b border-[#f3f4f6] last:border-b-0">
                     <td class="px-4 py-3 text-[#6b7280] align-middle">
                         <div class="text-[#111827] font-medium">{{ Str::limit($item->judul, 40) }}</div>
@@ -80,15 +57,6 @@
                     </td>
                     <td class="px-4 py-3 text-[#6b7280] align-middle">{{ $item->uploader->nama_lengkap ?? '-' }}</td>
                     <td class="px-4 py-3 text-[#6b7280] align-middle">{{ $item->deleted_at->format('d M Y, H:i') }}</td>
-                    <td class="px-4 py-3 text-[#6b7280] align-middle">
-                        @if($sudahLewat)
-                            <span class="text-[12px] font-medium text-[#dc2626]">⚠️ Segera dihapus</span>
-                        @else
-                            <span class="text-[12px] font-medium {{ $countdownClass }}">
-                                {{ $hariTersisa == 0 ? 'Hari ini' : "dalam {$hariTersisa} hari" }}
-                            </span>
-                        @endif
-                    </td>
                     <td class="px-4 py-3 text-[#6b7280] align-middle">
                         <div class="flex gap-2 justify-center">
 

@@ -59,6 +59,12 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
     // About
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
+    // Notifikasi - mark all as read
+    Route::post('/notifications/mark-all-read', function () {
+        app(\App\Services\NotifikasiService::class)->markAllAsRead(auth()->user());
+        return response()->json(['success' => true]);
+    })->name('notifications.mark-all-read');
+
     // Pengaturan
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
         Route::get('/', [PengaturanController::class, 'index'])->name('index');

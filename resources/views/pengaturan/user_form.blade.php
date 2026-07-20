@@ -106,6 +106,36 @@
                         <p>Harus Minimal 8 Karakter, Mengandung Huruf Besar Dan Kecil, Mengandung Simbol</p>
                     </div>
             </div>
+            @else
+            <div class="mb-[18px]" id="passwordFieldEdit">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Password <span class="text-[12px] font-normal text-abu">(kosongkan jika tidak diubah)</span></label>
+                <div style="position:relative;">
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] @error('password') border-[#DC2626] border-[1.5px] @enderror" 
+                       type="password" 
+                       name="password"
+                       id="uPasswordEdit"
+                       style="padding-right:42px;">
+                <button type="button" onclick="togglePassword('uPasswordEdit', 'eye-pass-edit')"
+                    style="
+                        position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                        background:none; border:none; cursor:pointer;
+                        color:#9ca3af; padding:4px;
+                    ">
+                    <svg id="eye-pass-edit" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                        fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+                </div>
+                @error('password')
+                    <div class="text-[12px] text-[#DC2626] mt-1 block">{{ $message }}</div>
+                @enderror
+                    <div class="text-[12px] bg-[#fffbeb] text-abu p-2 mt-3 rounded-lg border border-yellow-500 block">
+                        <p>Minimal 8 karakter, mengandung huruf besar &amp; kecil, dan mengandung simbol</p>
+                    </div>
+            </div>
             @endif
 
             <div class="grid grid-cols-2 gap-4">

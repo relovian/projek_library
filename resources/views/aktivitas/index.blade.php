@@ -13,9 +13,7 @@
        class="relative -mb-[2px] inline-block border-b-2 px-[18px] py-2.5 text-[13.5px] font-semibold transition-colors duration-200 {{ $tab === 'semua' 
       ? 'border-b-bawaslu-red text-bawaslu-red' : 'border-transparent text-abu hover:text-hitam' }}">Semua</a>
 
-    <a href="{{ route('aktivitas.index', ['tab' => 'unduh']) }}"
-       class="relative -mb-[2px] inline-block border-b-2 px-[18px] py-2.5 text-[13.5px] font-semibold transition-colors duration-200 {{ $tab === 'unduh' 
-      ? 'border-b-bawaslu-red text-bawaslu-red' : 'border-transparent text-abu hover:text-hitam' }}">Riwayat Unduhan Saya</a>
+
     <a href="{{ route('aktivitas.index', ['tab' => 'perubahan']) }}"
        class="relative -mb-[2px] inline-block border-b-2 px-[18px] py-2.5 text-[13.5px] font-semibold transition-colors duration-200 {{ $tab === 'perubahan' ? 'border-b-bawaslu-red text-bawaslu-red' : 'border-transparent text-abu hover:text-hitam' }}">Riwayat Perubahan</a>
     @if(auth()->user()->isAdmin())
@@ -55,8 +53,27 @@
                 @if($log->keterangan)
                 <div class="text-[12.5px] text-abu mt-[2px]">{{ $log->keterangan }}</div>
                 @endif
-                <div class="text-[11.5px] text-abu mt-1">
+            <div class="text-[11.5px] text-abu mt-1">
                     {{ $log->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB
+                    @if($log->aksi === 'hapus')
+                        @if ($log->aksi === 'pulihkan')
+                            <span class="ml-2 inline-flex items-center rounded-[20px] bg-[#ECFDF5] text-[#059669] px-[9px] py-[3px] text-[10.5px] font-bold shrink-0">
+                                Sudah dipulihkan
+                            </span>
+                        @else 
+                            <span class="ml-2 inline-flex items-center rounded-[20px] bg-[#FEF2F2] text-[#DC2626] px-[9px] py-[3px] text-[10.5px] font-bold shrink-0">
+                                Menunggu admin menghapus permanen
+                            </span>
+                        @endif
+                    @elseif($log->aksi === 'hapus_permanen')
+                        <span class="ml-2 inline-flex items-center rounded-[20px] bg-[#DC2626] text-white px-[9px] py-[3px] text-[10.5px] font-bold shrink-0">
+                            Sudah dihapus permanen oleh admin
+                        </span>
+                    @elseif($log->aksi === 'pulihkan')
+                        <span class="ml-2 inline-flex items-center rounded-[20px] bg-[#ECFDF5] text-[#059669] px-[9px] py-[3px] text-[10.5px] font-bold shrink-0">
+                            Sudah dipulihkan
+                        </span>
+                    @endif
                     @if(auth()->user()->isAdmin() && $tab === 'log')
                         · oleh <strong>{{ $log->user->nama_lengkap }}</strong>
                     @endif
@@ -91,7 +108,7 @@
         {{-- Nomor Halaman --}}
         @for ($i = 1; $i <= $logs->lastPage(); $i++)
             <a href="{{ $logs->url($i) }}"
-            class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border bg-white text-hitam no-underline text-sm font-semibold transition-all duration-200 ease hover:border-[#D1D5DB] {{ $logs->currentPage() == $i ? 'bg-[#be2a31] text-white border-bawaslu-red  hover:bg-[#de2a33]' : ' hover:bg-surface2' }}">
+            class="min-w-[38px] h-[38px] px-[14px] flex items-center justify-center rounded-[10px] border border-border  text-hitam no-underline text-sm font-semibold transition-all duration-200 ease bg-red-500 hover:border-[#D1D5DB] {{ $logs->currentPage() == $i ? 'bg-[#be2a31] text-white border-bawaslu-red  hover:bg-[#de2a33]' : ' hover:bg-surface2' }}">
                 {{ $i }}
             </a>
         @endfor

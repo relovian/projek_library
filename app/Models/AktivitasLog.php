@@ -10,7 +10,13 @@ class AktivitasLog extends Model
     protected $table = 'aktivitas_logs';
 
     protected $fillable = [
-        'user_id', 'arsip_id', 'aksi', 'keterangan', 'ip_address',
+        'user_id',
+        'arsip_id',
+        'surat_masuk_id',
+        'arsip_keluar_id',
+        'aksi',
+        'keterangan',
+        'ip_address',
     ];
 
     public function user(): BelongsTo
@@ -29,11 +35,10 @@ class AktivitasLog extends Model
             'unggah'  => 'Dokumen baru diunggah',
             'unduh'   => 'Dokumen diunduh',
             'lihat'   => 'Dokumen dilihat',
-            'edit'    => 'Metadata diperbarui',
-            'hapus'   => 'Dokumen dihapus',
-            'setujui' => 'Dokumen disetujui',
-            'tolak'   => 'Dokumen ditolak',
-            'revisi'  => 'Revisi dokumen diunggah',
+            'edit'    => 'Arsip diperbarui',
+            'hapus'   => 'Arsip dihapus',
+            'hapus_permanen' => 'Arsip dihapus permanen',
+            'pulihkan' => 'Arsip dipulihkan',
             default   => $this->aksi,
         };
     }
@@ -41,11 +46,12 @@ class AktivitasLog extends Model
     public function getAksiIkonAttribute(): string
     {
         return match ($this->aksi) {
-            'unggah'  => asset('img/unggah.png'),
-            'unduh'   => asset('img/unduh.png'),
-            'lihat'   => asset('img/pratinjau.png'),
-            'edit'    => asset('img/edit.png'),
-            'hapus'   => asset('img/hapus.png'),
+            'unggah' => asset('img/unggah.png'),
+            'unduh' => asset('img/unduh.png'),
+            'lihat' => asset('img/pratinjau.png'),
+            'edit' => asset('img/edit.png'),
+            'hapus' => asset('img/pending.png'),
+            'hapus_permanen' => asset('img/hapus.png'),
             'setujui' => asset('img/persetujuan.png'),
             'tolak'   => asset('img/tolak.png'),
             'revisi'  => asset('img/revisi.png'),
@@ -61,7 +67,7 @@ class AktivitasLog extends Model
             'unduh'            => 'download',
             'setujui'          => 'approve',
             'edit'             => 'edit',
-            'tolak', 'hapus'   => 'reject',
+            'tolak', 'hapus', 'hapus_permanen' => 'reject',
             default            => 'download',
         };
     }
