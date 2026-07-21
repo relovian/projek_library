@@ -29,8 +29,17 @@ class ArsipMasuk extends Model
     protected $casts = [
         'tanggal_surat'    => 'date',
         'tanggal_diterima' => 'date',
-        'tanggal_unggah'   => 'date',
+        'tanggal_unggah'   => 'timestamp',
     ];
+
+    /**
+     * Multiple tujuan surat (many-to-many).
+     */
+    public function tujuans(): BelongsToMany
+    {
+        return $this->belongsToMany(Tujuan::class, 'surat_masuk_tujuan')
+                    ->withTimestamps();
+    }
 
     // ── Relations ──────────────────────────────────────────
     public function uploader(): BelongsTo

@@ -67,18 +67,16 @@ class ArsipMasukController extends Controller
         }
 
         $request->validate([
-            'nama_file'         => 'required|max:255',
             'perihal'           => 'required|max:255',
             'asal_instansi'     => 'required|max:255',
             'tanggal_surat'     => 'required|date',
             'tanggal_diterima'  => 'required|date',
-            'tanggal_unggah'    => 'required|date',
 
             'file' => 'required',
             'link_file' => 'nullable|url',
 
-            'users_disposisi' => 'required|array|min:1',
-            'tujuan_id'       => 'required|exists:tujuan,id'
+            'users_disposisi'   => 'required|array|min:1',
+            'tujuan_id'         => 'required|array|min:1',
         ]);
 
         $tanggal = now()->format('Ymd');
@@ -92,17 +90,21 @@ class ArsipMasukController extends Controller
         $kodeArsip = $tanggal . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
 
-       $linkFile = null;
+        $linkFile = null;
         $driveId = null;
+        $namaFile = null;
 
         if ($request->hasFile('file')) {
-                $driveData = $this->googleDriveService->uploadDrive($request->file('file'), '1pKXlQBYIKaySucXPOA9fudfC7u2L_x6y');
-                
-                // Cek jika file duplikat
+            $file = $request->file('file');
+            $namaFile = $file->getClientOriginalName();
+            
+            $driveData = $this->googleDriveService->uploadDrive($file, '1pKXlQBYIKaySucXPOA9fudfC7u2L_x6y');
+            
+            // Cek jika file duplikat
             if ($driveData['is_duplicate']) {
                 return redirect()->back()
                 ->withInput() 
-                ->with('error', 'File dengan nama "' . $request->file('file')->getClientOriginalName() . '" sudah ada di sistem.');
+                ->with('error', 'File dengan nama "' . $namaFile . '" sudah ada di sistem.');
             }
 
             $linkFile = $driveData['link'];
@@ -114,18 +116,21 @@ class ArsipMasukController extends Controller
         // Buat record surat
         $surat = ArsipMasuk::create([
             'kode_arsip_masuk' => $kodeArsip,
-            'nama_file'        => $request->nama_file,
+            'nama_file'        => $namaFile,
             'perihal'          => $request->perihal,
             'asal_instansi'    => $request->asal_instansi,
             'tanggal_surat'    => $request->tanggal_surat,
             'tanggal_diterima' => $request->tanggal_diterima,
-            'tanggal_unggah'   => $request->tanggal_unggah,
             'link_file'        => $linkFile,
             'drive_id'         => $driveId,
             'uploader_id'      => Auth::id(),
-            'tujuan_id'        => $request->tujuan_id,
+            'tujuan_id'        => $request->tujuan_id[0] ?? null, // Ambil tujuan pertama sebagai utama
         ]);
 
+        // Sync tujuan (bisa multiple)
+        $surat->tujuans()->sync($request->tujuan_id);
+
+        // Sync disposisi user
         $surat->users()->sync($request->users_disposisi);
 
         // Catat aktivitas unggah
@@ -177,26 +182,46 @@ class ArsipMasukController extends Controller
         }
 
         $request->validate([
-            'nama_file'         => 'required|max:255',
             'perihal'           => 'required|max:255',
             'asal_instansi'     => 'required|max:255',
             'tanggal_surat'     => 'required|date',
             'tanggal_diterima'  => 'required|date',
-            'tanggal_unggah'    => 'required|date',
+
+            'file'              => 'nullable|file',
+            'link_file'         => 'nullable|url',
+
             'users_disposisi'   => 'required|array|min:1',
-            'tujuan_id'         => 'required|exists:tujuan,id'
+            'tujuan_id'         => 'required|array|min:1',
         ]);
 
+        // Update nama_file jika ada file baru diupload
+        $namaFile = $arsipMasuk->nama_file;
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $namaFile = $file->getClientOriginalName();
+            
+            $driveData = $this->googleDriveService->uploadDrive($file, '1pKXlQBYIKaySucXPOA9fudfC7u2L_x6y');
+            
+            if ($driveData['is_duplicate']) {
+                return redirect()->back()
+                ->withInput() 
+                ->with('error', 'File dengan nama "' . $namaFile . '" sudah ada di sistem.');
+            }
+        }
+
         $arsipMasuk->update([
-            'nama_file'        => $request->nama_file,
+            'nama_file'        => $namaFile,
             'perihal'          => $request->perihal,
             'asal_instansi'    => $request->asal_instansi,
             'tanggal_surat'    => $request->tanggal_surat,
             'tanggal_diterima' => $request->tanggal_diterima,
-            'tanggal_unggah'   => $request->tanggal_unggah,
-            'tujuan_id'        => $request->tujuan_id,
+            'tujuan_id'        => $request->tujuan_id[0] ?? null, // Ambil tujuan pertama sebagai utama
         ]);
 
+        // Sync tujuan (bisa multiple)
+        $arsipMasuk->tujuans()->sync($request->tujuan_id);
+
+        // Sync disposisi user
         $arsipMasuk->users()->sync($request->users_disposisi);
 
         // Catat aktivitas edit
