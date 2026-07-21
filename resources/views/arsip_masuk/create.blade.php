@@ -12,7 +12,6 @@
         </svg>
         <p class="text-[13px] text-red-700">{{ session('error') }}</p>
     </div>
-</div>
 @endif
 
 <div class="mb-7">
@@ -28,17 +27,29 @@
         <form id="formSuratMasuk" method="POST" action="{{ route('arsip-masuk.store') }}" enctype="multipart/form-data">
             @csrf
 
-    {{-- Perihal --}}
-    <div class="mb-[18px]">
-        <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
-        <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('perihal') ? 'border-[#dc2626]' : '' }}"
-            type="text" name="perihal"
-            value="{{ old('perihal') }}"
-            placeholder="Masukkan perihal surat…">
-        @error('perihal')
-            <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-        @enderror
-    </div>
+            {{-- Nama File --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nama_file') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="nama_file"
+                    value="{{ old('nama_file') }}"
+                    placeholder="Masukkan nama file surat…">
+                @error('nama_file')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Perihal --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('perihal') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="perihal"
+                    value="{{ old('perihal') }}"
+                    placeholder="Masukkan perihal surat…">
+                @error('perihal')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
 
             {{-- Asal Instansi --}}
             <div class="mb-[18px]">
@@ -52,66 +63,28 @@
                 @enderror
             </div>
 
-            {{-- Tujuan (multiple checkbox) --}}
+            {{-- Tujuan (single select wajib) --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
                     Tujuan <span class="text-bawaslu-red">*</span>
                 </label>
 
-                <div class="flex gap-2 mb-3">
-                    <button
-                        type="button"
-                        id="selectAllTujuanBtn"
-                        class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
-                        Pilih Semua
-                    </button>
-
-                    <button
-                        type="button"
-                        id="deselectAllTujuanBtn"
-                        class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
-                        Hapus Semua
-                    </button>
-                </div>
-
-                <div class="border border-border rounded-lg overflow-hidden">
-                    <table class="w-full text-[13px]">
-                        <thead class="bg-surface2 border-b border-border">
-                            <tr>
-                                <th class="w-12 px-3 py-2 text-center"></th>
-                                <th class="px-3 py-2 text-left">Nama Tujuan</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach ($tujuans as $tujuan)
-                                <tr class="border-b border-border last:border-b-0 hover:bg-surface2/50">
-                                    <td class="px-3 py-2 text-center">
-                                        <input
-                                            type="checkbox"
-                                            class="tujuan-checkbox"
-                                            name="tujuan_id[]"
-                                            value="{{ $tujuan->id }}"
-                                            {{ in_array($tujuan->id, old('tujuan_id', [])) ? 'checked' : '' }}>
-                                    </td>
-
-                                    <td class="px-3 py-2">
-                                        {{ $tujuan->nama }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                <select name="tujuan_id"
+                    class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tujuan_id') ? 'border-[#dc2626]' : '' }}">
+                    <option value="" disabled {{ old('tujuan_id') ? '' : 'selected' }}>Pilih tujuan…</option>
+                    @foreach($tujuans as $tujuan)
+                        <option value="{{ $tujuan->id }}" {{ (string) old('tujuan_id') === (string) $tujuan->id ? 'selected' : '' }}>
+                            {{ $tujuan->nama }}
+                        </option>
+                    @endforeach
+                </select>
 
                 @error('tujuan_id')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">
-                        {{ $message }}
-                    </span>
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
             </div>
 
-            {{-- Disposisi (Select Multiple Users) --}}
+            {{-- Tujuan / Disposisi (Select Multiple Users) --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
                     Disposisi <span class="text-bawaslu-red">*</span>
@@ -201,6 +174,17 @@
                 @enderror
             </div>
 
+            {{-- Tanggal Unggah --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Unggah <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_unggah') ? 'border-[#dc2626]' : '' }}"
+                    type="date" name="tanggal_unggah"
+                    value="{{ old('tanggal_unggah') }}">
+                @error('tanggal_unggah')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
             {{-- Opsi Upload: File atau Link Google Drive --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
@@ -233,7 +217,6 @@
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
             
             @isset($surat)
                 <a href="{{ $surat->link_file }}" target="_blank" class="btn btn-primary">
@@ -253,30 +236,6 @@
 
         </form>
 
-        {{-- JS Tujuan: pilih semua / hapus semua --}}
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const selectAllTujuanBtn = document.getElementById('selectAllTujuanBtn');
-                const deselectAllTujuanBtn = document.getElementById('deselectAllTujuanBtn');
-
-                if (selectAllTujuanBtn) {
-                    selectAllTujuanBtn.addEventListener('click', function () {
-                        document.querySelectorAll('.tujuan-checkbox').forEach(function (checkbox) {
-                            checkbox.checked = true;
-                        });
-                    });
-                }
-
-                if (deselectAllTujuanBtn) {
-                    deselectAllTujuanBtn.addEventListener('click', function () {
-                        document.querySelectorAll('.tujuan-checkbox').forEach(function (checkbox) {
-                            checkbox.checked = false;
-                        });
-                    });
-                }
-            });
-        </script>
-
         {{-- JS Disposisi: pilih semua / hapus semua / check all header --}}
         <script>
             (function () {
@@ -290,7 +249,6 @@
                         cb.checked = checked;
                     });
 
-                    // Update header checkbox
                     if (checkAllHeader) {
                         checkAllHeader.checked = checked;
                         checkAllHeader.indeterminate = false;
@@ -330,12 +288,11 @@
                     cb.addEventListener('change', updateHeader);
                 });
 
-                // initial
                 updateHeader();
             })();
         </script>
 
-        {{-- JS Drag & Drop Upload + SessionStorage untuk Preserve Data --}}
+        {{-- JS Drag & Drop Upload + SessionStorage Preserve Data --}}
         <script>
             (function () {
                 const STORAGE_KEY = 'formSuratMasuk_data';
@@ -347,13 +304,11 @@
                 const folderOpenSrc = '{{ asset("img/folder_open.png") }}';
                 const folderKosongSrc = '{{ asset("img/folder_kosong.png") }}';
 
-                // ── Fungsi handle file select ──
                 window.handleFileSelect = function (input) {
                     const file = input.files[0];
                     if (file) {
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
-                        // Simpan nama file ke sessionStorage
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
                     } else {
                         fileNameEl.textContent = '';
@@ -362,8 +317,7 @@
                     }
                 };
 
-                // ── Drag & Drop Events ──
-                // Prevent default drag behaviors
+                // Drag & Drop Events
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, function (e) {
                         e.preventDefault();
@@ -371,7 +325,6 @@
                     });
                 });
 
-                // Highlight saat drag over
                 dropZone.addEventListener('dragenter', function () {
                     dropZone.classList.add('!border-bawaslu-red', '!bg-[#FEF2F2]');
                     dropZone.style.borderStyle = 'solid';
@@ -387,7 +340,6 @@
                     dropZone.style.borderStyle = 'dashed';
                 });
 
-                // Saat file di-drop
                 dropZone.addEventListener('drop', function (e) {
                     dropZone.classList.remove('!border-bawaslu-red', '!bg-[#FEF2F2]');
                     dropZone.style.borderStyle = 'dashed';
@@ -395,7 +347,6 @@
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
                         const file = files[0];
-                        // Validasi tipe file
                         const allowedTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png'];
                         const fileName = file.name.toLowerCase();
                         const isValid = allowedTypes.some(ext => fileName.endsWith(ext));
@@ -405,38 +356,32 @@
                             return;
                         }
 
-                        // Set file ke input file (FileList tidak bisa di-set manual, jadi pakai DataTransfer)
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(file);
                         fileInput.files = dataTransfer.files;
 
-                        // Trigger event change manual
                         const event = new Event('change', { bubbles: true });
                         fileInput.dispatchEvent(event);
 
-                        // Update UI
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
 
-                        // Simpan ke sessionStorage
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
                     }
                 });
 
-             // ── SessionStorage: Simpan data form saat ada perubahan ──
-                 function saveFormData() {
-                     const data = {
-                         perihal: document.querySelector('input[name="perihal"]')?.value || '',
-                         asal_instansi: document.querySelector('input[name="asal_instansi"]')?.value || '',
-                         tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
-                         tanggal_diterima: document.querySelector('input[name="tanggal_diterima"]')?.value || '',
-                         tujuan_id: [],
-                         users_disposisi: []
-                     };
-
-                    document.querySelectorAll('input[name="tujuan_id[]"]:checked').forEach(cb => {
-                        data.tujuan_id.push(cb.value);
-                    });
+                // Simpan data form ke sessionStorage
+                function saveFormData() {
+                    const data = {
+                        nama_file: document.querySelector('input[name="nama_file"]')?.value || '',
+                        perihal: document.querySelector('input[name="perihal"]')?.value || '',
+                        asal_instansi: document.querySelector('input[name="asal_instansi"]')?.value || '',
+                        tujuan_id: document.querySelector('select[name="tujuan_id"]')?.value || '',
+                        tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
+                        tanggal_diterima: document.querySelector('input[name="tanggal_diterima"]')?.value || '',
+                        tanggal_unggah: document.querySelector('input[name="tanggal_unggah"]')?.value || '',
+                        users_disposisi: []
+                    };
 
                     document.querySelectorAll('input[name="users_disposisi[]"]:checked').forEach(cb => {
                         data.users_disposisi.push(cb.value);
@@ -445,13 +390,18 @@
                     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 }
 
-                 // ── SessionStorage: Pulihkan data form ──
+                // Pulihkan data form dari sessionStorage
                 function restoreFormData() {
                     const saved = sessionStorage.getItem(STORAGE_KEY);
                     if (!saved) return;
 
                     try {
                         const data = JSON.parse(saved);
+
+                        const namaFileInput = document.querySelector('input[name="nama_file"]');
+                        if (namaFileInput && data.nama_file && !namaFileInput.value) {
+                            namaFileInput.value = data.nama_file;
+                        }
 
                         const perihalInput = document.querySelector('input[name="perihal"]');
                         if (perihalInput && data.perihal && !perihalInput.value) {
@@ -461,6 +411,30 @@
                         const asalInput = document.querySelector('input[name="asal_instansi"]');
                         if (asalInput && data.asal_instansi && !asalInput.value) {
                             asalInput.value = data.asal_instansi;
+                        }
+
+                        const tujuanSelect = document.querySelector('select[name="tujuan_id"]');
+                        if (tujuanSelect && data.tujuan_id) {
+                            const option = tujuanSelect.querySelector('option[value="' + data.tujuan_id + '"]');
+                            if (option) {
+                                tujuanSelect.value = data.tujuan_id;
+                            }
+                        }
+
+                        const tglSurat = document.querySelector('input[name="tanggal_surat"]');
+
+                        const asalInput = document.querySelector('input[name="asal_instansi"]');
+                        if (asalInput && data.asal_instansi && !asalInput.value) {
+                            asalInput.value = data.asal_instansi;
+                        }
+
+                        // Isi select tujuan
+                        const tujuanSelect = document.querySelector('select[name="tujuan_id"]');
+                        if (tujuanSelect && data.tujuan_id) {
+                            const option = tujuanSelect.querySelector('option[value="' + data.tujuan_id + '"]');
+                            if (option) {
+                                tujuanSelect.value = data.tujuan_id;
+                            }
                         }
 
                         // Isi tanggal
@@ -474,13 +448,9 @@
                             tglDiterima.value = data.tanggal_diterima;
                         }
 
-                        // Isi checkbox tujuan
-                        if (data.tujuan_id && data.tujuan_id.length > 0) {
-                            document.querySelectorAll('input[name="tujuan_id[]"]').forEach(cb => {
-                                if (data.tujuan_id.includes(cb.value)) {
-                                    cb.checked = true;
-                                }
-                            });
+                        const tglUnggah = document.querySelector('input[name="tanggal_unggah"]');
+                        if (tglUnggah && data.tanggal_unggah && !tglUnggah.value) {
+                            tglUnggah.value = data.tanggal_unggah;
                         }
 
                         // Isi checkbox disposisi
@@ -517,8 +487,8 @@
                     el.addEventListener('input', saveFormData);
                 });
 
-                // Tambah listener untuk checkbox
-                document.querySelectorAll('input[name="tujuan_id[]"], input[name="users_disposisi[]"]').forEach(cb => {
+                // Tambah listener untuk checkbox disposisi
+                document.querySelectorAll('input[name="users_disposisi[]"]').forEach(cb => {
                     cb.addEventListener('change', saveFormData);
                 });
 
@@ -554,11 +524,12 @@
             <div class="text-xs font-bold mt-2">Panduan</div>
             <ul class="text-xs text-abu leading-[1.8] pl-4 mt-2">
                 <li>Isi semua field yang bertanda <span class="text-bawaslu-red">*</span></li>
-                <li>Pilih minimal satu tujuan dan satu disposisi surat</li>
-                <li>File akan otomatis masuk ke google drive</li>
+                <li>Pilih minimal satu disposisi surat</li>
+                <li>FIle akan otomatis masuk ke google drive</li>
                 <li>Format file: PDF, DOCX, XLSX, JPG, PNG, MP4</li>
             </ul>
         </div>
     </div>
 </div>
 @endsection
+

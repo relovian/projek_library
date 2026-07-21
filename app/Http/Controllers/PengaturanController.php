@@ -202,7 +202,7 @@ class PengaturanController extends Controller
             $data['password'] = \Hash::make($request->password);
         }
 
-        $user->update($data);
+$user->update($data);
 
         if ($isVerifikator) {
             $user->dataVerifikator()->updateOrCreate(
@@ -210,7 +210,11 @@ class PengaturanController extends Controller
                 ['is_aktif' => 1]
             );
         } else {
-            $user->dataVerifikator()->delete();
+            // Jangan delete, karena foreign key arsip_keluar masih mereferensi verifikator ini.
+            // Cukup nonaktifkan saja.
+            if ($user->dataVerifikator()->exists()) {
+                $user->dataVerifikator()->update(['is_aktif' => 0]);
+            }
         }
 
         return back()->with('success', 'User berhasil diperbarui.');
@@ -335,7 +339,6 @@ class PengaturanController extends Controller
             'notif_arsip_disetujui'        => $request->boolean('notif_arsip_disetujui'),
             'notif_arsip_ditolak'          => $request->boolean('notif_arsip_ditolak'),
             'notif_menunggu_persetujuan'   => $request->boolean('notif_menunggu_persetujuan'),
-            'notif_revisi_dokumen'         => $request->boolean('notif_revisi_dokumen'),
         ]);
     
         return back()->with('success', 'Preferensi notifikasi berhasil disimpan.');
