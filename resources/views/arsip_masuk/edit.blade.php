@@ -20,16 +20,9 @@
     <div class="bg-surface border border-border rounded-[14px] p-6 mb-[15px]">
         <div class="text-[15px] font-bold mb-5">Form Edit Surat Masuk</div>
 
-        <form method="POST" action="{{ route('arsip-masuk.update', $arsipMasuk) }}">
+         <form method="POST" action="{{ route('arsip-masuk.update', $arsipMasuk) }}">
             @csrf
             @method('PUT')
-
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
-                    type="text" name="nama_file"
-                    value="{{ old('nama_file', $arsipMasuk->nama_file) }}">
-            </div>
 
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
@@ -45,21 +38,83 @@
                     value="{{ old('asal_instansi', $arsipMasuk->asal_instansi) }}">
             </div>
 
+            {{-- Tujuan (multiple checkbox) --}}
             <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tujuan <span class="text-bawaslu-red">*</span></label>
-                <select name="tujuan_id"
-                    class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
-                    <option value="">Pilih tujuan…</option>
-                    @foreach($tujuans as $tujuan)
-                        <option value="{{ $tujuan->id }}" {{ old('tujuan_id', $arsipMasuk->tujuan_id) == $tujuan->id ? 'selected' : '' }}>
-                            {{ $tujuan->nama }}
-                        </option>
-                    @endforeach
-                </select>
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                    Tujuan <span class="text-bawaslu-red">*</span>
+                </label>
+
+                <div class="flex gap-2 mb-3">
+                    <button
+                        type="button"
+                        id="selectAllTujuanBtn"
+                        class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Pilih Semua
+                    </button>
+
+                    <button
+                        type="button"
+                        id="deselectAllTujuanBtn"
+                        class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Hapus Semua
+                    </button>
+                </div>
+
+                <div class="border border-border rounded-lg overflow-hidden">
+                    <table class="w-full text-[13px]">
+                        <thead class="bg-surface2 border-b border-border">
+                            <tr>
+                                <th class="w-12 px-3 py-2 text-center"></th>
+                                <th class="px-3 py-2 text-left">Nama Tujuan</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @php
+                                $selectedTujuan = old('tujuan_id', $arsipMasuk->tujuans->pluck('id')->toArray());
+                            @endphp
+                            @foreach ($tujuans as $tujuan)
+                                <tr class="border-b border-border last:border-b-0 hover:bg-surface2/50">
+                                    <td class="px-3 py-2 text-center">
+                                        <input
+                                            type="checkbox"
+                                            class="tujuan-checkbox"
+                                            name="tujuan_id[]"
+                                            value="{{ $tujuan->id }}"
+                                            {{ in_array($tujuan->id, $selectedTujuan) ? 'checked' : '' }}>
+                                    </td>
+
+                                    <td class="px-3 py-2">
+                                        {{ $tujuan->nama }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                @error('tujuan_id')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">
+                        {{ $message }}
+                    </span>
+                @enderror
             </div>
 
+            {{-- Disposisi (Select Multiple Users) --}}
             <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Disposisi <span class="text-bawaslu-red">*</span></label>
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                    Disposisi <span class="text-bawaslu-red">*</span>
+                </label>
+
+                <div class="flex gap-2 mb-3">
+                    <button type="button" id="selectAllBtn" class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Pilih Semua
+                    </button>
+                    <button type="button" id="deselectAllBtn" class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Hapus Semua
+                    </button>
+                </div>
+
                 <div class="border border-border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
                     <table class="w-full text-[12.5px]">
                         <thead class="bg-surface2 sticky top-0">
@@ -105,9 +160,13 @@
                         </tbody>
                     </table>
                 </div>
+                <p class="text-[11px] text-abu mt-1">Pilih satu atau lebih user sebagai tujuan disposisi surat.</p>
+                @error('users_disposisi')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
+             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
@@ -121,13 +180,30 @@
                         type="date" name="tanggal_diterima"
                         value="{{ old('tanggal_diterima', $arsipMasuk->tanggal_diterima?->format('Y-m-d')) }}">
                 </div>
+            </div>
 
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Unggah <span class="text-bawaslu-red">*</span></label>
-                    <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
-                        type="date" name="tanggal_unggah"
-                        value="{{ old('tanggal_unggah', $arsipMasuk->tanggal_unggah?->format('Y-m-d')) }}">
+            {{-- Ganti File (Opsional) --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                    Ganti File <span class="text-[11px] text-abu">(Opsional)</span>
+                </label>
+
+                <div id="dropZoneEdit"
+                    class="border-2 border-dashed border-border rounded-[14px] py-8 text-center cursor-pointer transition-all duration-200 hover:border-bawaslu-red hover:bg-[#FEF2F2] bg-surface2"
+                    onclick="document.getElementById('fileInputEdit').click()">
+                    <div class="text-3xl mb-2">
+                        <img id="folderIconEdit" src="{{ asset('img/folder_kosong.png') }}" class="mx-auto" alt="">
+                    </div>
+                    <h3 class="text-sm font-bold mb-1">Ganti File</h3>
+                    <p class="text-[12px] text-abu">atau klik untuk pilih file baru</p>
+                    <p class="mt-1 text-xs text-[#6B6560]" id="fileNameEdit">{{ $arsipMasuk->nama_file }}</p>
                 </div>
+                <input type="file" id="fileInputEdit" name="file" class="hidden"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    onchange="handleFileSelectEdit(this)">
+                @error('file')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="flex gap-[10px] mt-2">
@@ -158,12 +234,94 @@
         </div>
     </div>
 </div>
-@endsection
 
 @push('scripts')
 <script>
-    document.getElementById('checkAllHeader')?.addEventListener('change', function() {
-        document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
+    // Handle file select for edit form
+    window.handleFileSelectEdit = function (input) {
+        const file = input.files[0];
+        if (file) {
+            const fileNameEl = document.getElementById('fileNameEdit');
+            const folderIcon = document.getElementById('folderIconEdit');
+            fileNameEl.textContent = file.name;
+            folderIcon.src = '{{ asset("img/folder_open.png") }}';
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tujuan checkbox handlers
+        const selectAllTujuanBtn = document.getElementById('selectAllTujuanBtn');
+        const deselectAllTujuanBtn = document.getElementById('deselectAllTujuanBtn');
+
+        if (selectAllTujuanBtn) {
+            selectAllTujuanBtn.addEventListener('click', function () {
+                document.querySelectorAll('.tujuan-checkbox').forEach(function (checkbox) {
+                    checkbox.checked = true;
+                });
+            });
+        }
+
+        if (deselectAllTujuanBtn) {
+            deselectAllTujuanBtn.addEventListener('click', function () {
+                document.querySelectorAll('.tujuan-checkbox').forEach(function (checkbox) {
+                    checkbox.checked = false;
+                });
+            });
+        }
+
+        // Disposisi checkbox handlers
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const checkAllHeader = document.getElementById('checkAllHeader');
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+
+        function setAll(checked) {
+            checkboxes.forEach(cb => {
+                cb.checked = checked;
+            });
+
+            if (checkAllHeader) {
+                checkAllHeader.checked = checked;
+                checkAllHeader.indeterminate = false;
+            }
+        }
+
+        function updateHeader() {
+            if (!checkAllHeader) return;
+            const total = checkboxes.length;
+            const selected = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+            checkAllHeader.checked = total > 0 && selected === total;
+            checkAllHeader.indeterminate = selected > 0 && selected < total;
+        }
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                setAll(true);
+            });
+        }
+
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                setAll(false);
+            });
+        }
+
+        if (checkAllHeader) {
+            checkAllHeader.addEventListener('change', function (e) {
+                setAll(e.target.checked);
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateHeader);
+        });
+
+        // initial
+        updateHeader();
     });
 </script>
 @endpush
+@endsection
