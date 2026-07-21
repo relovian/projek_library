@@ -37,7 +37,7 @@ class ArsipMasuk extends Model
      */
     public function tujuans(): BelongsToMany
     {
-        return $this->belongsToMany(Tujuan::class, 'surat_masuk_tujuan')
+        return $this->belongsToMany(Tujuan::class, 'surat_masuk_tujuan', 'surat_masuk_id', 'tujuan_id')
                     ->withTimestamps();
     }
 

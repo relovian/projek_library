@@ -273,10 +273,8 @@ class ArsipKeluarController extends Controller
             'sifat_id' => 'required|exists:sifat_surat,id',
             'sub_bagian_id' => 'required|exists:sub_bagian,id',
             'verifikator_id' => 'required|exists:verifikator,id',
-            'tujuan_id' => 'required|exists:tujuan,id',
             'pembuat_id' => 'required|exists:users,id',
             'tanggal_surat' => 'required|date',
-            'tanggal_unggah' => 'required|date',
             'file' => 'required|file',
         ], [
             'nama_file.required' => 'Nama file wajib diisi.',
@@ -285,10 +283,8 @@ class ArsipKeluarController extends Controller
             'sifat_id.required' => 'Sifat surat wajib dipilih.',
             'sub_bagian_id.required' => 'Sub bagian wajib dipilih.',
             'verifikator_id.required' => 'Verifikator wajib dipilih.',
-            'tujuan_id.required' => 'Tujuan wajib dipilih.',
             'pembuat_id.required' => 'Pembuat wajib dipilih.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
-            'tanggal_unggah.required' => 'Tanggal unggah wajib diisi.',
             'file.required_if' => 'File wajib diunggah jika memilih upload file.',
             'file.file' => 'Data yang diunggah harus berupa file.'
         ]);
@@ -296,7 +292,7 @@ class ArsipKeluarController extends Controller
         // Generate kode arsip 
         $klasifikasi = Klasifikasi::findOrFail($request->klasifikasi_id);
         $singkatan = strtoupper(substr($klasifikasi->nama, 0, 2));
-        $kodeArsip = ArsipKeluar::generateKode($singkatan, $request->tanggal_unggah);
+        $kodeArsip = ArsipKeluar::generateKode($singkatan, now()->format('Y-m-d'));
 
         $arsipKeluar = null;
 
@@ -325,10 +321,9 @@ class ArsipKeluarController extends Controller
             'sifat_id' => $request->sifat_id,
             'sub_bagian_id' => $request->sub_bagian_id,
             'verifikator_id' => $request->verifikator_id,
-            'tujuan_id' => $request->tujuan_id,
             'pembuat_id' => $request->pembuat_id,
             'tanggal_surat' => $request->tanggal_surat,
-            'tanggal_unggah' => $request->tanggal_unggah,
+            'tanggal_unggah' => now(),
             'link_file' => $linkFile,
             'uploader_id' => auth()->id(),
         ]);
