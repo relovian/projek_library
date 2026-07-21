@@ -139,8 +139,10 @@
                                         <img class="size-[18px]" src="{{ asset('img/edit.png') }}" alt="edit">
                                     @elseif($notif->type === 'restore')
                                         <img class="size-[18px]" src="{{ asset('img/pulihkan.png') }}" alt="restore">
-                                    @elseif($notif->type === 'force_delete' || $notif->type === 'soft_delete')
-                                        <img class="size-[18px]" src="{{ asset('img/hapus.png') }}" alt="delete">
+                                    @elseif($notif->type === 'force_delete')
+                                        <img class="size-[18px]" src="{{ asset('img/aprove_arsip.png') }}" alt="approved">
+                                    @elseif($notif->type === 'soft_delete')
+                                        <img class="size-[18px]" src="{{ asset('img/pending_arsip.png') }}" alt="pending">
                                     @else
                                         <span class="text-gray-400 text-base">●</span>
                                     @endif
@@ -157,7 +159,17 @@
                                                 ];
                                                 $entityLabel = $labelMap[$notif->entity_type] ?? 'Arsip';
                                             @endphp
-                                            {{ $notif->type === 'create' ? $entityLabel . ' Baru' : ($notif->type === 'update' ? $entityLabel . ' Diperbarui' : ($notif->type === 'restore' ? $entityLabel . ' Dipulihkan' : ($notif->type === 'force_delete' ? 'Dihapus Permanen oleh Admin' : $entityLabel . ' Dihapus'))) }}
+                                            @php
+                                                $typeLabel = match($notif->type) {
+                                                    'create' => $entityLabel . ' Baru',
+                                                    'update' => $entityLabel . ' Diperbarui',
+                                                    'restore' => $entityLabel . ' Di Tolak Untuk Hapus Permanen',
+                                                    'force_delete' => $entityLabel . ' Disetujui Hapus Permanen',
+                                                    'soft_delete' => 'Menunggu Hapus Permanen',
+                                                    default => $entityLabel . ' Dihapus',
+                                                };
+                                            @endphp
+                                            {{ $typeLabel }}
                                         </span>
                                         @if(!$notif->is_read)
                                             <span class="size-[6px] rounded-full bg-bawaslu-red shrink-0 notif-unread-dot"></span>

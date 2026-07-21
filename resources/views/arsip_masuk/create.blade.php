@@ -12,7 +12,6 @@
         </svg>
         <p class="text-[13px] text-red-700">{{ session('error') }}</p>
     </div>
-</div>
 @endif
 
 <div class="mb-7">
@@ -218,7 +217,6 @@
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
             
             @isset($surat)
                 <a href="{{ $surat->link_file }}" target="_blank" class="btn btn-primary">
@@ -251,7 +249,6 @@
                         cb.checked = checked;
                     });
 
-                    // Update header checkbox
                     if (checkAllHeader) {
                         checkAllHeader.checked = checked;
                         checkAllHeader.indeterminate = false;
@@ -291,12 +288,11 @@
                     cb.addEventListener('change', updateHeader);
                 });
 
-                // initial
                 updateHeader();
             })();
         </script>
 
-        {{-- JS Drag & Drop Upload + SessionStorage untuk Preserve Data --}}
+        {{-- JS Drag & Drop Upload + SessionStorage Preserve Data --}}
         <script>
             (function () {
                 const STORAGE_KEY = 'formSuratMasuk_data';
@@ -308,13 +304,11 @@
                 const folderOpenSrc = '{{ asset("img/folder_open.png") }}';
                 const folderKosongSrc = '{{ asset("img/folder_kosong.png") }}';
 
-                // ── Fungsi handle file select ──
                 window.handleFileSelect = function (input) {
                     const file = input.files[0];
                     if (file) {
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
-                        // Simpan nama file ke sessionStorage
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
                     } else {
                         fileNameEl.textContent = '';
@@ -323,8 +317,7 @@
                     }
                 };
 
-                // ── Drag & Drop Events ──
-                // Prevent default drag behaviors
+                // Drag & Drop Events
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, function (e) {
                         e.preventDefault();
@@ -332,7 +325,6 @@
                     });
                 });
 
-                // Highlight saat drag over
                 dropZone.addEventListener('dragenter', function () {
                     dropZone.classList.add('!border-bawaslu-red', '!bg-[#FEF2F2]');
                     dropZone.style.borderStyle = 'solid';
@@ -348,7 +340,6 @@
                     dropZone.style.borderStyle = 'dashed';
                 });
 
-                // Saat file di-drop
                 dropZone.addEventListener('drop', function (e) {
                     dropZone.classList.remove('!border-bawaslu-red', '!bg-[#FEF2F2]');
                     dropZone.style.borderStyle = 'dashed';
@@ -356,7 +347,6 @@
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
                         const file = files[0];
-                        // Validasi tipe file
                         const allowedTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png'];
                         const fileName = file.name.toLowerCase();
                         const isValid = allowedTypes.some(ext => fileName.endsWith(ext));
@@ -366,25 +356,21 @@
                             return;
                         }
 
-                        // Set file ke input file (FileList tidak bisa di-set manual, jadi pakai DataTransfer)
                         const dataTransfer = new DataTransfer();
                         dataTransfer.items.add(file);
                         fileInput.files = dataTransfer.files;
 
-                        // Trigger event change manual
                         const event = new Event('change', { bubbles: true });
                         fileInput.dispatchEvent(event);
 
-                        // Update UI
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
 
-                        // Simpan ke sessionStorage
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
                     }
                 });
 
-                // ── SessionStorage: Simpan data form saat ada perubahan ──
+                // Simpan data form ke sessionStorage
                 function saveFormData() {
                     const data = {
                         nama_file: document.querySelector('input[name="nama_file"]')?.value || '',
@@ -404,7 +390,7 @@
                     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 }
 
-                // ── SessionStorage: Pulihkan data form ──
+                // Pulihkan data form dari sessionStorage
                 function restoreFormData() {
                     const saved = sessionStorage.getItem(STORAGE_KEY);
                     if (!saved) return;
@@ -412,7 +398,6 @@
                     try {
                         const data = JSON.parse(saved);
 
-                        // Isi input text
                         const namaFileInput = document.querySelector('input[name="nama_file"]');
                         if (namaFileInput && data.nama_file && !namaFileInput.value) {
                             namaFileInput.value = data.nama_file;
@@ -422,6 +407,21 @@
                         if (perihalInput && data.perihal && !perihalInput.value) {
                             perihalInput.value = data.perihal;
                         }
+
+                        const asalInput = document.querySelector('input[name="asal_instansi"]');
+                        if (asalInput && data.asal_instansi && !asalInput.value) {
+                            asalInput.value = data.asal_instansi;
+                        }
+
+                        const tujuanSelect = document.querySelector('select[name="tujuan_id"]');
+                        if (tujuanSelect && data.tujuan_id) {
+                            const option = tujuanSelect.querySelector('option[value="' + data.tujuan_id + '"]');
+                            if (option) {
+                                tujuanSelect.value = data.tujuan_id;
+                            }
+                        }
+
+                        const tglSurat = document.querySelector('input[name="tanggal_surat"]');
 
                         const asalInput = document.querySelector('input[name="asal_instansi"]');
                         if (asalInput && data.asal_instansi && !asalInput.value) {

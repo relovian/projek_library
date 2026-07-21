@@ -33,8 +33,7 @@ class AktivitasController extends Controller
             } elseif ($tab === 'log') {
                 // tampilkan semua — tidak ada filter tambahan
             } else {
-                // default: semua aktivitas milik sendiri
-                $query->where('user_id', $user->id);
+                // Admin: tampilkan semua aktivitas dari semua user (termasuk force_delete, restore, dll)
             }
         } else {
             // Non-admin: paksa selalu milik sendiri (tidak peduli tab)

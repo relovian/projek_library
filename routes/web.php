@@ -13,16 +13,8 @@ Route::get('/', fn() => redirect()->route('dashboard'));
 // ── Auth routes (login/register/password/etc) ─────────
 require __DIR__ . '/auth.php';
 
-
-
-
 // ── Protected routes ─────────────────────────────────────
 Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->group(function () {
-
-    // Pastikan user aktif untuk seluruh route protected
-    
-    
-
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -74,7 +66,6 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
 
         // Admin only
         Route::get('/kategori', [PengaturanController::class, 'kategori'])->name('kategori')->middleware('role:admin');
-
         Route::post('/kategori', [PengaturanController::class, 'storeKategori'])->name('kategori.store');
         Route::put('/kategori/{kategori}', [PengaturanController::class, 'updateKategori'])->name('kategori.update');
         Route::delete('/kategori/{kategori}', [PengaturanController::class, 'destroyKategori'])->name('kategori.destroy');
@@ -114,7 +105,6 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
 
         // notifikasi
         Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
-        Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
         Route::put('/notifikasi', [PengaturanController::class, 'updateNotifikasi'])->name('notifikasi.update');
  
         // backup
@@ -151,6 +141,9 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         Route::patch('/{id}/restore', [ArsipMasukController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ArsipMasukController::class, 'forceDelete'])->name('force-delete');
 
+        // Lihat/preview file (catat aktivitas)
+        Route::get('/{arsipMasuk}/lihat', [ArsipMasukController::class, 'lihat'])->name('lihat');
+
         // Edit & Hapus
         Route::get('/{arsipMasuk}/edit', [ArsipMasukController::class, 'edit'])->name('edit');
         Route::put('/{arsipMasuk}', [ArsipMasukController::class, 'update'])->name('update');
@@ -166,6 +159,9 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         Route::get('/trash', [ArsipKeluarController::class, 'trash'])->name('trash');
         Route::patch('/{id}/restore', [ArsipKeluarController::class, 'restore'])->name('restore');
         Route::delete('/{id}/force-delete', [ArsipKeluarController::class, 'forceDelete'])->name('force-delete');
+
+        // Lihat/preview file (catat aktivitas)
+        Route::get('/{arsipKeluar}/lihat', [ArsipKeluarController::class, 'lihat'])->name('lihat');
 
         // Edit & Hapus
         Route::get('/{arsipKeluar}/edit', [ArsipKeluarController::class, 'edit'])->name('edit');

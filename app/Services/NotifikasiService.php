@@ -19,9 +19,10 @@ class NotifikasiService
         $link = route('aktivitas.index');
         $currentUserId = auth()->id();
 
-        // Kirim ke semua user aktif, kecuali uploader
+        // Kirim ke semua user aktif yang mengaktifkan notif_arsip_baru, kecuali uploader
         $targetUsers = User::where('is_aktif', true)
             ->where('id', '!=', $currentUserId)
+            ->where('notif_arsip_baru', true)
             ->get();
 
         foreach ($targetUsers as $user) {
@@ -47,6 +48,7 @@ class NotifikasiService
 
         $targetUsers = User::where('is_aktif', true)
             ->whereIn('role', ['admin', 'kepala_sekretariat', 'kepala_sub_bagian'])
+            ->where('notif_arsip_baru', true)
             ->get();
 
         foreach ($targetUsers as $user) {
@@ -62,16 +64,19 @@ class NotifikasiService
     }
 
     /**
-     * Kirim notifikasi saat arsip dihapus (soft delete).
-     * Hanya untuk Pengelola (Admin, Kasek, Kasubag).
+     * Kirim notifikasi saat arsip dihapus (soft delete) oleh user.
+     * Notifikasi masuk ke Admin untuk menunggu persetujuan hapus permanen.
+     * Admin tinggal cek di trash.
      */
     public function notifyDelete(string $entityType, $entity, string $entityName): void
     {
-        $message = "Arsip dipindahkan ke sampah oleh admin: {$entityName}";
+        $message = "Menunggu persetujuan hapus permanen: {$entityName}";
         $link = route('aktivitas.index');
 
+        // Kirim ke semua admin yang mengaktifkan notif_menunggu_persetujuan
         $targetUsers = User::where('is_aktif', true)
-            ->whereIn('role', ['admin', 'kepala_sekretariat', 'kepala_sub_bagian'])
+            ->where('role', 'admin')
+            ->where('notif_menunggu_persetujuan', true)
             ->get();
 
         foreach ($targetUsers as $user) {
@@ -88,23 +93,23 @@ class NotifikasiService
 
     /**
      * Kirim notifikasi saat arsip dipulihkan (restore) oleh admin.
-     * Kirim ke uploader (pemilik arsip) bahwa arsipnya sudah dipulihkan.
+     * Notifikasi hanya ke uploader (pemilik arsip) bahwa arsipnya tidak disetujui & dipulihkan.
+     * Hanya untuk user yang mengaktifkan notif_arsip_ditolak.
      */
     public function notifyRestore(string $entityType, $entity, string $entityName, int $uploaderId): void
     {
-        $message = "Arsip dipulihkan oleh admin: {$entityName}";
+        $message = "Arsip tidak disetujui dipulihkan oleh admin: {$entityName}";
         $link = route('aktivitas.index');
 
-        // Kirim ke uploader (pemilik arsip) + semua admin
-        $targetUsers = User::where('is_aktif', true)
-            ->where(function($q) use ($uploaderId) {
-                $q->where('id', $uploaderId)
-                  ->orWhere('role', 'admin');
-            })->get();
+        // Kirim hanya ke uploader (pemilik arsip) yang mengaktifkan notif_arsip_ditolak
+        $targetUser = User::where('is_aktif', true)
+            ->where('id', $uploaderId)
+            ->where('notif_arsip_ditolak', true)
+            ->first();
 
-        foreach ($targetUsers as $user) {
+        if ($targetUser) {
             Notification::create([
-                'user_id'     => $user->id,
+                'user_id'     => $targetUser->id,
                 'type'        => 'restore',
                 'message'     => $message,
                 'link'        => $link,
@@ -116,23 +121,23 @@ class NotifikasiService
 
     /**
      * Kirim notifikasi saat arsip dihapus permanen (force delete) oleh admin.
-     * Kirim ke uploader (pemilik arsip) bahwa arsipnya sudah dihapus permanen.
+     * Notifikasi hanya ke uploader (pemilik arsip) bahwa arsipnya disetujui & dihapus permanen.
+     * Hanya untuk user yang mengaktifkan notif_arsip_disetujui.
      */
     public function notifyForceDelete(string $entityType, $entity, string $entityName, int $uploaderId): void
     {
-        $message = "Arsip dihapus permanen oleh admin: {$entityName}";
+        $message = "Arsip disetujui hapus permanen oleh admin: {$entityName}";
         $link = route('aktivitas.index');
 
-        // Kirim ke uploader (pemilik arsip) + semua admin
-        $targetUsers = User::where('is_aktif', true)
-            ->where(function($q) use ($uploaderId) {
-                $q->where('id', $uploaderId)
-                  ->orWhere('role', 'admin');
-            })->get();
+        // Kirim hanya ke uploader (pemilik arsip) yang mengaktifkan notif_arsip_disetujui
+        $targetUser = User::where('is_aktif', true)
+            ->where('id', $uploaderId)
+            ->where('notif_arsip_disetujui', true)
+            ->first();
 
-        foreach ($targetUsers as $user) {
+        if ($targetUser) {
             Notification::create([
-                'user_id'     => $user->id,
+                'user_id'     => $targetUser->id,
                 'type'        => 'force_delete',
                 'message'     => $message,
                 'link'        => $link,

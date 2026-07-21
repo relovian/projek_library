@@ -50,7 +50,7 @@
                     </div>
                     <div>
                         <div class="text-[13.5px] font-medium text-hitam">Arsip disetujui</div>
-                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip yang Anda unggah disetujui</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip Anda disetujui atau dihapus permanen oleh admin</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -68,7 +68,7 @@
                     </div>
                     <div>
                         <div class="text-[13.5px] font-medium text-hitam">Arsip ditolak</div>
-                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip yang Anda unggah ditolak</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat arsip Anda ditolak atau dipulihkan oleh admin</div>
                     </div>
                 </div>
                 <label class="switch">
@@ -86,30 +86,12 @@
                     </div>
                     <div>
                         <div class="text-[13.5px] font-medium text-hitam">Menunggu persetujuan</div>
-                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada dokumen menunggu persetujuan Anda</div>
+                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada arsip menunggu dihapus permanen oleh admin</div>
                     </div>
                 </div>
                 <label class="switch">
                     <input type="checkbox" name="notif_menunggu_persetujuan" value="1"
                         {{ $user->notif_menunggu_persetujuan ? 'checked' : '' }}>
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            {{-- Revisi dokumen --}}
-            <div class="flex items-center justify-between py-[14px] border-b border-border last:border-none">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-surface2 flex items-center justify-center shrink-0">
-                        <img src="{{ asset('img/revisi.png') }}" class="w-5 h-5" alt="">
-                    </div>
-                    <div>
-                        <div class="text-[13.5px] font-medium text-hitam">Revisi dokumen</div>
-                        <div class="text-[12px] text-abu mt-0.5">Notifikasi saat ada revisi dokumen baru</div>
-                    </div>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" name="notif_revisi_dokumen" value="1"
-                        {{ $user->notif_revisi_dokumen ? 'checked' : '' }}>
                     <span class="slider"></span>
                 </label>
             </div>

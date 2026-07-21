@@ -1,20 +1,14 @@
-# TODO: Implementasi Drag & Drop Upload + Preserve Form Data on Refresh
+# TODO Status
 
-## Step 1: Edit `arsip_masuk/create.blade.php`
+## ✅ Completed
 
-- [x] Tambahkan event listener drag & drop (dragenter, dragover, dragleave, drop) pada area upload
-- [x] Tambahkan visual highlight saat drag over
-- [x] Tambahkan sessionStorage untuk menyimpan data form (termasuk nama file) saat refresh
-- [x] Tambahkan script restore data pada DOMContentLoaded
+1. **Fixed `PengaturanController@updateUser`** - Mengganti `delete()` pada data verifikator menjadi `update(['is_aktif' => 0])` untuk menghindari error foreign key constraint dari tabel `arsip_keluar`.
 
-## Step 2: Edit `arsip_keluar/create.blade.php`
+2. **Added route `lihat` for ArsipMasuk** - `GET /arsip-masuk/{arsipMasuk}/lihat` → `ArsipMasukController@lihat`
 
-- [x] Tambahkan event listener drag & drop (dragenter, dragover, dragleave, drop) pada area upload
-- [x] Tambahkan visual highlight saat drag over
-- [x] Tambahkan sessionStorage untuk menyimpan data form (termasuk nama file) saat refresh
-- [x] Tambahkan script restore data pada DOMContentLoaded
+3. **Added route `lihat` for ArsipKeluar** - `GET /arsip-keluar/{arsipKeluar}/lihat` → `ArsipKeluarController@lihat`
 
-## Testing
+## 🚀 Yang akan datang
 
-- [x] Verifikasi drag & drop berfungsi
-- [x] Verifikasi preserve data setelah refresh
+- Implementasi method `lihat()` di ArsipMasukController dan ArsipKeluarController
+- Update views untuk menambahkan tombol "Lihat" yang mengarah ke route `lihat`

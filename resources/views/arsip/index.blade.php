@@ -255,7 +255,7 @@
                             </td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
-                                    <a href="{{ $am->link_file }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <a href="{{ route('arsip-masuk.lihat', $am) }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
@@ -323,7 +323,7 @@
                             <td class="px-[14px] py-3">{{ optional($ak->tanggal_unggah)->format('d/m/Y') ?? '-' }}</td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
-                                    <a href="{{ $ak->link_file }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <a href="{{ route('arsip-keluar.lihat', $ak) }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
