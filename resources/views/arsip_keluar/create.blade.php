@@ -28,11 +28,36 @@
         <form id="formArsipKeluar" method="POST" action="{{ route('arsip-keluar.store') }}" enctype="multipart/form-data">
             @csrf
 
-            {{-- Baris 1: Klasifikasi & No Arsip --}}
+        
+            {{-- baris 1 Nama File --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nama_file') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="nama_file"
+                    value="{{ old('nama_file') }}"
+                    placeholder="Masukkan nama file arsip…">
+                @error('nama_file')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+               {{-- baris 2 Perihal --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('perihal') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="perihal"
+                    value="{{ old('perihal') }}"
+                    placeholder="Masukkan perihal arsip…">
+                @error('perihal')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Baris 3 Klasifikasi --}}
             <div class="grid grid-cols-1 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Klasifikasi Arsip <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('klasifikasi_id') ? 'border-[#dc2626]' : '' }}" name="klasifikasi_id" id="klasifikasiSelect" onchange="generateKodeArsip()">
+                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('klasifikasi_id') ? 'border-[#dc2626]' : '' }}" name="klasifikasi_id" id="klasifikasiSelect">
                         <option value="">Pilih klasifikasi…</option>
                         @foreach($klasifikasi as $ks)
                         <option value="{{ $ks->id }}" data-singkatan="{{ strtoupper(substr($ks->nama, 0, 2)) }}"
@@ -47,89 +72,36 @@
                 </div>
             </div>
 
-            {{-- Baris 2: Sifat & Sub Bagian --}}
-            <div class="grid grid-cols-2 gap-4">
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Sifat <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sifat_id') ? 'border-[#dc2626]' : '' }}" name="sifat_id">
-                        <option value="">Pilih sifat…</option>
-                        @foreach($sifat as $sf)
-                        <option value="{{ $sf->id }}" {{ old('sifat_id') == $sf->id ? 'selected' : '' }}>{{ $sf->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('sifat_id')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+            {{-- Baris 4 sifat surat--}}
+         <div class="grid grid-cols-2 gap-4">
 
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Sub Bagian <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sub_bagian_id') ? 'border-[#dc2626]' : '' }}" name="sub_bagian_id">
-                        <option value="">Pilih sub bagian…</option>
-                        @foreach($subBagian as $sb)
-                        <option value="{{ $sb->id }}" {{ old('sub_bagian_id') == $sb->id ? 'selected' : '' }}>{{ $sb->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('sub_bagian_id')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
+    <div class="col-span-2 mb-[18px]">
+        <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+            Sifat <span class="text-bawaslu-red">*</span>
+        </label>
 
-            {{-- Baris 3: Verifikator & Tujuan --}}
-            <div class="grid grid-cols-2 gap-4">
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Verifikator <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}" name="verifikator_id">
-                        <option value="">Pilih verifikator…</option>
-                        @foreach($verifikator as $vk)
-                        <option value="{{ $vk->id }}" {{ old('verifikator_id') == $vk->id ? 'selected' : '' }}>{{ $vk->user->nama_lengkap ?? $vk->user->name ?? 'Verifikator' }}</option>
-                        @endforeach
-                    </select>
-                    @error('verifikator_id')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+        <select
+            name="sifat_id"
+            class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sifat_id') ? 'border-[#dc2626]' : '' }}">
+            <option value="">Pilih sifat…</option>
 
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tujuan <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tujuan_id') ? 'border-[#dc2626]' : '' }}" name="tujuan_id">
-                        <option value="">Pilih tujuan…</option>
-                        @foreach($tujuan as $tn)
-                        <option value="{{ $tn->id }}" {{ old('tujuan_id') == $tn->id ? 'selected' : '' }}>{{ $tn->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('tujuan_id')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
+            @foreach($sifat as $sf)
+                <option value="{{ $sf->id }}" {{ old('sifat_id') == $sf->id ? 'selected' : '' }}>
+                    {{ $sf->nama }}
+                </option>
+            @endforeach
+        </select>
 
-            {{-- Nama File --}}
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nama_file') ? 'border-[#dc2626]' : '' }}"
-                    type="text" name="nama_file"
-                    value="{{ old('nama_file') }}"
-                    placeholder="Masukkan nama file arsip…">
-                @error('nama_file')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                @enderror
-            </div>
+        @error('sifat_id')
+            <span class="text-[12px] text-[#dc2626] mt-1 block">
+                {{ $message }}
+            </span>
+        @enderror
+    </div>
 
-            {{-- Perihal --}}
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('perihal') ? 'border-[#dc2626]' : '' }}"
-                    type="text" name="perihal"
-                    value="{{ old('perihal') }}"
-                    placeholder="Masukkan perihal arsip…">
-                @error('perihal')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                @enderror
-            </div>
+</div>
 
-            {{-- Pembuat --}}
+              {{-- Baris 5  Pembuat --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Pembuat <span class="text-bawaslu-red">*</span></label>
                 <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('pembuat_id') ? 'border-[#dc2626]' : '' }}" name="pembuat_id">
@@ -143,8 +115,84 @@
                 @enderror
             </div>
 
+
+            {{-- Baris 6 Sub Bagian --}}
+             <div class="col-span-2 mb-[18px]">
+    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+        Sub Bagian <span class="text-bawaslu-red">*</span>
+    </label>
+
+    <select
+        name="sub_bagian_id"
+        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sub_bagian_id') ? 'border-[#dc2626]' : '' }}">
+        <option value="">Pilih sub bagian…</option>
+
+        @foreach($subBagian as $sb)
+            <option value="{{ $sb->id }}" {{ old('sub_bagian_id') == $sb->id ? 'selected' : '' }}>
+                {{ $sb->nama }}
+            </option>
+        @endforeach
+    </select>
+
+    @error('sub_bagian_id')
+        <span class="text-[12px] text-[#dc2626] mt-1 block">
+            {{ $message }}
+        </span>
+    @enderror
+</div>
+
+            {{-- Baris 7 Verifikator--}}
+          <div class="col-span-2 mb-[18px]">
+    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+        Verifikator <span class="text-bawaslu-red">*</span>
+    </label>
+
+    <select
+        name="verifikator_id"
+        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}">
+        <option value="">Pilih verifikator…</option>
+
+        @foreach($verifikator as $vk)
+            <option value="{{ $vk->id }}" {{ old('verifikator_id') == $vk->id ? 'selected' : '' }}>
+                {{ $vk->user->nama_lengkap ?? $vk->user->name ?? 'Verifikator' }}
+            </option>
+        @endforeach
+    </select>
+
+    @error('verifikator_id')
+        <span class="text-[12px] text-[#dc2626] mt-1 block">
+            {{ $message }}
+        </span>
+    @enderror
+</div>
+
+             <div class="col-span-2 mb-[18px]">
+    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+        Tujuan <span class="text-bawaslu-red">*</span>
+    </label>
+
+    <select
+        name="tujuan_id"
+        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tujuan_id') ? 'border-[#dc2626]' : '' }}">
+        <option value="">Pilih tujuan…</option>
+
+        @foreach($tujuan as $tn)
+            <option value="{{ $tn->id }}" {{ old('tujuan_id') == $tn->id ? 'selected' : '' }}>
+                {{ $tn->nama }}
+            </option>
+        @endforeach
+    </select>
+
+    @error('tujuan_id')
+        <span class="text-[12px] text-[#dc2626] mt-1 block">
+            {{ $message }}
+        </span>
+    @enderror
+</div>  
+
+          
             {{-- Tanggal Surat & Tanggal Unggah --}}
-            <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 mb-[18px]">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_surat') ? 'border-[#dc2626]' : '' }}"
