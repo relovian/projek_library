@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 class ArsipKeluar extends Model
 {
     use SoftDeletes;
@@ -30,7 +29,7 @@ class ArsipKeluar extends Model
 
     protected $casts = [
         'tanggal_surat'  => 'date',
-        'tanggal_unggah' => 'date',
+        'tanggal_unggah' => 'datetime',
     ];
 
     // ── Relations ──────────────────────────────────────────

@@ -28,11 +28,14 @@
         <form id="formArsipKeluar" method="POST" action="{{ route('arsip-keluar.store') }}" enctype="multipart/form-data">
             @csrf
 
-            {{-- Baris 1: Klasifikasi & No Arsip --}}
+            {{-- Hidden input untuk nama file (diisi otomatis dari file yang diupload) --}}
+            <input type="hidden" name="nama_file" id="namaFileHidden" value="{{ old('nama_file') }}">
+
+            {{-- Baris 1: Klasifikasi --}}
             <div class="grid grid-cols-1 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Klasifikasi Arsip <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('klasifikasi_id') ? 'border-[#dc2626]' : '' }}" name="klasifikasi_id" id="klasifikasiSelect" onchange="generateKodeArsip()">
+                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('klasifikasi_id') ? 'border-[#dc2626]' : '' }}" name="klasifikasi_id" id="klasifikasiSelect">
                         <option value="">Pilih klasifikasi…</option>
                         @foreach($klasifikasi as $ks)
                         <option value="{{ $ks->id }}" data-singkatan="{{ strtoupper(substr($ks->nama, 0, 2)) }}"
@@ -76,8 +79,8 @@
                 </div>
             </div>
 
-            {{-- Baris 3: Verifikator & Tujuan --}}
-            <div class="grid grid-cols-2 gap-4">
+            {{-- Baris 3: Verifikator --}}
+            <div class="grid grid-cols-1 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Verifikator <span class="text-bawaslu-red">*</span></label>
                     <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}" name="verifikator_id">
@@ -90,31 +93,6 @@
                         <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>
-
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tujuan <span class="text-bawaslu-red">*</span></label>
-                    <select class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tujuan_id') ? 'border-[#dc2626]' : '' }}" name="tujuan_id">
-                        <option value="">Pilih tujuan…</option>
-                        @foreach($tujuan as $tn)
-                        <option value="{{ $tn->id }}" {{ old('tujuan_id') == $tn->id ? 'selected' : '' }}>{{ $tn->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('tujuan_id')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
-
-            {{-- Nama File --}}
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nama_file') ? 'border-[#dc2626]' : '' }}"
-                    type="text" name="nama_file"
-                    value="{{ old('nama_file') }}"
-                    placeholder="Masukkan nama file arsip…">
-                @error('nama_file')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                @enderror
             </div>
 
             {{-- Perihal --}}
@@ -143,32 +121,18 @@
                 @enderror
             </div>
 
-            {{-- Tanggal Surat & Tanggal Unggah --}}
-            <div class="grid grid-cols-2 gap-4">
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
+            {{-- Tanggal Surat --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_surat') ? 'border-[#dc2626]' : '' }}"
-                        type="date" name="tanggal_surat" id="tanggalSurat"
-                        value="{{ old('tanggal_surat') }}"
-                        onchange="generateKodeArsip()">
-                    @error('tanggal_surat')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Unggah <span class="text-bawaslu-red">*</span></label>
-                    <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_unggah') ? 'border-[#dc2626]' : '' }}"
-                        type="date" name="tanggal_unggah" id="tanggalUnggah"
-                        value="{{ old('tanggal_unggah', date('Y-m-d')) }}"
-                        onchange="generateKodeArsip()">
-                    @error('tanggal_unggah')
-                        <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                    @enderror
-                </div>
+                        type="date" name="tanggal_surat"
+                        value="{{ old('tanggal_surat') }}">
+                @error('tanggal_surat')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
             </div>
 
-            {{-- Opsi Upload: File atau Link Google Drive --}}
+            {{-- Opsi Upload: File --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
                     Upload File <span class="text-bawaslu-red">*</span>
@@ -230,79 +194,6 @@
 
 @push('scripts')
 <script>
-    // Fungsi generate kode arsip otomatis
-    function generateKodeArsip() {
-        const klasifikasiSelect = document.getElementById('klasifikasiSelect');
-        const tanggalUnggah = document.getElementById('tanggalUnggah').value;
-        const kodeInput = document.getElementById('kodeArsip');
-
-        if (klasifikasiSelect.value && tanggalUnggah) {
-            const selectedOption = klasifikasiSelect.options[klasifikasiSelect.selectedIndex];
-            const singkatan = selectedOption.dataset.singkatan || '';
-            const tgl = tanggalUnggah.replace(/-/g, '');
-            kodeInput.value = singkatan + tgl + '-???';
-        } else {
-            kodeInput.value = '';
-        }
-    }
-
-    // Fungsi toggle upload metode
-    function toggleUploadMetode() {
-        const fileRadio = document.querySelector('input[name="metode_upload"][value="file"]');
-        const linkRadio = document.querySelector('input[name="metode_upload"][value="link"]');
-        const fileSection = document.getElementById('uploadFileSection');
-        const linkSection = document.getElementById('uploadLinkSection');
-
-        if (fileRadio && fileRadio.checked) {
-            fileSection.classList.remove('hidden');
-            linkSection.classList.add('hidden');
-            document.querySelector('input[name="link_file"]').removeAttribute('required');
-        } else if (linkRadio && linkRadio.checked) {
-            fileSection.classList.add('hidden');
-            linkSection.classList.remove('hidden');
-            document.querySelector('input[name="file"]').removeAttribute('required');
-        }
-    }
-
-    // Fungsi copy link ke clipboard
-    function copyToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Tersalin!';
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-blue-600');
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.remove('bg-blue-600');
-                    btn.classList.add('bg-green-600');
-                }, 2000);
-            }).catch(() => {
-                fallbackCopy(text);
-            });
-        } else {
-            fallbackCopy(text);
-        }
-    }
-
-    function fallbackCopy(text) {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        alert('Link berhasil disalin!');
-    }
-
-    // Generate kode saat halaman dimuat jika ada old value
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('klasifikasiSelect').value) {
-            generateKodeArsip();
-        }
-    });
-
     // ── Drag & Drop Upload + SessionStorage untuk Preserve Data ──
     (function () {
         const STORAGE_KEY = 'formArsipKeluar_data';
@@ -313,6 +204,18 @@
         const form = document.getElementById('formArsipKeluar');
         const folderOpenSrc = '{{ asset("img/folder_open.png") }}';
         const folderKosongSrc = '{{ asset("img/folder_kosong.png") }}';
+        const namaFileHidden = document.getElementById('namaFileHidden');
+        const tanggalUnggah = '';
+
+        function setNamaFileFromFileName(fileName) {
+            if (!fileName) return;
+            const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
+            if (namaFileHidden) {
+                namaFileHidden.value = fileNameWithoutExt;
+                namaFileHidden.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            sessionStorage.setItem(STORAGE_KEY + '_namaFile', fileNameWithoutExt);
+        }
 
         // ── Fungsi handle file select ──
         window.handleFileSelect = function (input) {
@@ -321,10 +224,12 @@
                 fileNameEl.textContent = file.name;
                 folderIcon.src = folderOpenSrc;
                 sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
+                setNamaFileFromFileName(file.name);
             } else {
                 fileNameEl.textContent = '';
                 folderIcon.src = folderKosongSrc;
                 sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+                sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
             }
         };
 
@@ -377,6 +282,8 @@
                 fileNameEl.textContent = file.name;
                 folderIcon.src = folderOpenSrc;
 
+                setNamaFileFromFileName(file.name);
+
                 sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
             }
         });
@@ -388,12 +295,11 @@
                 sifat_id: document.querySelector('select[name="sifat_id"]')?.value || '',
                 sub_bagian_id: document.querySelector('select[name="sub_bagian_id"]')?.value || '',
                 verifikator_id: document.querySelector('select[name="verifikator_id"]')?.value || '',
-                tujuan_id: document.querySelector('select[name="tujuan_id"]')?.value || '',
                 pembuat_id: document.querySelector('select[name="pembuat_id"]')?.value || '',
-                nama_file: document.querySelector('input[name="nama_file"]')?.value || '',
+                nama_file: (namaFileHidden ? namaFileHidden.value : '') || sessionStorage.getItem(STORAGE_KEY + '_namaFile') || '',
                 perihal: document.querySelector('input[name="perihal"]')?.value || '',
                 tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
-                tanggal_unggah: document.querySelector('input[name="tanggal_unggah"]')?.value || '',
+                tanggal_unggah: '',
             };
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
@@ -407,7 +313,7 @@
                 const data = JSON.parse(saved);
 
                 // Isi select fields
-                ['klasifikasi_id', 'sifat_id', 'sub_bagian_id', 'verifikator_id', 'tujuan_id', 'pembuat_id'].forEach(field => {
+                ['klasifikasi_id', 'sifat_id', 'sub_bagian_id', 'verifikator_id', 'pembuat_id'].forEach(field => {
                     const select = document.querySelector(`select[name="${field}"]`);
                     if (select && data[field] && !select.value) {
                         const option = select.querySelector(`option[value="${data[field]}"]`);
@@ -417,8 +323,17 @@
                     }
                 });
 
+                // Isi hidden nama_file
+                if (namaFileHidden && data.nama_file) {
+                    namaFileHidden.value = data.nama_file;
+                }
+                const savedNamaFile = sessionStorage.getItem(STORAGE_KEY + '_namaFile');
+                if (savedNamaFile && namaFileHidden) {
+                    namaFileHidden.value = savedNamaFile;
+                }
+
                 // Isi input text
-                ['nama_file', 'perihal', 'tanggal_surat', 'tanggal_unggah'].forEach(field => {
+                ['perihal', 'tanggal_surat'].forEach(field => {
                     const input = document.querySelector(`input[name="${field}"]`);
                     if (input && data[field] && !input.value) {
                         input.value = data[field];
@@ -447,6 +362,7 @@
             setTimeout(function () {
                 sessionStorage.removeItem(STORAGE_KEY);
                 sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+                sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
             }, 100);
         });
 
@@ -459,6 +375,7 @@
         @if(session('success'))
             sessionStorage.removeItem(STORAGE_KEY);
             sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+            sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
         @endif
     })();
 </script>

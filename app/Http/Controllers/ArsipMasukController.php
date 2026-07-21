@@ -121,6 +121,7 @@ class ArsipMasukController extends Controller
             'asal_instansi'    => $request->asal_instansi,
             'tanggal_surat'    => $request->tanggal_surat,
             'tanggal_diterima' => $request->tanggal_diterima,
+            'tanggal_unggah'   => now(),
             'link_file'        => $linkFile,
             'drive_id'         => $driveId,
             'uploader_id'      => Auth::id(),

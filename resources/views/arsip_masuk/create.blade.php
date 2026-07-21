@@ -27,17 +27,8 @@
         <form id="formSuratMasuk" method="POST" action="{{ route('arsip-masuk.store') }}" enctype="multipart/form-data">
             @csrf
 
-            {{-- Nama File --}}
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nama File <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nama_file') ? 'border-[#dc2626]' : '' }}"
-                    type="text" name="nama_file"
-                    value="{{ old('nama_file') }}"
-                    placeholder="Masukkan nama file surat…">
-                @error('nama_file')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                @enderror
-            </div>
+            {{-- Hidden input untuk nama file (diisi otomatis dari file yang diupload) --}}
+            <input type="hidden" name="nama_file" id="namaFileHidden" value="{{ old('nama_file') }}">
 
             {{-- Perihal --}}
             <div class="mb-[18px]">
@@ -63,28 +54,55 @@
                 @enderror
             </div>
 
-            {{-- Tujuan (single select wajib) --}}
+            {{-- Tujuan (Multiple Checkbox seperti Disposisi) --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
                     Tujuan <span class="text-bawaslu-red">*</span>
                 </label>
 
-                <select name="tujuan_id"
-                    class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tujuan_id') ? 'border-[#dc2626]' : '' }}">
-                    <option value="" disabled {{ old('tujuan_id') ? '' : 'selected' }}>Pilih tujuan…</option>
-                    @foreach($tujuans as $tujuan)
-                        <option value="{{ $tujuan->id }}" {{ (string) old('tujuan_id') === (string) $tujuan->id ? 'selected' : '' }}>
-                            {{ $tujuan->nama }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="flex gap-2 mb-3">
+                    <button type="button" id="selectAllTujuanBtn" class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Pilih Semua
+                    </button>
+                    <button type="button" id="deselectAllTujuanBtn" class="px-3 py-[5px] rounded-[6px] text-[11px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border">
+                        Hapus Semua
+                    </button>
+                </div>
 
+                <div class="border border-border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
+                    <table class="w-full text-[12.5px]">
+                        <thead class="bg-surface2 sticky top-0">
+                            <tr>
+                                <th class="text-left px-3 py-2 font-semibold text-hitam w-10">
+                                    <input type="checkbox" id="checkAllTujuanHeader" class="cursor-pointer">
+                                </th>
+                                <th class="text-left px-2 py-2 font-semibold text-hitam">Nama Tujuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($tujuans as $tujuan)
+                            <tr class="border-t border-border hover:bg-[#FFF5F5] transition-colors">
+                                <td class="px-3 py-2">
+                                    <input type="checkbox" name="tujuan_id[]" value="{{ $tujuan->id }}"
+                                        class="tujuan-checkbox cursor-pointer"
+                                        {{ in_array($tujuan->id, old('tujuan_id', [])) ? 'checked' : '' }}>
+                                </td>
+                                <td class="px-2 py-2 text-hitam font-medium">{{ $tujuan->nama }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-[11px] text-abu mt-1">Pilih satu atau lebih tujuan surat masuk.</p>
                 @error('tujuan_id')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+                @error('tujuan_id.*')
                     <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
             </div>
 
-            {{-- Tujuan / Disposisi (Select Multiple Users) --}}
+            {{-- Disposisi (Select Multiple Users) --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
                     Disposisi <span class="text-bawaslu-red">*</span>
@@ -174,17 +192,6 @@
                 @enderror
             </div>
 
-            {{-- Tanggal Unggah --}}
-            <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Unggah <span class="text-bawaslu-red">*</span></label>
-                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_unggah') ? 'border-[#dc2626]' : '' }}"
-                    type="date" name="tanggal_unggah"
-                    value="{{ old('tanggal_unggah') }}">
-                @error('tanggal_unggah')
-                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
-                @enderror
-            </div>
-
             {{-- Opsi Upload: File atau Link Google Drive --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
@@ -235,6 +242,60 @@
             </div>
 
         </form>
+
+        {{-- JS Tujuan checkbox handlers --}}
+        <script>
+            (function() {
+                const selectAllTujuanBtn = document.getElementById('selectAllTujuanBtn');
+                const deselectAllTujuanBtn = document.getElementById('deselectAllTujuanBtn');
+                const checkAllTujuanHeader = document.getElementById('checkAllTujuanHeader');
+                const checkboxes = document.querySelectorAll('.tujuan-checkbox');
+
+                function setAllTujuan(checked) {
+                    checkboxes.forEach(cb => {
+                        cb.checked = checked;
+                    });
+                    if (checkAllTujuanHeader) {
+                        checkAllTujuanHeader.checked = checked;
+                        checkAllTujuanHeader.indeterminate = false;
+                    }
+                }
+
+                function updateTujuanHeader() {
+                    if (!checkAllTujuanHeader) return;
+                    const total = checkboxes.length;
+                    const selected = Array.from(checkboxes).filter(cb => cb.checked).length;
+                    checkAllTujuanHeader.checked = total > 0 && selected === total;
+                    checkAllTujuanHeader.indeterminate = selected > 0 && selected < total;
+                }
+
+                if (selectAllTujuanBtn) {
+                    selectAllTujuanBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        setAllTujuan(true);
+                    });
+                }
+
+                if (deselectAllTujuanBtn) {
+                    deselectAllTujuanBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        setAllTujuan(false);
+                    });
+                }
+
+                if (checkAllTujuanHeader) {
+                    checkAllTujuanHeader.addEventListener('change', function(e) {
+                        setAllTujuan(e.target.checked);
+                    });
+                }
+
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', updateTujuanHeader);
+                });
+
+                updateTujuanHeader();
+            })();
+        </script>
 
         {{-- JS Disposisi: pilih semua / hapus semua / check all header --}}
         <script>
@@ -303,6 +364,17 @@
                 const form = document.getElementById('formSuratMasuk');
                 const folderOpenSrc = '{{ asset("img/folder_open.png") }}';
                 const folderKosongSrc = '{{ asset("img/folder_kosong.png") }}';
+                const namaFileHidden = document.getElementById('namaFileHidden');
+
+                function setNamaFileFromFileName(fileName) {
+                    if (!fileName) return;
+                    const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
+                    if (namaFileHidden) {
+                        namaFileHidden.value = fileNameWithoutExt;
+                        namaFileHidden.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    sessionStorage.setItem(STORAGE_KEY + '_namaFile', fileNameWithoutExt);
+                }
 
                 window.handleFileSelect = function (input) {
                     const file = input.files[0];
@@ -310,10 +382,12 @@
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
+                        setNamaFileFromFileName(file.name);
                     } else {
                         fileNameEl.textContent = '';
                         folderIcon.src = folderKosongSrc;
                         sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+                        sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
                     }
                 };
 
@@ -366,6 +440,8 @@
                         fileNameEl.textContent = file.name;
                         folderIcon.src = folderOpenSrc;
 
+                        setNamaFileFromFileName(file.name);
+
                         sessionStorage.setItem(STORAGE_KEY + '_fileName', file.name);
                     }
                 });
@@ -373,15 +449,19 @@
                 // Simpan data form ke sessionStorage
                 function saveFormData() {
                     const data = {
-                        nama_file: document.querySelector('input[name="nama_file"]')?.value || '',
+                        nama_file: (namaFileHidden ? namaFileHidden.value : '') || sessionStorage.getItem(STORAGE_KEY + '_namaFile') || '',
                         perihal: document.querySelector('input[name="perihal"]')?.value || '',
                         asal_instansi: document.querySelector('input[name="asal_instansi"]')?.value || '',
-                        tujuan_id: document.querySelector('select[name="tujuan_id"]')?.value || '',
+                        tujuan_id: [],
                         tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
                         tanggal_diterima: document.querySelector('input[name="tanggal_diterima"]')?.value || '',
-                        tanggal_unggah: document.querySelector('input[name="tanggal_unggah"]')?.value || '',
+                        tanggal_unggah: '',
                         users_disposisi: []
                     };
+
+                    document.querySelectorAll('.tujuan-checkbox:checked').forEach(cb => {
+                        data.tujuan_id.push(cb.value);
+                    });
 
                     document.querySelectorAll('input[name="users_disposisi[]"]:checked').forEach(cb => {
                         data.users_disposisi.push(cb.value);
@@ -398,9 +478,13 @@
                     try {
                         const data = JSON.parse(saved);
 
-                        const namaFileInput = document.querySelector('input[name="nama_file"]');
-                        if (namaFileInput && data.nama_file && !namaFileInput.value) {
-                            namaFileInput.value = data.nama_file;
+                        // Pulihkan hidden nama_file
+                        if (namaFileHidden && data.nama_file) {
+                            namaFileHidden.value = data.nama_file;
+                        }
+                        const savedNamaFile = sessionStorage.getItem(STORAGE_KEY + '_namaFile');
+                        if (savedNamaFile && namaFileHidden) {
+                            namaFileHidden.value = savedNamaFile;
                         }
 
                         const perihalInput = document.querySelector('input[name="perihal"]');
@@ -413,27 +497,19 @@
                             asalInput.value = data.asal_instansi;
                         }
 
-                        const tujuanSelect = document.querySelector('select[name="tujuan_id"]');
-                        if (tujuanSelect && data.tujuan_id) {
-                            const option = tujuanSelect.querySelector('option[value="' + data.tujuan_id + '"]');
-                            if (option) {
-                                tujuanSelect.value = data.tujuan_id;
-                            }
-                        }
-
-                        const tglSurat = document.querySelector('input[name="tanggal_surat"]');
-
-                        const asalInput = document.querySelector('input[name="asal_instansi"]');
-                        if (asalInput && data.asal_instansi && !asalInput.value) {
-                            asalInput.value = data.asal_instansi;
-                        }
-
-                        // Isi select tujuan
-                        const tujuanSelect = document.querySelector('select[name="tujuan_id"]');
-                        if (tujuanSelect && data.tujuan_id) {
-                            const option = tujuanSelect.querySelector('option[value="' + data.tujuan_id + '"]');
-                            if (option) {
-                                tujuanSelect.value = data.tujuan_id;
+                        // Isi checkbox tujuan
+                        if (data.tujuan_id && data.tujuan_id.length > 0) {
+                            document.querySelectorAll('.tujuan-checkbox').forEach(cb => {
+                                if (data.tujuan_id.includes(cb.value)) {
+                                    cb.checked = true;
+                                }
+                            });
+                            const headerCheck = document.getElementById('checkAllTujuanHeader');
+                            if (headerCheck) {
+                                const total = document.querySelectorAll('.tujuan-checkbox').length;
+                                const selected = data.tujuan_id.length;
+                                headerCheck.checked = total > 0 && selected === total;
+                                headerCheck.indeterminate = selected > 0 && selected < total;
                             }
                         }
 
@@ -446,11 +522,6 @@
                         const tglDiterima = document.querySelector('input[name="tanggal_diterima"]');
                         if (tglDiterima && data.tanggal_diterima && !tglDiterima.value) {
                             tglDiterima.value = data.tanggal_diterima;
-                        }
-
-                        const tglUnggah = document.querySelector('input[name="tanggal_unggah"]');
-                        if (tglUnggah && data.tanggal_unggah && !tglUnggah.value) {
-                            tglUnggah.value = data.tanggal_unggah;
                         }
 
                         // Isi checkbox disposisi
@@ -487,7 +558,10 @@
                     el.addEventListener('input', saveFormData);
                 });
 
-                // Tambah listener untuk checkbox disposisi
+                // Tambah listener untuk checkbox tujuan dan disposisi
+                document.querySelectorAll('.tujuan-checkbox').forEach(cb => {
+                    cb.addEventListener('change', saveFormData);
+                });
                 document.querySelectorAll('input[name="users_disposisi[]"]').forEach(cb => {
                     cb.addEventListener('change', saveFormData);
                 });
@@ -498,6 +572,7 @@
                     setTimeout(function () {
                         sessionStorage.removeItem(STORAGE_KEY);
                         sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+                        sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
                     }, 100);
                 });
 
@@ -512,6 +587,7 @@
                 @if(session('success'))
                     sessionStorage.removeItem(STORAGE_KEY);
                     sessionStorage.removeItem(STORAGE_KEY + '_fileName');
+                    sessionStorage.removeItem(STORAGE_KEY + '_namaFile');
                 @endif
             })();
         </script>
@@ -532,4 +608,3 @@
     </div>
 </div>
 @endsection
-
