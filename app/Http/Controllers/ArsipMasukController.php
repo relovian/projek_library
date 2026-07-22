@@ -142,7 +142,7 @@ class ArsipMasukController extends Controller
             'link_file'        => $linkFile,
             'drive_id'         => $driveId,
             'uploader_id'      => Auth::id(),
-            'tujuan_id'        => $request->tujuan_id[0] ?? null, // Ambil tujuan pertama sebagai utama
+            'tujuan_id'        => $request->tujuan_id[0] ?? null,
         ]);
 
         // Sync tujuan (bisa multiple)
@@ -251,7 +251,7 @@ class ArsipMasukController extends Controller
             'asal_instansi'    => $request->asal_instansi,
             'tanggal_surat'    => $request->tanggal_surat,
             'tanggal_diterima' => $request->tanggal_diterima,
-            'tujuan_id'        => $request->tujuan_id[0] ?? null, // Ambil tujuan pertama sebagai utama
+            'tujuan_id'        => $request->tujuan_id[0] ?? null,
         ]);
 
         // Sync tujuan (bisa multiple)
@@ -282,6 +282,25 @@ class ArsipMasukController extends Controller
         // Selain admin: hanya boleh hapus arsip miliknya sendiri
         if ($user->role !== 'admin' && $arsipMasuk->uploader_id !== $user->id) {
             abort(403, 'Anda hanya dapat menghapus arsip milik Anda sendiri.');
+        }
+
+        // Admin: langsung hapus permanen tanpa notifikasi
+        if ($user->role === 'admin') {
+            $namaFile = $arsipMasuk->nama_file;
+
+            AktivitasLog::create([
+                'user_id' => $user->id,
+                'arsip_id' => null,
+                'surat_masuk_id' => $arsipMasuk->id,
+                'aksi' => 'hapus_permanen',
+                'keterangan' => "Arsip masuk dihapus permanen oleh admin: {$namaFile}",
+                'ip_address' => request()->ip(),
+            ]);
+
+            $arsipMasuk->forceDelete();
+
+            return redirect()->route('arsip.index', ['tab' => 'masuk'])
+                ->with('success', 'Surat masuk berhasil dihapus permanen.');
         }
 
         $arsipMasuk->delete(); // soft delete ke trash

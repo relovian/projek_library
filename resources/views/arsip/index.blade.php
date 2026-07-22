@@ -136,7 +136,7 @@
                 <option value="">Semua Verifikator</option>
                 @foreach($verifikator ?? [] as $vk)
                 <option value="{{ $vk->id }}" {{ request('verifikator_id') == $vk->id ? 'selected' : '' }}>
-                    {{ $vk->user->nama_lengkap ?? $v->user->name ?? 'Verifikator' }}
+                    {{ $vk->user->nama_lengkap ?? $vk->user->name ?? 'Verifikator' }}
                 </option>
                 @endforeach
             </select>
@@ -150,7 +150,7 @@
                 @endforeach
             </select>
 
-            <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_surat" value="{{ request('tanggal_surat') }}" title="Filter berdasarkan tanggal surat" onchange="autoSearch()">
+            <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_pembuatan" value="{{ request('tanggal_pembuatan') }}" title="Filter berdasarkan tanggal pembuatan" onchange="autoSearch()">
 
             <input class="px-3 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" type="date" name="tanggal_unggah" value="{{ request('tanggal_unggah') }}" title="Filter berdasarkan tanggal unggah" onchange="autoSearch()">
         @endif
@@ -185,7 +185,7 @@
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Sub Bagian</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Verifikator</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Pembuat</th>
-                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Surat</th>
+                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Pembuatan</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Unggah</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Aksi</th>
 
@@ -219,7 +219,15 @@
                                 </div>
                             </td>
                             <td class="px-[14px] py-3">{{ $am->asal_instansi }}</td>
-                            <td class="px-[14px] py-3">{{ $am->tujuan?->nama ?? '-' }}</td>
+                            <td class="px-[14px] py-3">
+                                @if($am->tujuans->count() > 0)
+                                    @foreach($am->tujuans as $tujuan)
+                                        <span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border mr-1 mb-1">{{ $tujuan->nama }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-abu">{{ $am->tujuan?->nama ?? '-' }}</span>
+                                @endif
+                            </td>
                             <td class="px-[14px] py-3">{{ $am->tanggal_surat->format('d/m/Y') }}</td>
                             <td class="px-[14px] py-3">{{ $am->tanggal_diterima->format('d/m/Y') }}</td>
                             <td class="px-[14px] py-3">{{ $am->tanggal_unggah ? date('d/m/Y', $am->tanggal_unggah) : '-' }}</td>
@@ -297,7 +305,7 @@
                             <td class="px-[14px] py-3">{{ $ak->subBagian?->nama ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $ak->verifikator?->user?->nama_lengkap ?? $ak->verifikator?->user?->name ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $ak->pembuat?->nama_lengkap ?? $ak->pembuat?->name ?? '-' }}</td>
-                            <td class="px-[14px] py-3">{{ optional($ak->tanggal_surat)->format('d/m/Y') ?? '-' }}</td>
+                            <td class="px-[14px] py-3">{{ optional($ak->tanggal_pembuatan)->format('d/m/Y') ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ optional($ak->tanggal_unggah)->format('d/m/Y') ?? '-' }}</td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
@@ -357,10 +365,10 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $arsip->kategori->nama }}</span></td>
+                            <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $ap->kategori->nama }}</span></td>
                             <td class="px-[14px] py-3">{{ $ap->divisi->nama }}</td>
                             <td class="px-[14px] py-3">{{ $ap->tanggal_dokumen->format('d/m/Y') }}</td>
-                            <td class="px-[14px] py-3">{{ $arsip->file_pertama?->ukuran_format ?? '-' }}</td>
+                            <td class="px-[14px] py-3">{{ $ap->file_pertama?->ukuran_format ?? '-' }}</td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
                                     <a href="{{ route('arsip.show', $ap) }}" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
@@ -475,3 +483,5 @@
     }
 </script>
 @endpush
+
+filter berdasarkan tanggal surat

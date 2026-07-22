@@ -22,14 +22,14 @@ class ArsipKeluar extends Model
         'sub_bagian_id',
         'verifikator_id',
         'pembuat_id',
-        'tanggal_surat',
+        'tanggal_pembuatan',
         'tanggal_unggah',
         'link_file',
         'uploader_id',
     ];
 
     protected $casts = [
-        'tanggal_surat'  => 'date',
+        'tanggal_pembuatan'  => 'date',
         'tanggal_unggah' => 'datetime',
     ];
 

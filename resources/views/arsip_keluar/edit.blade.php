@@ -126,10 +126,10 @@
                 </div>
 
                 <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
+                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Pembuatan <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
-                        type="date" name="tanggal_surat"
-                        value="{{ old('tanggal_surat', $arsipKeluar->tanggal_surat?->format('Y-m-d')) }}">
+                        type="date" name="tanggal_pembuatan"
+                        value="{{ old('tanggal_pembuatan', $arsipKeluar->tanggal_pembuatan?->format('Y-m-d')) }}">
                 </div>
             </div>
             

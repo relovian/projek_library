@@ -45,7 +45,7 @@ class ArsipController extends Controller
         
         // Tab Arsip Masuk
         if ($request->tab === 'masuk') {
-            $query = ArsipMasuk::with(['usersDisposisi', 'tujuan']);
+            $query = ArsipMasuk::with(['usersDisposisi', 'tujuan', 'tujuans']);
             
             // Filter pencarian - cari berdasarkan kode arsip, nama file, perihal, asal instansi
             if ($request->filled('q')) {
@@ -130,9 +130,9 @@ class ArsipController extends Controller
                 $query->where('pembuat_id', $request->pembuat_id);
             }
 
-            // Filter tanggal
-            if ($request->filled('tanggal_surat')) {
-                $query->whereDate('tanggal_surat', $request->tanggal_surat);
+// Filter tanggal
+            if ($request->filled('tanggal_pembuatan')) {
+                $query->whereDate('tanggal_pembuatan', $request->tanggal_pembuatan);
             }
 
             if ($request->filled('tanggal_unggah')) {
@@ -199,7 +199,7 @@ class ArsipController extends Controller
         if ($request->tab === 'saya') {
             // Jika user memilih filter "Arsip Masuk" di dropdown
             if ($request->arsip_id === 'arsip_masuk') {
-                $queryMasuk = ArsipMasuk::with(['usersDisposisi', 'tujuan'])
+                $queryMasuk = ArsipMasuk::with(['usersDisposisi', 'tujuan', 'tujuans'])
                     ->where('uploader_id', $user->id);
 
                 if ($request->filled('q')) {
@@ -260,8 +260,8 @@ class ArsipController extends Controller
                     $queryKeluar->where('pembuat_id', $request->pembuat_id);
                 }
 
-                if ($request->filled('tanggal_surat')) {
-                    $queryKeluar->whereDate('tanggal_surat', $request->tanggal_surat);
+if ($request->filled('tanggal_pembuatan')) {
+                    $queryKeluar->whereDate('tanggal_pembuatan', $request->tanggal_pembuatan);
                 }
 
                 if ($request->filled('tanggal_unggah')) {

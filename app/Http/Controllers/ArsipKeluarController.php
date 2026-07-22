@@ -119,11 +119,13 @@ class ArsipKeluarController extends Controller
             'sub_bagian_id' => 'required|exists:sub_bagian,id',
             'verifikator_id' => 'required|exists:verifikator,id',
             'pembuat_id' => 'required|exists:users,id',
-            'tanggal_surat' => 'required|date',
+            'tanggal_pembuatan' => 'required|date',
             'tanggal_unggah' => 'required|date',
         ], [
             'nomor_surat.required' => 'Nomor surat wajib diisi.',
             'nomor_surat.max' => 'Nomor surat maksimal 100 karakter.',
+            'tanggal_pembuatan.required' => 'Tanggal pembuatan wajib diisi.',
+            'tanggal_pembuatan.date' => 'Format tanggal pembuatan tidak valid.',
         ]);
 
         $arsipKeluar->update([
@@ -136,7 +138,7 @@ class ArsipKeluarController extends Controller
             'sub_bagian_id' => $request->sub_bagian_id,
             'verifikator_id' => $request->verifikator_id,
             'pembuat_id' => $request->pembuat_id,
-            'tanggal_surat' => $request->tanggal_surat,
+            'tanggal_pembuatan' => $request->tanggal_pembuatan,
             'tanggal_unggah' => $request->tanggal_unggah,
         ]);
 
@@ -279,7 +281,7 @@ class ArsipKeluarController extends Controller
             'sub_bagian_id' => 'required|exists:sub_bagian,id',
             'verifikator_id' => 'required|exists:verifikator,id',
             'pembuat_id' => 'required|exists:users,id',
-            'tanggal_surat' => 'required|date',
+            'tanggal_pembuatan' => 'required|date',
             'file' => 'required|file',
         ], [
             'nomor_surat.required' => 'Nomor surat wajib diisi.',
@@ -292,7 +294,7 @@ class ArsipKeluarController extends Controller
             'sub_bagian_id.required' => 'Sub bagian wajib dipilih.',
             'verifikator_id.required' => 'Verifikator wajib dipilih.',
             'pembuat_id.required' => 'Pembuat wajib dipilih.',
-            'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
+            'tanggal_pembuatan.required' => 'Tanggal surat wajib diisi.',
             'file.required' => 'File arsip wajib diunggah.',
             'file.file' => 'Data yang diunggah harus berupa file yang valid.',
             'file.mimes' => 'File harus berformat: pdf, doc, docx, xls, xlsx, jpg, atau png.',
@@ -333,7 +335,7 @@ class ArsipKeluarController extends Controller
             'sub_bagian_id' => $request->sub_bagian_id,
             'verifikator_id' => $request->verifikator_id,
             'pembuat_id' => $request->pembuat_id,
-            'tanggal_surat' => $request->tanggal_surat,
+            'tanggal_pembuatan' => $request->tanggal_pembuatan,
             'tanggal_unggah' => now(),
             'link_file' => $linkFile,
             'uploader_id' => auth()->id(),

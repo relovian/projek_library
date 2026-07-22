@@ -77,33 +77,33 @@
             </div>
 
             {{-- Baris 4 sifat surat--}}
-         <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
 
-    <div class="col-span-2 mb-[18px]">
-        <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
-            Sifat <span class="text-bawaslu-red">*</span>
-        </label>
+                <div class="col-span-2 mb-[18px]">
+                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                        Sifat <span class="text-bawaslu-red">*</span>
+                    </label>
 
-        <select
-            name="sifat_id"
-            class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sifat_id') ? 'border-[#dc2626]' : '' }}">
-            <option value="">Pilih sifat…</option>
+                    <select
+                        name="sifat_id"
+                        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sifat_id') ? 'border-[#dc2626]' : '' }}">
+                        <option value="">Pilih sifat…</option>
 
-            @foreach($sifat as $sf)
-                <option value="{{ $sf->id }}" {{ old('sifat_id') == $sf->id ? 'selected' : '' }}>
-                    {{ $sf->nama }}
-                </option>
-            @endforeach
-        </select>
+                        @foreach($sifat as $sf)
+                            <option value="{{ $sf->id }}" {{ old('sifat_id') == $sf->id ? 'selected' : '' }}>
+                                {{ $sf->nama }}
+                            </option>
+                        @endforeach
+                    </select>
 
-        @error('sifat_id')
-            <span class="text-[12px] text-[#dc2626] mt-1 block">
-                {{ $message }}
-            </span>
-        @enderror
-    </div>
+                    @error('sifat_id')
+                        <span class="text-[12px] text-[#dc2626] mt-1 block">
+                            {{ $message }}
+                        </span>
+                    @enderror
+                </div>
 
-</div>
+            </div>
 
               {{-- Baris 5  Pembuat --}}
             <div class="mb-[18px]">
@@ -121,56 +121,56 @@
 
 
             {{-- Baris 6 Sub Bagian --}}
-             <div class="col-span-2 mb-[18px]">
-    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
-        Sub Bagian <span class="text-bawaslu-red">*</span>
-    </label>
+            <div class="col-span-2 mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                    Sub Bagian <span class="text-bawaslu-red">*</span>
+                </label>
 
-    <select
-        name="sub_bagian_id"
-        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sub_bagian_id') ? 'border-[#dc2626]' : '' }}">
-        <option value="">Pilih sub bagian…</option>
+                <select
+                    name="sub_bagian_id"
+                    class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('sub_bagian_id') ? 'border-[#dc2626]' : '' }}">
+                    <option value="">Pilih sub bagian…</option>
 
-        @foreach($subBagian as $sb)
-            <option value="{{ $sb->id }}" {{ old('sub_bagian_id') == $sb->id ? 'selected' : '' }}>
-                {{ $sb->nama }}
-            </option>
-        @endforeach
-    </select>
+                    @foreach($subBagian as $sb)
+                        <option value="{{ $sb->id }}" {{ old('sub_bagian_id') == $sb->id ? 'selected' : '' }}>
+                            {{ $sb->nama }}
+                        </option>
+                    @endforeach
+                </select>
 
-    @error('sub_bagian_id')
-        <span class="text-[12px] text-[#dc2626] mt-1 block">
-            {{ $message }}
-        </span>
-    @enderror
-</div>
+                @error('sub_bagian_id')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
 
             {{-- Baris 7 Verifikator--}}
-          <div class="col-span-2 mb-[18px]">
-    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
-        Verifikator <span class="text-bawaslu-red">*</span>
-    </label>
+            <div class="col-span-2 mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">
+                    Verifikator <span class="text-bawaslu-red">*</span>
+                </label>
 
-    <select
-        name="verifikator_id"
-        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}">
-        <option value="">Pilih verifikator…</option>
+                <select
+                    name="verifikator_id"
+                    class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('verifikator_id') ? 'border-[#dc2626]' : '' }}">
+                    <option value="">Pilih verifikator…</option>
 
-        @foreach($verifikator as $vk)
-            <option value="{{ $vk->id }}" {{ old('verifikator_id') == $vk->id ? 'selected' : '' }}>
-                {{ $vk->user->nama_lengkap ?? $vk->user->name ?? 'Verifikator' }}
-            </option>
-        @endforeach
-    </select>
+                    @foreach($verifikator as $vk)
+                        <option value="{{ $vk->id }}" {{ old('verifikator_id') == $vk->id ? 'selected' : '' }}>
+                            {{ $vk->user->nama_lengkap ?? $vk->user->name ?? 'Verifikator' }}
+                        </option>
+                    @endforeach
+                </select>
 
-    @error('verifikator_id')
-        <span class="text-[12px] text-[#dc2626] mt-1 block">
-            {{ $message }}
-        </span>
-    @enderror
-</div>
+                @error('verifikator_id')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
 
-  {{-- Tembusan --}}
+            {{-- Tembusan --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tembusan</label>
                 <textarea class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tembusan') ? 'border-[#dc2626]' : '' }}"
@@ -182,13 +182,13 @@
                 @enderror
             </div>
 
-            {{-- Tanggal Surat --}}
+            {{-- Tanggal Pembuatan --}}
             <div class="mb-[18px]">
-                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
-                    <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_surat') ? 'border-[#dc2626]' : '' }}"
-                        type="date" name="tanggal_surat"
-                        value="{{ old('tanggal_surat') }}">
-                @error('tanggal_surat')
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Pembuatan <span class="text-bawaslu-red">*</span></label>
+                    <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tanggal_pembuatan') ? 'border-[#dc2626]' : '' }}"
+                        type="date" name="tanggal_pembuatan"
+                        value="{{ old('tanggal_pembuatan') }}">
+                @error('tanggal_pembuatan')
                     <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
                 @enderror
             </div>
@@ -231,7 +231,7 @@
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">
                     Simpan Arsip Keluar
                 </button>
-<a href="{{ route('arsip-keluar.create') }}" onclick="clearFormStorage()" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
+                <a href="{{ route('arsip-keluar.create') }}" onclick="clearFormStorage()" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
                     Batal
                 </a>
             </div>
@@ -366,7 +366,7 @@
                 nama_file: (namaFileHidden ? namaFileHidden.value : '') || sessionStorage.getItem(STORAGE_KEY + '_namaFile') || '',
                 perihal: document.querySelector('input[name="perihal"]')?.value || '',
                 tembusan: document.querySelector('textarea[name="tembusan"]')?.value || '',
-                tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
+                tanggal_pembuatan: document.querySelector('input[name="tanggal_pembuatan"]')?.value || '',
                 tanggal_unggah: '',
             };
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -407,7 +407,7 @@
                 }
 
                 // Isi input text
-                ['perihal', 'tanggal_surat'].forEach(field => {
+                ['perihal', 'tanggal_pembuatan'].forEach(field => {
                     const input = document.querySelector(`input[name="${field}"]`);
                     if (input && data[field] && !input.value) {
                         input.value = data[field];
