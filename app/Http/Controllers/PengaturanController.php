@@ -344,42 +344,72 @@ $user->update($data);
         return back()->with('success', 'Preferensi notifikasi berhasil disimpan.');
     }
 
+/**
+     * Helper: ambil path folder backup sesuai tanggal (backups/Y/m/d/)
+     */
+    private function getDailyBackupDir(): string
+    {
+        return storage_path('app/backups/' . date('Y') . '/' . date('m') . '/' . date('d'));
+    }
+
+    /**
+     * Helper: format ukuran file
+     */
+    private function formatSize(int $bytes): string
+    {
+        return $bytes >= 1073741824
+            ? round($bytes / 1073741824, 2) . ' GB'
+            : ($bytes >= 1048576
+                ? round($bytes / 1048576, 2) . ' MB'
+                : ($bytes >= 1024
+                    ? round($bytes / 1024, 2) . ' KB'
+                    : $bytes . ' B'));
+    }
+
+    /**
+     * Helper: scan folder rekursif untuk semua file backup
+     */
+    private function scanBackups(string $dir): array
+    {
+        $backups = [];
+        if (!file_exists($dir)) return $backups;
+
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        // Normalise path separator supaya cocok di Windows (str_replace gagal jika slash berbeda)
+        $backupsPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, storage_path('app/backups/'));
+
+        foreach ($items as $item) {
+            if ($item->isFile()) {
+                $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $item->getPathname());
+                $relativePath = str_replace($backupsPath, '', $filePath);
+                $relativePath = str_replace('\\', '/', $relativePath);
+                $tipe = str_starts_with($item->getFilename(), 'backup_db_') ? 'database' : 'files';
+
+                $backups[] = [
+                    'nama'   => $item->getFilename(),
+                    'path'   => $relativePath,
+                    'ukuran' => $this->formatSize($item->getSize()),
+                    'waktu'  => date('Y-m-d H:i:s', $item->getMTime()),
+                    'tipe'   => $tipe,
+                ];
+            }
+        }
+
+        // Urutkan dari yang terbaru
+        usort($backups, fn($a, $b) => strtotime($b['waktu']) - strtotime($a['waktu']));
+        return $backups;
+    }
+
     public function backup()
     {
         abort_if(!auth()->user()->isAdmin(), 403);
 
-        // Ambil daftar file backup dari folder storage/app/backups
         $backupDir = storage_path('app/backups');
-        $backups = [];
-
-        if (file_exists($backupDir)) {
-            $files = scandir($backupDir);
-            foreach ($files as $file) {
-                if ($file === '.' || $file === '..') continue;
-
-                $filePath = $backupDir . '/' . $file;
-                $tipe = str_starts_with($file, 'backup_db_') ? 'database' : 'files';
-                $bytes = filesize($filePath);
-
-                $ukuran = $bytes >= 1073741824
-                    ? round($bytes / 1073741824, 2) . ' GB'
-                    : ($bytes >= 1048576
-                        ? round($bytes / 1048576, 2) . ' MB'
-                        : ($bytes >= 1024
-                            ? round($bytes / 1024, 2) . ' KB'
-                            : $bytes . ' B'));
-
-                $backups[] = [
-                    'nama'   => $file,
-                    'ukuran' => $ukuran,
-                    'waktu'  => date('Y-m-d H:i:s', filemtime($filePath)),
-                    'tipe'   => $tipe,
-                ];
-            }
-
-            // Urutkan dari yang terbaru
-            usort($backups, fn($a, $b) => strtotime($b['waktu']) - strtotime($a['waktu']));
-        }
+        $backups = $this->scanBackups($backupDir);
 
         return view('pengaturan.backup', compact('backups'));
     }
@@ -388,12 +418,13 @@ $user->update($data);
     {
         abort_if(!auth()->user()->isAdmin(), 403);
 
-        $filename = 'backup_db_' . date('Ymd_His') . '.sql';
-        $path = storage_path('app/backups/' . $filename);
-
-        if (!file_exists(storage_path('app/backups'))) {
-            mkdir(storage_path('app/backups'), 0755, true);
+        $backupDir = $this->getDailyBackupDir();
+        if (!file_exists($backupDir)) {
+            mkdir($backupDir, 0755, true);
         }
+
+        $filename = 'backup_db_' . date('Ymd_His') . '.sql';
+        $filePath = $backupDir . '/' . $filename;
 
         try {
             $db = config('database.connections.mysql');
@@ -402,9 +433,10 @@ $user->update($data);
                 $db['username'],
                 $db['password']
             );
-            $dump->start($path);
+            $dump->start($filePath);
 
-            return back()->with('success', "Backup database berhasil disimpan: {$filename}");
+            $relativePath = date('Y/m/d/') . $filename;
+            return back()->with('success', "Backup database berhasil disimpan: {$relativePath}");
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal backup database: ' . $e->getMessage());
         }
@@ -414,13 +446,12 @@ $user->update($data);
     {
         abort_if(!auth()->user()->isAdmin(), 403);
 
-        $filename = 'backup_files_' . date('Ymd_His') . '.zip';
-        $backupDir = storage_path('app/backups');
-        
+        $backupDir = $this->getDailyBackupDir();
         if (!file_exists($backupDir)) {
             mkdir($backupDir, 0755, true);
         }
 
+        $filename = 'backup_files_' . date('Ymd_His') . '.zip';
         $zipPath = $backupDir . '/' . $filename;
         $zip = new \ZipArchive();
 
@@ -428,22 +459,31 @@ $user->update($data);
             return back()->with('error', 'Gagal membuat file backup.');
         }
 
-        // Ambil semua file arsip dari database
-        $files = \App\Models\ArsipFile::all();
-
-        if ($files->isEmpty()) {
-            $zip->close();
-            unlink($zipPath);
-            return back()->with('error', 'Tidak ada file arsip untuk di-backup.');
-        }
-
         $totalFiles = 0;
+
+        // 1. Backup file arsip dari storage/app/private/
+        $files = \App\Models\ArsipFile::all();
         foreach ($files as $file) {
             $filePath = storage_path('app/private/' . $file->path);
             if (file_exists($filePath)) {
-                // Simpan dengan struktur folder: arsip/tahun/bulan/nama_file
-                $zip->addFile($filePath, $file->path);
+                $zip->addFile($filePath, 'arsip_files/' . $file->path);
                 $totalFiles++;
+            }
+        }
+
+        // 2. Backup semua gambar dari public/img/
+        $imgDir = public_path('img');
+        if (file_exists($imgDir)) {
+            $imgFiles = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($imgDir, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($imgFiles as $imgFile) {
+                if ($imgFile->isFile()) {
+                    $relativePath = str_replace(public_path(), '', $imgFile->getPathname());
+                    $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+                    $zip->addFile($imgFile->getPathname(), $relativePath);
+                    $totalFiles++;
+                }
             }
         }
 
@@ -451,24 +491,20 @@ $user->update($data);
 
         if ($totalFiles === 0) {
             unlink($zipPath);
-            return back()->with('error', 'Tidak ada file fisik yang ditemukan untuk di-backup.');
+            return back()->with('error', 'Tidak ada file untuk di-backup.');
         }
 
-        $size = filesize($zipPath);
-        $sizeFormatted = $size >= 1073741824 
-            ? round($size / 1073741824, 2) . ' GB'
-            : ($size >= 1048576 
-                ? round($size / 1048576, 2) . ' MB' 
-                : round($size / 1024, 2) . ' KB');
+        $sizeFormatted = $this->formatSize(filesize($zipPath));
+        $relativePath = date('Y/m/d/') . $filename;
 
-        return back()->with('success', "Backup file arsip berhasil: {$filename} ({$sizeFormatted}, {$totalFiles} file)");
+        return back()->with('success', "Backup files berhasil: {$relativePath} ({$sizeFormatted}, {$totalFiles} file)");
     }
 
-    public function downloadBackup($filename)
+    public function downloadBackup($path)
     {
         abort_if(!auth()->user()->isAdmin(), 403);
 
-        $filePath = storage_path('app/backups/' . $filename);
+        $filePath = storage_path('app/backups/' . $path);
 
         if (!file_exists($filePath)) {
             return back()->with('error', 'File backup tidak ditemukan.');
@@ -477,18 +513,18 @@ $user->update($data);
         return response()->download($filePath);
     }
 
-    public function destroyBackup($filename)
+    public function destroyBackup($path)
     {
         abort_if(!auth()->user()->isAdmin(), 403);
 
-        $filePath = storage_path('app/backups/' . $filename);
+        $filePath = storage_path('app/backups/' . $path);
 
         if (!file_exists($filePath)) {
             return back()->with('error', 'File backup tidak ditemukan.');
         }
 
         unlink($filePath);
-        return back()->with('success', "Backup {$filename} berhasil dihapus.");
+        return back()->with('success', "Backup {$path} berhasil dihapus.");
     }
 
     public function clearCache()
@@ -718,7 +754,7 @@ $user->update($data);
             'nama.unique' => "Nama sudah digunakan, silakan gunakan nama yang berbeda",
         ]);
 
-        Tujuan::update([
+        $tujuan->update([
             'nama'      => $request->nama,
             'deskripsi' => $request->deskripsi,
             'is_aktif'  => $request->is_aktif ?? 1,

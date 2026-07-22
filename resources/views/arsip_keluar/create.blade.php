@@ -33,7 +33,19 @@
 
             
 
-               {{-- baris 2 Perihal --}}
+            {{-- Nomor Surat --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nomor Surat <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nomor_surat') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="nomor_surat"
+                    value="{{ old('nomor_surat') }}"
+                    placeholder="cth: 140/SIARSIP/VII/2026">
+                @error('nomor_surat')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- baris 2 Perihal --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Perihal <span class="text-bawaslu-red">*</span></label>
                 <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('perihal') ? 'border-[#dc2626]' : '' }}"
@@ -158,6 +170,18 @@
     @enderror
 </div>
 
+  {{-- Tembusan --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tembusan</label>
+                <textarea class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('tembusan') ? 'border-[#dc2626]' : '' }}"
+                    name="tembusan"
+                    rows="3"
+                    placeholder="Masukkan tembusan (pisahkan dengan koma jika lebih dari satu)…">{{ old('tembusan') }}</textarea>
+                @error('tembusan')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
             {{-- Tanggal Surat --}}
             <div class="mb-[18px]">
                 <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
@@ -207,7 +231,7 @@
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">
                     Simpan Arsip Keluar
                 </button>
-                <a href="{{ route('dashboard') }}" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
+<a href="{{ route('arsip-keluar.create') }}" onclick="clearFormStorage()" class="px-3 py-[5px] rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
                     Batal
                 </a>
             </div>
@@ -231,6 +255,12 @@
 
 @push('scripts')
 <script>
+    // ── Fungsi hapus sessionStorage file saja saat klik Batal ──
+    function clearFormStorage() {
+        sessionStorage.removeItem('formArsipKeluar_data_fileName');
+        sessionStorage.removeItem('formArsipKeluar_data_namaFile');
+    }
+
     // ── Drag & Drop Upload + SessionStorage untuk Preserve Data ──
     (function () {
         const STORAGE_KEY = 'formArsipKeluar_data';
@@ -335,6 +365,7 @@
                 pembuat_id: document.querySelector('select[name="pembuat_id"]')?.value || '',
                 nama_file: (namaFileHidden ? namaFileHidden.value : '') || sessionStorage.getItem(STORAGE_KEY + '_namaFile') || '',
                 perihal: document.querySelector('input[name="perihal"]')?.value || '',
+                tembusan: document.querySelector('textarea[name="tembusan"]')?.value || '',
                 tanggal_surat: document.querySelector('input[name="tanggal_surat"]')?.value || '',
                 tanggal_unggah: '',
             };
@@ -367,6 +398,12 @@
                 const savedNamaFile = sessionStorage.getItem(STORAGE_KEY + '_namaFile');
                 if (savedNamaFile && namaFileHidden) {
                     namaFileHidden.value = savedNamaFile;
+                }
+
+                // Isi textarea
+                const tembusanTextarea = document.querySelector('textarea[name="tembusan"]');
+                if (tembusanTextarea && data.tembusan && !tembusanTextarea.value) {
+                    tembusanTextarea.value = data.tembusan;
                 }
 
                 // Isi input text

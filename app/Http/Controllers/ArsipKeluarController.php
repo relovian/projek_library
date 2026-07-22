@@ -63,11 +63,10 @@ class ArsipKeluarController extends Controller
         $sifat = SifatSurat::where('is_aktif', true)->get();
         $subBagian = SubBagian::where('is_aktif', true)->get();
         $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
-        $tujuan = Tujuan::where('is_aktif', true)->get();
         $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
         return view('arsip_keluar.create', compact(
-            'klasifikasi', 'sifat', 'subBagian', 'verifikator', 'tujuan', 'users'
+            'klasifikasi', 'sifat', 'subBagian', 'verifikator', 'users'
         ));
     }
 
@@ -89,11 +88,10 @@ class ArsipKeluarController extends Controller
         $sifat = SifatSurat::where('is_aktif', true)->get();
         $subBagian  = SubBagian::where('is_aktif', true)->get();
         $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
-        $tujuan = Tujuan::where('is_aktif', true)->get();
         $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
         return view('arsip_keluar.edit', compact(
-            'arsipKeluar', 'klasifikasi', 'sifat', 'subBagian', 'verifikator', 'tujuan', 'users'
+            'arsipKeluar', 'klasifikasi', 'sifat', 'subBagian', 'verifikator', 'users'
         ));
     }
 
@@ -112,26 +110,31 @@ class ArsipKeluarController extends Controller
         }
 
         $request->validate([
+            'nomor_surat' => 'required|string|max:100',
             'nama_file' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
+            'tembusan' => 'nullable|string|max:500',
             'klasifikasi_id' => 'required|exists:klasifikasi,id',
             'sifat_id' => 'required|exists:sifat_surat,id',
             'sub_bagian_id' => 'required|exists:sub_bagian,id',
             'verifikator_id' => 'required|exists:verifikator,id',
-            'tujuan_id' => 'required|exists:tujuan,id',
             'pembuat_id' => 'required|exists:users,id',
             'tanggal_surat' => 'required|date',
             'tanggal_unggah' => 'required|date',
+        ], [
+            'nomor_surat.required' => 'Nomor surat wajib diisi.',
+            'nomor_surat.max' => 'Nomor surat maksimal 100 karakter.',
         ]);
 
         $arsipKeluar->update([
+            'nomor_surat' => $request->nomor_surat,
             'nama_file' => $request->nama_file,
             'perihal' => $request->perihal,
+            'tembusan' => $request->tembusan,
             'klasifikasi_id' => $request->klasifikasi_id,
             'sifat_id' => $request->sifat_id,
             'sub_bagian_id' => $request->sub_bagian_id,
             'verifikator_id' => $request->verifikator_id,
-            'tujuan_id' => $request->tujuan_id,
             'pembuat_id' => $request->pembuat_id,
             'tanggal_surat' => $request->tanggal_surat,
             'tanggal_unggah' => $request->tanggal_unggah,
@@ -185,7 +188,7 @@ class ArsipKeluarController extends Controller
         $user = auth()->user();
 
         $query = ArsipKeluar::onlyTrashed()
-            ->with(['klasifikasi', 'sifatSurat', 'subBagian', 'verifikator.user', 'tujuan', 'pembuat', 'uploader']);
+            ->with(['klasifikasi', 'sifatSurat', 'subBagian', 'verifikator.user', 'pembuat', 'uploader']);
 
         // Staff/non-admin hanya lihat sampah miliknya sendiri
         if ($user->role !== 'admin') {
@@ -267,8 +270,10 @@ class ArsipKeluarController extends Controller
         }
 
         $request->validate([
+            'nomor_surat' => 'required|string|max:100',
             'nama_file' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
+            'tembusan' => 'nullable|string|max:500',
             'klasifikasi_id' => 'required|exists:klasifikasi,id',
             'sifat_id' => 'required|exists:sifat_surat,id',
             'sub_bagian_id' => 'required|exists:sub_bagian,id',
@@ -277,16 +282,20 @@ class ArsipKeluarController extends Controller
             'tanggal_surat' => 'required|date',
             'file' => 'required|file',
         ], [
+            'nomor_surat.required' => 'Nomor surat wajib diisi.',
+            'nomor_surat.max' => 'Nomor surat maksimal 100 karakter.',
             'nama_file.required' => 'Nama file wajib diisi.',
             'perihal.required' => 'Perihal wajib diisi.',
+            'tembusan.max' => 'Tembusan maksimal 500 karakter.',
             'klasifikasi_id.required' => 'Klasifikasi wajib dipilih.',
             'sifat_id.required' => 'Sifat surat wajib dipilih.',
             'sub_bagian_id.required' => 'Sub bagian wajib dipilih.',
             'verifikator_id.required' => 'Verifikator wajib dipilih.',
             'pembuat_id.required' => 'Pembuat wajib dipilih.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
-            'file.required_if' => 'File wajib diunggah jika memilih upload file.',
-            'file.file' => 'Data yang diunggah harus berupa file.'
+            'file.required' => 'File arsip wajib diunggah.',
+            'file.file' => 'Data yang diunggah harus berupa file yang valid.',
+            'file.mimes' => 'File harus berformat: pdf, doc, docx, xls, xlsx, jpg, atau png.',
         ]);
 
         // Generate kode arsip 
@@ -315,8 +324,10 @@ class ArsipKeluarController extends Controller
 
         $arsipKeluar = ArsipKeluar::create([
             'kode_arsip_keluar' => $kodeArsip,
+            'nomor_surat' => $request->nomor_surat,
             'nama_file' => $request->nama_file,
             'perihal' => $request->perihal,
+            'tembusan' => $request->tembusan,
             'klasifikasi_id' => $request->klasifikasi_id,
             'sifat_id' => $request->sifat_id,
             'sub_bagian_id' => $request->sub_bagian_id,

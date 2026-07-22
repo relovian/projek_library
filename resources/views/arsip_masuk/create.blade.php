@@ -236,7 +236,7 @@
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">
                     Simpan Surat Masuk
                 </button>
-                <a href="{{ route('arsip-masuk.create') }}" class="rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
+                <a href="{{ route('arsip-masuk.create') }}" onclick="clearFormStorageMasuk()" class="rounded-[6px] text-[12px] font-semibold cursor-pointer border [font-family:inherit] inline-flex items-center no-underline transition-opacity duration-200 hover:opacity-[0.85] bg-surface2 text-hitam border-border px-2 py-4 text-xs">
                     Batal
                 </a>
             </div>
@@ -355,6 +355,12 @@
 
         {{-- JS Drag & Drop Upload + SessionStorage Preserve Data --}}
         <script>
+            // ── Fungsi hapus sessionStorage file saja saat klik Batal ──
+            function clearFormStorageMasuk() {
+                sessionStorage.removeItem('formSuratMasuk_data_fileName');
+                sessionStorage.removeItem('formSuratMasuk_data_namaFile');
+            }
+
             (function () {
                 const STORAGE_KEY = 'formSuratMasuk_data';
                 const dropZone = document.getElementById('dropZone');
@@ -593,18 +599,18 @@
         </script>
     </div>
 
-    {{-- Sidebar --}}
-    <div class="flex flex-col gap-4">
+</div>
+{{-- Sidebar --}}
+<div class="flex flex-col gap-4">
 
-        <div class="bg-surface2 border border-border rounded-[14px] p-6 mb-[15px]">
-            <div class="text-xs font-bold mt-2">Panduan</div>
-            <ul class="text-xs text-abu leading-[1.8] pl-4 mt-2">
-                <li>Isi semua field yang bertanda <span class="text-bawaslu-red">*</span></li>
-                <li>Pilih minimal satu disposisi surat</li>
-                <li>FIle akan otomatis masuk ke google drive</li>
-                <li>Format file: PDF, DOCX, XLSX, JPG, PNG, MP4</li>
-            </ul>
-        </div>
+    <div class="bg-surface2 border border-border rounded-[14px] p-6 mb-[15px]">
+        <div class="text-xs font-bold mt-2">Panduan</div>
+        <ul class="text-xs text-abu leading-[1.8] pl-4 mt-2">
+            <li>Isi semua field yang bertanda <span class="text-bawaslu-red">*</span></li>
+            <li>Pilih minimal satu disposisi surat</li>
+            <li>File akan otomatis masuk ke google drive</li>
+            <li>Format file: PDF, DOCX, XLSX, JPG, PNG, MP4</li>
+        </ul>
     </div>
 </div>
 @endsection

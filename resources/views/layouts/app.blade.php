@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'SIARSIP') — Bawaslu RI</title>
+    <title>@yield('title', 'SIARSIP') — Bawaslu Kota Surabaya</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('styles')
@@ -82,6 +83,9 @@
                 </button>
             </form>
         </div>
+
+        <div class="text-center pb-4 text-white/30 text-[11px] font-medium">
+            <p>SIArsip v1.5</p></div>
     </aside>
 
     <div class="flex min-h-screen flex-1 flex-col ml-[260px]">

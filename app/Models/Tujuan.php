@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tujuan extends Model
@@ -18,8 +19,9 @@ class Tujuan extends Model
         return $this->hasMany(Arsip::class);
     }
 
-    public function arsipKeluar(): HasMany
+    public function arsipMasuk(): BelongsToMany
     {
-        return $this->hasMany(ArsipKeluar::class, 'tujuan_id');
+        return $this->belongsToMany(ArsipMasuk::class, 'surat_masuk_tujuan', 'tujuan_id', 'surat_masuk_id')
+                    ->withTimestamps();
     }
 }

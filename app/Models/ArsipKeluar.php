@@ -13,13 +13,14 @@ class ArsipKeluar extends Model
 
     protected $fillable = [
         'kode_arsip_keluar',
+        'nomor_surat',
         'nama_file',
         'perihal',
+        'tembusan',
         'klasifikasi_id',
         'sifat_id',
         'sub_bagian_id',
         'verifikator_id',
-        'tujuan_id',
         'pembuat_id',
         'tanggal_surat',
         'tanggal_unggah',
@@ -51,11 +52,6 @@ class ArsipKeluar extends Model
     public function verifikator(): BelongsTo
     {
         return $this->belongsTo(Verifikator::class);
-    }
-
-    public function tujuan(): BelongsTo
-    {
-        return $this->belongsTo(Tujuan::class);
     }
 
     public function pembuat(): BelongsTo

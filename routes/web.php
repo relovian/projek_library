@@ -24,6 +24,7 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         Route::get('/',                    [ArsipController::class, 'index'])->name('index');
         
         // ← taruh semua route statis DI SINI, sebelum {arsip}
+        Route::post('/log-view', [ArsipController::class, 'logView'])->name('log-view');
         Route::get('/trash', [ArsipController::class, 'trash'])->name('trash');
         Route::delete('/empty-trash', [ArsipController::class, 'emptyTrash'])->name('empty-trash');
         Route::patch('/{id}/restore', [ArsipController::class, 'restore'])->name('restore');
@@ -64,12 +65,6 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         Route::put('/profil', [PengaturanController::class, 'updateProfil'])->name('profil.update');
         Route::put('/password', [PengaturanController::class, 'updatePassword'])->name('password.update');
 
-        // Admin only
-        Route::get('/kategori', [PengaturanController::class, 'kategori'])->name('kategori')->middleware('role:admin');
-        Route::post('/kategori', [PengaturanController::class, 'storeKategori'])->name('kategori.store');
-        Route::put('/kategori/{kategori}', [PengaturanController::class, 'updateKategori'])->name('kategori.update');
-        Route::delete('/kategori/{kategori}', [PengaturanController::class, 'destroyKategori'])->name('kategori.destroy');
-
         Route::get('/users', [PengaturanController::class, 'users'])->name('users')->middleware('role:admin');
         Route::get('/users/create', [PengaturanController::class, 'createUser'])->name('users.create')->middleware('role:admin');
         Route::get('/users/{user}/edit', [PengaturanController::class, 'editUser'])->name('users.edit')->middleware('role:admin');
@@ -106,16 +101,6 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         // notifikasi
         Route::get('/notifikasi', [PengaturanController::class, 'notifikasi'])->name('notifikasi');
         Route::put('/notifikasi', [PengaturanController::class, 'updateNotifikasi'])->name('notifikasi.update');
- 
-        // backup
-        Route::get('/backup', [PengaturanController::class, 'backup'])->name('backup')->middleware('role:admin');
-        Route::post('/backup/database', [PengaturanController::class, 'backupDatabase'])->name('backup.database')->middleware('role:admin');
-        Route::post('/backup/files', [PengaturanController::class, 'backupFiles'])->name('backup.files')->middleware('role:admin');
-        Route::get('/backup/download/{filename}', [PengaturanController::class, 'downloadBackup'])->name('backup.download')->middleware('role:admin');
-        Route::delete('/backup/{filename}', [PengaturanController::class, 'destroyBackup'])->name('backup.destroy')->middleware('role:admin');
-        Route::post('/maintenance/cache', [PengaturanController::class, 'clearCache'])->name('maintenance.cache')->middleware('role:admin');
-        Route::post('/maintenance/log', [PengaturanController::class, 'clearLog'])->name('maintenance.log')->middleware('role:admin');
-        Route::post('/maintenance/draft', [PengaturanController::class, 'clearDraft'])->name('maintenance.draft')->middleware('role:admin');
 
         // Verifikator
         Route::get('/verifikator', [PengaturanController::class, 'verifikator'])->name('verifikator')->middleware('role:admin');

@@ -56,16 +56,6 @@
                 </option>
                 @endforeach
             </select>
-        @elseif(request('tab') === 'keluar')
-            {{-- Dropdown Tujuan untuk arsip keluar --}}
-            <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tujuan_id" onchange="autoSearch()">
-                <option value="">Semua Tujuan</option>
-                @foreach($tujuan ?? [] as $tn)
-                <option value="{{ $tn->id }}" {{ request('tujuan_id') == $tn->id ? 'selected' : '' }}>
-                    {{ $tn->nama }}
-                </option>
-                @endforeach
-            </select>
         @elseif (request('tab') === 'saya' || $isSayaMasuk || $isSayaKeluar )
             {{-- Dropdown Pilih Arsip untuk tab Arsip Saya --}}
 
@@ -84,16 +74,6 @@
     
             @if($isSayaMasuk)
                 {{-- Dropdown Tujuan untuk arsip masuk (dalam tab Arsip Saya) --}}
-                <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tujuan_id" onchange="autoSearch()">
-                    <option value="">Semua Tujuan</option>
-                    @foreach($tujuan ?? [] as $tn)
-                    <option value="{{ $tn->id }}" {{ request('tujuan_id') == $tn->id ? 'selected' : '' }}>
-                        {{ $tn->nama }}
-                    </option>
-                    @endforeach
-                </select>
-            @elseif($isSayaKeluar)
-                {{-- Dropdown Tujuan untuk arsip keluar (dalam tab Arsip Saya) --}}
                 <select class="pr-8 py-2 border border-border rounded-lg text-[13px] [font-family:inherit] bg-surface text-hitam outline-none cursor-pointer" name="tujuan_id" onchange="autoSearch()">
                     <option value="">Semua Tujuan</option>
                     @foreach($tujuan ?? [] as $tn)
@@ -204,7 +184,6 @@
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Sifat</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Sub Bagian</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Verifikator</th>
-                        <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tujuan</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Pembuat</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Surat</th>
                         <th class="text-left px-[14px] py-[11px] text-[11px] font-bold uppercase tracking-[.6px] text-abu bg-surface2 border-b border-border">Tanggal Unggah</th>
@@ -243,7 +222,7 @@
                             <td class="px-[14px] py-3">{{ $am->tujuan?->nama ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $am->tanggal_surat->format('d/m/Y') }}</td>
                             <td class="px-[14px] py-3">{{ $am->tanggal_diterima->format('d/m/Y') }}</td>
-                            <td class="px-[14px] py-3">{{ $am->tanggal_unggah ? $am->tanggal_unggah->format('d/m/Y') : '-' }}</td>
+                            <td class="px-[14px] py-3">{{ $am->tanggal_unggah ? date('d/m/Y', $am->tanggal_unggah) : '-' }}</td>
                             <td class="px-[14px] py-3">
                                 @if($am->usersDisposisi->count() > 0)
                                     @foreach($am->usersDisposisi as $userDisposisi)
@@ -255,7 +234,7 @@
                             </td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
-                                    <a href="{{ route('arsip-masuk.lihat', $am) }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <a href="{{ $am->link_file ?? '#' }}" target="_blank" onclick="logView('masuk', '{{ $am->id }}')" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
@@ -317,13 +296,12 @@
                             <td class="px-[14px] py-3">{{ $ak->sifatSurat?->nama ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $ak->subBagian?->nama ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $ak->verifikator?->user?->nama_lengkap ?? $ak->verifikator?->user?->name ?? '-' }}</td>
-                            <td class="px-[14px] py-3">{{ $ak->tujuan?->nama ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ $ak->pembuat?->nama_lengkap ?? $ak->pembuat?->name ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ optional($ak->tanggal_surat)->format('d/m/Y') ?? '-' }}</td>
                             <td class="px-[14px] py-3">{{ optional($ak->tanggal_unggah)->format('d/m/Y') ?? '-' }}</td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
-                                    <a href="{{ route('arsip-keluar.lihat', $ak) }}" target="_blank" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
+                                    <a href="{{ $ak->link_file ?? '#' }}" target="_blank" onclick="logView('keluar', '{{ $ak->id }}')" class="w-7 h-7 rounded-[6px] border border-border bg-surface cursor-pointer text-[13px] flex items-center justify-center transition-colors duration-150 hover:bg-surface2 no-underline" title="Lihat">
                                         <img src="{{ asset('img/pratinjau.png') }}" class="w-[15px] h-[15px]" alt="">
                                     </a>
 
@@ -350,7 +328,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="14">
+                            <td colspan="13">
 
                                 <div class="text-center py-10 px-5 text-abu">
                                     <div class="flex justify-center align-center text-[40px] mb-[10px]">
@@ -382,19 +360,6 @@
                             <td class="px-[14px] py-3"><span class="inline-flex items-center gap-1 text-[11.5px] font-semibold px-[9px] py-[3px] rounded-[20px] bg-surface2 text-abu border border-border">{{ $arsip->kategori->nama }}</span></td>
                             <td class="px-[14px] py-3">{{ $ap->divisi->nama }}</td>
                             <td class="px-[14px] py-3">{{ $ap->tanggal_dokumen->format('d/m/Y') }}</td>
-                            {{-- <td class="px-[14px] py-3">
-                                <span class="text-[10.5px] font-bold px-[9px] py-[3px] rounded-[20px] shrink-0
-                                    @switch($ap->status_color)
-                                        @case('green') bg-[#ECFDF5] text-[#059669] @break
-                                        @case('yellow') bg-[#FFFBEB] text-[#D97706] @break
-                                        @case('blue') bg-[#EFF6FF] text-[#2563EB] @break
-                                        @case('gray') bg-[#F5F5F5] text-[#6B7280] @break
-                                        @case('red') bg-[#FEF2F2] text-[#DC2626] @break
-                                        @default bg-[#F5F5F5] text-[#6B7280]
-                                    @endswitch">
-                                    {{ $arsip->status_label }}
-                                </span>
-                            </td> --}}
                             <td class="px-[14px] py-3">{{ $arsip->file_pertama?->ukuran_format ?? '-' }}</td>
                             <td class="px-[14px] py-3">
                                 <div class="flex gap-1.5">
@@ -498,6 +463,15 @@
         window.searchTimer = setTimeout(function() {
             document.getElementById('filterForm').submit();
         }, 500);
+    }
+
+    // Catat aktivitas lihat dokumen (fire-and-forget via sendBeacon)
+    function logView(type, id) {
+        const data = new FormData();
+        data.append('_token', '{{ csrf_token() }}');
+        data.append('type', type);
+        data.append('id', id);
+        navigator.sendBeacon('{{ route("arsip.log-view") }}', data);
     }
 </script>
 @endpush

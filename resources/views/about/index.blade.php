@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="mb-7">
-    <h1 class="font-serif text-[28px] text-hitam mb-1">Tentang SIARSIP Bawaslu</h1>
+    <h1 class="font-serif text-[28px] text-hitam mb-1">Tentang SIARSIP Bawaslu Kota Surabaya</h1>
     <p class="text-[14px] text-abu">Informasi sistem dan tim pengembang</p>
 </div>
 
@@ -16,8 +16,8 @@
                  <img src="{{ asset('img/arsip.png') }}" alt="" class="w-10 h-10">
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-white mb-1">SIARSIP Bawaslu</h2>
-                <p class="text-white/80 text-[14px]">Sistem Informasi Arsip Digital - Badan Pengawas Pemilihan Umum RI</p>
+                <h2 class="text-2xl font-bold text-white mb-1">SIARSIP Bawaslu Kota Surabaya</h2>
+                <p class="text-white/80 text-[14px]">Sistem Informasi Arsip Digital - Badan Pengawas Pemilihan Umum Kota Surabaya</p>
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
                     </div>
                     <h3 class="text-[18px] font-bold text-hitam mb-1">Relovian Rahmadan Santoso Putra</h3>
                     <h3 class="text-[17px] font-bold text-hitam mb-1">SMKN 10 Surabaya</h3>
-                    <p class="text-[16px] text-abu">Rekaya Perangkat Lunak</p>
+                    <p class="text-[16px] text-abu">Rekayasa Perangkat Lunak</p>
                 </div>
             </div>
 
@@ -67,11 +67,11 @@
             <div class="group bg-surface2 border border-border rounded-xl p-5 transition-all duration-200 hover:shadow-md">
                 <div class="flex flex-col items-center text-center">
                     <div class="w-20 h-20 rounded-full overflow-hidden mb-3 border-2 border-blue-500/20">
-                        <img src="{{ asset('img/dimas.jpg') }}" alt="Divisi Pengelolaan Informasi" class="w-full h-full object-cover object-[center_30%]">
+                        <img src="{{ asset('img/Dimas.jpeg') }}" alt="Divisi Pengelolaan Informasi" class="w-full h-full object-cover object-[center_30%]">
                     </div>
                    <h3 class="text-[18px] font-bold text-hitam mb-1">Dimas Satria Prayoga Arbai</h3>
                     <h3 class="text-[17px] font-bold text-hitam mb-1">SMKN 10 Surabaya</h3>
-                    <p class="text-[16px] text-abu">Rekaya Perangkat Lunak</p>
+                    <p class="text-[16px] text-abu">Rekayasa Perangkat Lunak</p>
                 </div>
             </div>
 
@@ -83,7 +83,7 @@
                     </div>
                      <h3 class="text-[18px] font-bold text-hitam mb-1">Vallentino Rizky Winoto</h3>
                     <h3 class="text-[17px] font-bold text-hitam mb-1">SMKN 10 Surabaya</h3>
-                    <p class="text-[16px] text-abu">Rekaya Perangkat Lunak</p>
+                    <p class="text-[16px] text-abu">Rekayasa Perangkat Lunak</p>
                 </div>
             </div>
 
@@ -95,7 +95,7 @@
                     </div>
                       <h3 class="text-[18px] font-bold text-hitam mb-1">Alleluia Lefran Wayne</h3>
                     <h3 class="text-[17px] font-bold text-hitam mb-1">SMKN 10 Surabaya</h3>
-                    <p class="text-[16px] text-abu">Rekaya Perangkat Lunak</p>
+                    <p class="text-[16px] text-abu">Rekayasa Perangkat Lunak</p>
                 </div>
             </div>
         </div>

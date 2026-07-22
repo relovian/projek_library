@@ -77,6 +77,23 @@ class ArsipMasukController extends Controller
 
             'users_disposisi'   => 'required|array|min:1',
             'tujuan_id'         => 'required|array|min:1',
+        ], [
+            'perihal.required' => 'Perihal wajib diisi.',
+            'perihal.max' => 'Perihal maksimal 255 karakter.',
+            'asal_instansi.required' => 'Asal instansi wajib diisi.',
+            'asal_instansi.max' => 'Asal instansi maksimal 255 karakter.',
+            'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
+            'tanggal_surat.date' => 'Format tanggal surat tidak valid.',
+            'tanggal_diterima.required' => 'Tanggal diterima wajib diisi.',
+            'tanggal_diterima.date' => 'Format tanggal diterima tidak valid.',
+            'file.required' => 'File arsip wajib diunggah.',
+            'link_file.url' => 'Link file harus berupa URL yang valid.',
+            'users_disposisi.required' => 'Disposisi wajib dipilih minimal 1 user.',
+            'users_disposisi.array' => 'Format disposisi tidak valid.',
+            'users_disposisi.min' => 'Pilih minimal 1 user disposisi.',
+            'tujuan_id.required' => 'Tujuan wajib dipilih.',
+            'tujuan_id.array' => 'Format tujuan tidak valid.',
+            'tujuan_id.min' => 'Pilih minimal 1 tujuan.',
         ]);
 
         $tanggal = now()->format('Ymd');
@@ -193,6 +210,24 @@ class ArsipMasukController extends Controller
 
             'users_disposisi'   => 'required|array|min:1',
             'tujuan_id'         => 'required|array|min:1',
+        ], [
+            'perihal.required' => 'Perihal wajib diisi.',
+            'perihal.max' => 'Perihal maksimal 255 karakter.',
+            'asal_instansi.required' => 'Asal instansi wajib diisi.',
+            'asal_instansi.max' => 'Asal instansi maksimal 255 karakter.',
+            'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
+            'tanggal_surat.date' => 'Format tanggal surat tidak valid.',
+            'tanggal_diterima.required' => 'Tanggal diterima wajib diisi.',
+            'tanggal_diterima.date' => 'Format tanggal diterima tidak valid.',
+            'file.file' => 'Data yang diunggah harus berupa file yang valid.',
+            'file.mimes' => 'File harus berformat: pdf, doc, docx, xls, xlsx, jpg, atau png.',
+            'link_file.url' => 'Link file harus berupa URL yang valid.',
+            'users_disposisi.required' => 'Disposisi wajib dipilih minimal 1 user.',
+            'users_disposisi.array' => 'Format disposisi tidak valid.',
+            'users_disposisi.min' => 'Pilih minimal 1 user disposisi.',
+            'tujuan_id.required' => 'Tujuan wajib dipilih.',
+            'tujuan_id.array' => 'Format tujuan tidak valid.',
+            'tujuan_id.min' => 'Pilih minimal 1 tujuan.',
         ]);
 
         // Update nama_file jika ada file baru diupload

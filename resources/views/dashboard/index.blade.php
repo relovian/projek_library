@@ -5,7 +5,7 @@
 @section('content')
 <div class="mb-7">
     <h1 class="font-serif text-[28px] text-hitam mb-1">Selamat Datang, {{ auth()->user()->nama_lengkap }} </h1>
-    <p class="text-[14px] text-abu">Ringkasan sistem pengelolaan arsip Bawaslu — {{ now()->translatedFormat('l, d F Y') }}</p>
+    <p class="text-[14px] text-abu">Ringkasan sistem pengelolaan arsip Bawaslu Kota Surabaya — {{ now()->translatedFormat('l, d F Y') }}</p>
 </div>
 
 <div class="grid grid-cols-3 gap-4 mb-6">
@@ -270,7 +270,6 @@
                     <tr class="bg-[#F9FAFB]">
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Kode Arsip</th>
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Perihal</th>
-                        <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Tujuan</th>
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Tanggal Surat</th>
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Pengunggah</th>
                     </tr>
@@ -280,13 +279,12 @@
                     <tr class="border-b border-border last:border-b-0 hover:bg-[#F9FAFB]">
                         <td class="py-[10px] px-3 font-mono text-[12px]">{{ $arsip->kode_arsip_keluar ?? '-' }}</td>
                         <td class="py-[10px] px-3" title="{{ $arsip->perihal ?? '-' }}">{{ truncatePerihal($arsip->perihal) }}</td>
-                        <td class="py-[10px] px-3">{{ $arsip->tujuan?->nama ?? '-' }}</td>
                         <td class="py-[10px] px-3 whitespace-nowrap">{{ $arsip->tanggal_surat ? $arsip->tanggal_surat->format('d/m/Y') : '-' }}</td>
                         <td class="py-[10px] px-3">{{ $arsip->uploader?->nama_lengkap ?? '-' }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-8 text-abu text-[14px]">Belum ada arsip keluar yang diunggah.</td>
+                        <td colspan="4" class="text-center py-8 text-abu text-[14px]">Belum ada arsip keluar yang diunggah.</td>
                     </tr>
                     @endforelse
                 </tbody>

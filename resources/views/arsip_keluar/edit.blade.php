@@ -39,6 +39,30 @@
                 </div>
             </div>
 
+            {{-- Nomor Surat --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Nomor Surat <span class="text-bawaslu-red">*</span></label>
+                <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)] {{ $errors->has('nomor_surat') ? 'border-[#dc2626]' : '' }}"
+                    type="text" name="nomor_surat"
+                    value="{{ old('nomor_surat', $arsipKeluar->nomor_surat) }}"
+                    placeholder="cth: 140/SIARSIP/VII/2026">
+                @error('nomor_surat')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Tembusan --}}
+            <div class="mb-[18px]">
+                <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tembusan</label>
+                <textarea class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
+                    name="tembusan"
+                    rows="3"
+                    placeholder="Masukkan tembusan (pisahkan dengan koma jika lebih dari satu)…">{{ old('tembusan', $arsipKeluar->tembusan) }}</textarea>
+                @error('tembusan')
+                    <span class="text-[12px] text-[#dc2626] mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Klasifikasi <span class="text-bawaslu-red">*</span></label>
@@ -91,17 +115,6 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="mb-[18px]">
-                    <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tujuan <span class="text-bawaslu-red">*</span></label>
-                    <select name="tujuan_id"
-                        class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
-                        <option value="">-- Pilih --</option>
-                        @foreach($tujuan as $t)
-                        <option value="{{ $t->id }}" {{ old('tujuan_id', $arsipKeluar->tujuan_id) == $t->id ? 'selected' : '' }}>{{ $t->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Pembuat <span class="text-bawaslu-red">*</span></label>
                     <select name="pembuat_id"
                         class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]">
@@ -111,16 +124,16 @@
                         @endforeach
                     </select>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Surat <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
                         type="date" name="tanggal_surat"
                         value="{{ old('tanggal_surat', $arsipKeluar->tanggal_surat?->format('Y-m-d')) }}">
                 </div>
-
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
                 <div class="mb-[18px]">
                     <label class="block text-[12.5px] font-bold mb-[7px] text-hitam">Tanggal Unggah <span class="text-bawaslu-red">*</span></label>
                     <input class="w-full px-[13px] py-[9px] border border-border rounded-lg text-[13.5px] [font-family:inherit] bg-surface text-hitam outline-none transition-colors duration-200 focus:border-bawaslu-red focus:shadow-[0_0_0_3px_rgba(192,39,45,.08)]"
@@ -128,6 +141,7 @@
                         value="{{ old('tanggal_unggah', $arsipKeluar->tanggal_unggah?->format('Y-m-d')) }}">
                 </div>
             </div>
+
 
             <div class="flex gap-[10px] mt-2">
                 <button type="submit" class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-bawaslu-red px-[18px] py-2 text-[13px] font-semibold text-white no-underline transition-colors duration-200 hover:bg-bawaslu-dark-red [font-family:inherit] flex-1">

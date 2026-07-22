@@ -67,10 +67,10 @@ class DashboardController extends Controller
             ->toArray();
 
         $tujuanStats = Tujuan::where('is_aktif', true)
-            ->withCount(['arsipKeluar'])
-            ->orderByDesc('arsip_keluar_count')
+            ->withCount(['arsipMasuk'])
+            ->orderByDesc('arsip_masuk_count')
             ->get(['id', 'nama'])
-            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_keluar_count])
+            ->map(fn($item) => ['label' => $item->nama, 'value' => $item->arsip_masuk_count])
             ->toArray();
 
         // helper untuk top N + lainnya
@@ -103,7 +103,7 @@ class DashboardController extends Controller
             ->get();
 
         // 5 arsip keluar terbaru
-        $arsipKeluarTerbaru = ArsipKeluar::with(['uploader', 'tujuan'])
+        $arsipKeluarTerbaru = ArsipKeluar::with(['uploader'])
             ->latest()
             ->take(5)
             ->get();

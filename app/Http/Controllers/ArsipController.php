@@ -95,7 +95,6 @@ class ArsipController extends Controller
                 'sifatSurat',
                 'subBagian',
                 'verifikator.user',
-                'tujuan',
                 'pembuat',
                 'uploader'
             ]);
@@ -111,10 +110,6 @@ class ArsipController extends Controller
             }
 
             // Filter dropdown
-            if ($request->filled('tujuan_id')) {
-                $query->where('tujuan_id', $request->tujuan_id);
-            }
-
             if ($request->filled('klasifikasi_id')) {
                 $query->where('klasifikasi_id', $request->klasifikasi_id);
             }
@@ -150,7 +145,6 @@ class ArsipController extends Controller
             $sifat = SifatSurat::where('is_aktif', true)->get();
             $subBagian = SubBagian::where('is_aktif', true)->get();
             $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
-            $tujuan = Tujuan::where('is_aktif', true)->get();
             $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
             return view('arsip.index', compact(
@@ -159,7 +153,6 @@ class ArsipController extends Controller
                 'sifat',
                 'subBagian',
                 'verifikator',
-                'tujuan',
                 'users'
             ));
         }
@@ -235,7 +228,6 @@ class ArsipController extends Controller
                     'sifatSurat',
                     'subBagian',
                     'verifikator.user',
-                    'tujuan',
                     'pembuat',
                     'uploader'
                 ])->where('uploader_id', $user->id);
@@ -246,10 +238,6 @@ class ArsipController extends Controller
                           ->orWhere('nama_file', 'like', '%' . $request->q . '%')
                           ->orWhere('perihal', 'like', '%' . $request->q . '%');
                     });
-                }
-
-                if ($request->filled('tujuan_id')) {
-                    $queryKeluar->where('tujuan_id', $request->tujuan_id);
                 }
 
                 if ($request->filled('klasifikasi_id')) {
@@ -286,7 +274,6 @@ class ArsipController extends Controller
                 $sifat = SifatSurat::where('is_aktif', true)->get();
                 $subBagian = SubBagian::where('is_aktif', true)->get();
                 $verifikator = Verifikator::where('is_aktif', true)->with('user')->get();
-                $tujuan = Tujuan::where('is_aktif', true)->get();
                 $users = User::where('is_aktif', true)->orderBy('nama_lengkap')->get();
 
                 return view('arsip.index', compact(
@@ -295,7 +282,6 @@ class ArsipController extends Controller
                     'sifat',
                     'subBagian',
                     'verifikator',
-                    'tujuan',
                     'users'
                 ));
             }
@@ -458,6 +444,46 @@ class ArsipController extends Controller
 
         return redirect()->route('arsip.trash')
             ->with('success', 'Arsip "' . $arsip->judul . '" berhasil dihapus permanen.');
+    }
+
+    // ── Log View (Aktivitas lihat dokumen via AJAX) ───────
+    public function logView(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:masuk,keluar',
+            'id'   => 'required|integer',
+        ]);
+
+        $keterangan = '';
+        $suratMasukId = null;
+        $arsipKeluarId = null;
+
+        if ($request->type === 'masuk') {
+            $arsip = \App\Models\ArsipMasuk::find($request->id);
+            if ($arsip) {
+                $keterangan = "Melihat dokumen arsip masuk: {$arsip->nama_file}";
+                $suratMasukId = $arsip->id;
+            }
+        } else {
+            $arsip = \App\Models\ArsipKeluar::find($request->id);
+            if ($arsip) {
+                $keterangan = "Melihat dokumen arsip keluar: {$arsip->nama_file}";
+                $arsipKeluarId = $arsip->id;
+            }
+        }
+
+        if ($keterangan) {
+            AktivitasLog::create([
+                'user_id'         => auth()->id(),
+                'surat_masuk_id'  => $suratMasukId,
+                'arsip_keluar_id' => $arsipKeluarId,
+                'aksi'            => 'lihat',
+                'keterangan'      => $keterangan,
+                'ip_address'      => request()->ip(),
+            ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     // ── Empty Trash (Kosongkan Semua Trash) ───────────────
