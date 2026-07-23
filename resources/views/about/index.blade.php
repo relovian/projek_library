@@ -47,6 +47,16 @@
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
                 <img src="{{ asset('img/pengembang.png') }}" alt="" class="h-5 w-5">
             </div>
+            <h2 class="text-[18px] font-bold text-hitam">Pengarah</h2>
+        </div>
+       
+    </div>
+    {{-- Tim Pengembang Section --}}
+    <div class="bg-surface border border-border rounded-[14px] p-7 mb-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
+                <img src="{{ asset('img/pengembang.png') }}" alt="" class="h-5 w-5">
+            </div>
             <h2 class="text-[18px] font-bold text-hitam">Tim Pengembang</h2>
         </div>
         

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SIARSIP') — Bawaslu Kota Surabaya</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="shortcut icon" href="{{ asset('img/Alleluia.jpeg') }}?v=2">
+    <link rel="shortcut icon" href="{{ asset('img/logo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('styles')
@@ -132,6 +132,7 @@
                     @if($notifications->count() > 0)
                         @foreach($notifications as $notif)
                             <a href="{{ $notif->link ?? route('aktivitas.index') }}"
+                               data-notif-id="{{ $notif->id }}"
                                class="flex items-start gap-3 px-5 py-[14px] no-underline transition-all duration-150
                                       {{ $notif->is_read ? 'bg-white hover:bg-[#FAFAF9]' : 'bg-[#FFF8F7] hover:bg-[#FFF0EE] notif-item-unread' }}">
                                 {{-- Icon --}}
@@ -229,6 +230,17 @@
     </div>
 
     <script>
+        // ─── Data notifikasi terakhir (sebagai referensi perbandingan) ───
+        let lastNotificationIds = new Set();
+        let notifPollInterval = null;
+
+        // Inisialisasi: simpan ID notifikasi yang sudah ada di halaman
+        function initLastNotificationIds() {
+            const items = document.querySelectorAll('#notifDropdown a[data-notif-id]');
+            items.forEach(el => lastNotificationIds.add(el.dataset.notifId));
+        }
+
+        // ─── Toggle dropdown notifikasi ───
         function toggleNotif() {
             const dropdown = document.getElementById('notifDropdown');
             const isOpening = dropdown.classList.contains('hidden');
@@ -264,6 +276,9 @@
                 el.classList.add('text-hitam');
             });
 
+            // Update counter jadi 0
+            updateNotifBadge(0);
+
             // Panggil API untuk simpan ke database
             fetch('{{ route("notifications.mark-all-read") }}', {
                 method: 'POST',
@@ -276,13 +291,182 @@
             });
         }
 
-        // Tutup dropdown saat klik di luar
+        // ─── Update badge notifikasi ───
+        function updateNotifBadge(count) {
+            // Update badge merah di icon bell
+            const mainBadge = document.getElementById('mainNotifBadge');
+            if (count > 0) {
+                if (!mainBadge) {
+                    const btn = document.getElementById('notifBtn');
+                    if (btn) {
+                        const span = document.createElement('span');
+                        span.id = 'mainNotifBadge';
+                        span.className = 'absolute right-[6px] top-[6px] size-[7px] rounded-full border-[1.5px] border-white bg-bawaslu-red notif-badge-red';
+                        btn.appendChild(span);
+                    }
+                }
+            } else {
+                if (mainBadge) mainBadge.remove();
+            }
+
+            // Update badge angka di header dropdown
+            const headerBadge = document.querySelector('#notifDropdown .notif-unread-count');
+            const headerIconBadge = document.querySelector('#notifDropdown .notif-badge-red');
+            if (count > 0) {
+                if (headerBadge) {
+                    headerBadge.textContent = count;
+                } else {
+                    const headerRight = document.querySelector('#notifDropdown .flex.items-center.gap-2\\\.5');
+                    if (headerRight) {
+                        const span = document.createElement('span');
+                        span.className = 'text-[10px] font-semibold bg-bawaslu-red text-white px-[7px] py-[2px] rounded-full leading-none notif-unread-count';
+                        span.textContent = count;
+                        headerRight.appendChild(span);
+                    }
+                }
+                // Badge merah kecil di icon header
+                if (!headerIconBadge) {
+                    const iconContainer = document.querySelector('#notifDropdown .size-\\[18px\\].relative');
+                    if (iconContainer) {
+                        const dot = document.createElement('span');
+                        dot.className = 'absolute -top-[2px] -right-[2px] size-2 rounded-full bg-bawaslu-red border border-white notif-badge-red';
+                        iconContainer.appendChild(dot);
+                    }
+                }
+            } else {
+                if (headerBadge) headerBadge.remove();
+                if (headerIconBadge) headerIconBadge.remove();
+            }
+        }
+
+        // ─── Render notifikasi ke dropdown ───
+        function renderNotifications(notifications) {
+            const container = document.querySelector('#notifDropdown > .max-h-\\[320px\\]');
+            if (!container) return;
+
+            const isKomisioner = {{ auth()->user()->isKomisioner() ? 'true' : 'false' }};
+            const notifCount = notifications.length;
+
+            if (notifCount > 0) {
+                let html = '';
+                notifications.forEach(function(n) {
+                    const isUnread = !n.is_read;
+                    html += '<a href="' + n.link + '" data-notif-id="' + n.id + '" class="flex items-start gap-3 px-5 py-[14px] no-underline transition-all duration-150 ' +
+                        (isUnread ? 'bg-[#FFF8F7] hover:bg-[#FFF0EE] notif-item-unread' : 'bg-white hover:bg-[#FAFAF9]') + '">';
+
+                    // Icon
+                    const iconBg = n.type === 'create' ? 'bg-emerald-50' :
+                                   (n.type === 'update' ? 'bg-blue-50' :
+                                   (n.type === 'restore' ? 'bg-amber-50' : 'bg-red-50'));
+                    html += '<div class="size-9 rounded-full flex items-center justify-center shrink-0 ' + iconBg + '">';
+                    if (n.icon) {
+                        html += '<img class="size-[18px]" src="' + n.icon + '" alt="' + n.type + '">';
+                    } else {
+                        html += '<span class="text-gray-400 text-base">●</span>';
+                    }
+                    html += '</div>';
+
+                    // Content
+                    html += '<div class="flex-1 min-w-0">';
+                    html += '<div class="flex items-center gap-2 mb-[2px]">';
+                    html += '<span class="text-[12.5px] font-bold ' + (isUnread ? 'text-bawaslu-red notif-title-unread' : 'text-hitam') + '">' + escapeHtml(n.type_label) + '</span>';
+                    if (isUnread) {
+                        html += '<span class="size-[6px] rounded-full bg-bawaslu-red shrink-0 notif-unread-dot"></span>';
+                    }
+                    html += '</div>';
+                    html += '<div class="text-[12px] text-[#6B7280] leading-snug line-clamp-2">' + escapeHtml(n.message) + '</div>';
+                    html += '<div class="text-[11px] text-[#9CA3AF] mt-[3px]">' + escapeHtml(n.created_at_diff) + '</div>';
+                    html += '</div>';
+                    html += '</a>';
+                });
+
+                // Simpan ID notifikasi baru
+                lastNotificationIds = new Set(notifications.map(n => String(n.id)));
+
+                container.innerHTML = html;
+            } else {
+                // Empty state
+                container.innerHTML = '<div class="flex flex-col items-center justify-center py-[40px] px-5">' +
+                    '<div class="size-[48px] rounded-full bg-green-50 flex items-center justify-center mb-3">' +
+                    '<span class="text-[22px]">✅</span></div>' +
+                    '<div class="text-[13px] font-semibold text-hitam mb-1">Tidak ada notifikasi baru</div>' +
+                    '<div class="text-[12px] text-[#6B7280] text-center">Anda akan mendapat notifikasi saat ada aktivitas arsip baru.</div></div>';
+            }
+
+            // Update footer
+            updateFooter(notifCount, isKomisioner);
+        }
+
+        function updateFooter(count, isKomisioner) {
+            const existingFooter = document.querySelector('#notifDropdown .notif-footer');
+            if (existingFooter) existingFooter.remove();
+
+            if (!isKomisioner && count > 0) {
+                const dropdown = document.querySelector('#notifDropdown .divide-y');
+                if (!dropdown) return;
+
+                const footer = document.createElement('div');
+                footer.className = 'notif-footer px-5 py-4 border-t border-[#E2DDD8] bg-[#FAFAF9]';
+                footer.innerHTML = '<a href="{{ route("aktivitas.index") }}" class="flex items-center justify-center gap-2 w-full rounded-lg border border-[#E2DDD8] bg-white px-4 py-[10px] text-xs font-semibold text-hitam no-underline transition-all duration-150 hover:bg-[#F3F2F0] [font-family:inherit]">' +
+                    '<span>Lihat Semua Aktivitas</span>' +
+                    '<span class="text-base leading-none">→</span></a>';
+                dropdown.parentNode.appendChild(footer);
+            }
+        }
+
+        // ─── Helper escape HTML ───
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ─── Polling: cek notifikasi baru setiap 30 detik ───
+        function startNotifPolling() {
+            // Hentikan polling sebelumnya jika ada
+            if (notifPollInterval) clearInterval(notifPollInterval);
+
+            notifPollInterval = setInterval(function() {
+                fetch('{{ route("notifications.data") }}', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    const currentIds = new Set(data.notifications.map(function(n) { return String(n.id); }));
+
+                    // Bandingkan dengan ID lama
+                    const hasNew = data.notifications.some(function(n) {
+                        return !lastNotificationIds.has(String(n.id));
+                    });
+
+                    if (hasNew) {
+                        // Update badge
+                        updateNotifBadge(data.unreadCount);
+                        // Render ulang daftar notifikasi
+                        renderNotifications(data.notifications);
+                        // Update last IDs
+                        lastNotificationIds = currentIds;
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Gagal fetch notifikasi:', err);
+                });
+            }, 30000); // setiap 30 detik
+        }
+
+        // ─── Tutup dropdown saat klik di luar ───
         document.addEventListener('click', function(event) {
             const wrapper = document.getElementById('notifWrapper');
             const dropdown = document.getElementById('notifDropdown');
             if (wrapper && dropdown && !wrapper.contains(event.target)) {
                 dropdown.classList.add('hidden');
             }
+        });
+
+        // ─── Inisialisasi saat DOM siap ───
+        document.addEventListener('DOMContentLoaded', function() {
+            initLastNotificationIds();
+            startNotifPolling();
         });
     </script>
 

@@ -212,6 +212,9 @@ class ArsipKeluarController extends Controller
         $arsip = ArsipKeluar::onlyTrashed()->findOrFail($id);
         $arsip->restore();
 
+        // Reset force_deleted_at agar jika dihapus lagi bisa dikelola ulang
+        $arsip->update(['force_deleted_at' => null]);
+
         // 1) Ubah status log hapus lama milik uploader menjadi pulihkan
         AktivitasLog::where('user_id', $arsip->uploader_id)
             ->where('aksi', 'hapus')
@@ -259,7 +262,9 @@ class ArsipKeluarController extends Controller
 
         $this->notifikasiService->notifyForceDelete('ArsipKeluar', $arsip, $arsip->nama_file, $arsip->uploader_id);
 
-        $arsip->forceDelete();
+        // Tandai bahwa arsip sudah dihapus permanen oleh admin
+        // Record tetap di database agar uploader masih bisa melihat status "Dihapus permanen"
+        $arsip->update(['force_deleted_at' => now()]);
 
         return redirect()->route('arsip-keluar.trash')
             ->with('success', 'Arsip keluar berhasil dihapus permanen.');
@@ -272,7 +277,7 @@ class ArsipKeluarController extends Controller
         }
 
         $request->validate([
-            'nomor_surat' => 'required|string|max:100',
+            'nomor_surat' => 'required|string',
             'nama_file' => 'required|string|max:255',
             'perihal' => 'required|string|max:255',
             'tembusan' => 'nullable|string|max:500',
@@ -285,7 +290,6 @@ class ArsipKeluarController extends Controller
             'file' => 'required|file',
         ], [
             'nomor_surat.required' => 'Nomor surat wajib diisi.',
-            'nomor_surat.max' => 'Nomor surat maksimal 100 karakter.',
             'nama_file.required' => 'Nama file wajib diisi.',
             'perihal.required' => 'Perihal wajib diisi.',
             'tembusan.max' => 'Tembusan maksimal 500 karakter.',

@@ -156,9 +156,7 @@ class PengaturanController extends Controller
             'nama_panggilan' => 'required|string|max:100',
             'email'          => 'required|email|unique:users,email,' . $user->id,
             'nip'            => [
-                'required',
-                'string',
-                'max:50',
+                'nullable',
                 Rule::unique('users', 'nip')->ignore($user->id),
             ],
             'role'           => 'required|in:admin,komisioner,kepala_sekretariat,kepala_sub_bagian,staff',

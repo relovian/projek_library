@@ -284,9 +284,12 @@ class ArsipMasukController extends Controller
             abort(403, 'Anda hanya dapat menghapus arsip milik Anda sendiri.');
         }
 
-        // Admin: langsung hapus permanen tanpa notifikasi
+        // Admin: soft delete dulu, lalu tandai force_deleted_at
+        // agar record tetap muncul di trash user dengan status "Dihapus permanen"
         if ($user->role === 'admin') {
             $namaFile = $arsipMasuk->nama_file;
+
+            $arsipMasuk->delete(); // soft delete
 
             AktivitasLog::create([
                 'user_id' => $user->id,
@@ -297,7 +300,7 @@ class ArsipMasukController extends Controller
                 'ip_address' => request()->ip(),
             ]);
 
-            $arsipMasuk->forceDelete();
+            $arsipMasuk->update(['force_deleted_at' => now()]);
 
             return redirect()->route('arsip.index', ['tab' => 'masuk'])
                 ->with('success', 'Surat masuk berhasil dihapus permanen.');
@@ -349,6 +352,9 @@ class ArsipMasukController extends Controller
         $arsip = ArsipMasuk::onlyTrashed()->findOrFail($id);
         $arsip->restore();
 
+        // Reset force_deleted_at agar jika dihapus lagi bisa dikelola ulang
+        $arsip->update(['force_deleted_at' => null]);
+
         // 1) Ubah status log hapus lama milik uploader menjadi pulihkan
         AktivitasLog::where('user_id', $arsip->uploader_id)
             ->where('aksi', 'hapus')
@@ -395,7 +401,9 @@ class ArsipMasukController extends Controller
         ]);
         $this->notifikasiService->notifyForceDelete('ArsipMasuk', $arsip, $arsip->nama_file, $arsip->uploader_id);
 
-        $arsip->forceDelete();
+        // Tandai bahwa arsip sudah dihapus permanen oleh admin
+        // Record tetap di database agar uploader masih bisa melihat status "Dihapus permanen"
+        $arsip->update(['force_deleted_at' => now()]);
 
         return redirect()->route('arsip-masuk.trash')
             ->with('success', 'Surat masuk berhasil dihapus permanen.');

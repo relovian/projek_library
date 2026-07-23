@@ -26,11 +26,13 @@ class ArsipKeluar extends Model
         'tanggal_unggah',
         'link_file',
         'uploader_id',
+        'force_deleted_at',
     ];
 
     protected $casts = [
         'tanggal_pembuatan'  => 'date',
-        'tanggal_unggah' => 'datetime',
+        'tanggal_unggah'     => 'datetime',
+        'force_deleted_at'   => 'datetime',
     ];
 
     // ── Relations ──────────────────────────────────────────

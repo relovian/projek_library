@@ -24,12 +24,14 @@ class ArsipMasuk extends Model
         'link_file',
         'uploader_id',
         'tujuan_id',
+        'force_deleted_at',
     ];
 
     protected $casts = [
         'tanggal_surat'    => 'date',
         'tanggal_diterima' => 'date',
         'tanggal_unggah'   => 'timestamp',
+        'force_deleted_at' => 'datetime',
     ];
 
     /**

@@ -19,11 +19,13 @@ class Arsip extends Model
         'tanggal_dokumen', 'periode_pemilu', 'status',
         'disetujui_oleh', 'disetujui_at', 'catatan_penolakan',
         'tingkat_akses', 'tags', 'versi', 'arsip_induk_id',
+        'force_deleted_at',
     ];
 
     protected $casts = [
-        'tanggal_dokumen' => 'date',
-        'disetujui_at'    => 'datetime',
+        'tanggal_dokumen'   => 'date',
+        'disetujui_at'      => 'datetime',
+        'force_deleted_at'  => 'datetime',
     ];
 
     // ── Relations ──────────────────────────────────────────

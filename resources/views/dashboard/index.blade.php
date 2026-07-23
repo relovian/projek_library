@@ -270,7 +270,7 @@
                     <tr class="bg-[#F9FAFB]">
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Kode Arsip</th>
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Perihal</th>
-                        <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Tanggal Surat</th>
+                        <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Tanggal Pembuatan</th>
                         <th class="py-[10px] px-3 text-left text-[12px] text-abu font-semibold border-b border-border">Pengunggah</th>
                     </tr>
                 </thead>
@@ -279,7 +279,7 @@
                     <tr class="border-b border-border last:border-b-0 hover:bg-[#F9FAFB]">
                         <td class="py-[10px] px-3 font-mono text-[12px]">{{ $arsip->kode_arsip_keluar ?? '-' }}</td>
                         <td class="py-[10px] px-3" title="{{ $arsip->perihal ?? '-' }}">{{ truncatePerihal($arsip->perihal) }}</td>
-                        <td class="py-[10px] px-3 whitespace-nowrap">{{ $arsip->tanggal_surat ? $arsip->tanggal_surat->format('d/m/Y') : '-' }}</td>
+                        <td class="py-[10px] px-3 whitespace-nowrap">{{ $arsip->tanggal_pembuatan ? $arsip->tanggal_pembuatan->format('d/m/Y') : '-' }}</td>
                         <td class="py-[10px] px-3">{{ $arsip->uploader?->nama_lengkap ?? '-' }}</td>
                     </tr>
                     @empty

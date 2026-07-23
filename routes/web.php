@@ -58,6 +58,53 @@ Route::middleware(['auth', \App\Http\Middleware\IsActiveMiddleware::class])->gro
         return response()->json(['success' => true]);
     })->name('notifications.mark-all-read');
 
+    // Notifikasi - ambil data notifikasi untuk auto-refresh (JSON)
+    Route::get('/notifications/data', function () {
+        $user = auth()->user();
+        $data = app(\App\Services\NotifikasiService::class)->getNotificationsForUser($user);
+        return response()->json([
+            'unreadCount' => $data['unreadCount'],
+            'notifications' => $data['notifications']->map(function ($notif) {
+                $labelMap = [
+                    'ArsipMasuk' => 'Arsip Masuk',
+                    'ArsipKeluar' => 'Arsip Keluar',
+                    'Arsip' => 'Arsip',
+                ];
+                $entityLabel = $labelMap[$notif->entity_type] ?? 'Arsip';
+
+                $typeLabel = match($notif->type) {
+                    'create' => $entityLabel . ' Baru',
+                    'update' => $entityLabel . ' Diperbarui',
+                    'restore' => $entityLabel . ' Di Tolak Untuk Hapus Permanen',
+                    'force_delete' => $entityLabel . ' Disetujui Hapus Permanen',
+                    'soft_delete' => 'Menunggu Hapus Permanen',
+                    default => $entityLabel . ' Dihapus',
+                };
+
+                $iconMap = [
+                    'create' => asset('img/unggah.png'),
+                    'update' => asset('img/edit.png'),
+                    'restore' => asset('img/pulihkan.png'),
+                    'force_delete' => asset('img/aprove_arsip.png'),
+                    'soft_delete' => asset('img/pending_arsip.png'),
+                ];
+
+                return [
+                    'id' => $notif->id,
+                    'type' => $notif->type,
+                    'type_label' => $typeLabel,
+                    'entity_type' => $notif->entity_type,
+                    'message' => $notif->message,
+                    'link' => $notif->link ?? route('aktivitas.index'),
+                    'is_read' => $notif->is_read,
+                    'icon' => $iconMap[$notif->type] ?? null,
+                    'created_at_diff' => $notif->created_at->diffForHumans(),
+                    'created_at' => $notif->created_at->toISOString(),
+                ];
+            }),
+        ]);
+    })->name('notifications.data');
+
     // Pengaturan
     Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
         Route::get('/', [PengaturanController::class, 'index'])->name('index');

@@ -65,23 +65,42 @@
                     <td class="px-4 py-3 text-[#6b7280] align-middle">
                         <div class="flex gap-2 justify-center">
 
+                            {{-- Icon mata (preview) langsung ke file Google Drive --}}
                             @if(auth()->user()->role === 'admin')
-                            {{-- Pulihkan --}}
-                            <form method="POST" action="{{ route('arsip-masuk.restore', $item->id) }}">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="text-[12px] font-medium text-[#15803d] bg-[#f0fdf4] border border-[#bbf7d0] px-3 py-[5px] rounded-[6px] cursor-pointer hover:bg-[#dcfce7]">♻️ Pulihkan</button>
-                            </form>
+                                {{-- Admin: selalu bisa lihat preview --}}
+                                <a href="{{ $item->link_file }}" target="_blank" class="inline-flex items-center justify-center text-[12px] w-[30px] h-[30px] rounded-[6px] border border-[#e5e7eb] bg-white text-abu hover:bg-gray-50 no-underline" title="Lihat file">👁️</a>
 
-                            {{-- Hapus permanen --}}
-                            <form method="POST" action="{{ route('arsip-masuk.force-delete', $item->id) }}"
-                                onsubmit="return confirm('Hapus permanen arsip ini? Tidak bisa dikembalikan.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-[12px] font-medium text-[#dc2626] bg-[#fef2f2] border border-[#fecaca] px-3 py-[5px] rounded-[6px] cursor-pointer hover:bg-[#fee2e2]">🗑 Hapus Permanen</button>
-                            </form>
+                                {{-- Pulihkan --}}
+                                <form method="POST" action="{{ route('arsip-masuk.restore', $item->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="text-[12px] font-medium text-[#15803d] bg-[#f0fdf4] border border-[#bbf7d0] px-3 py-[5px] rounded-[6px] cursor-pointer hover:bg-[#dcfce7]">♻️ Pulihkan</button>
+                                </form>
+
+                                {{-- Hapus permanen --}}
+                                @if($item->force_deleted_at)
+                                    <button type="button" class="text-[12px] font-medium text-gray-400 bg-gray-100 border border-gray-200 px-3 py-[5px] rounded-[6px] cursor-not-allowed" disabled>🗑 Hapus Permanen</button>
+                                @else
+                                    <form method="POST" action="{{ route('arsip-masuk.force-delete', $item->id) }}"
+                                        onsubmit="return confirm('Hapus permanen arsip ini? Tidak bisa dikembalikan.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-[12px] font-medium text-[#dc2626] bg-[#fef2f2] border border-[#fecaca] px-3 py-[5px] rounded-[6px] cursor-pointer hover:bg-[#fee2e2]">🗑 Hapus Permanen</button>
+                                    </form>
+                                @endif
                             @else
-                                <span class="text-[12px] text-abu">Menunggu admin</span>
+                                {{-- Non-admin: icon mata di-block jika sudah dihapus permanen --}}
+                                @if($item->force_deleted_at)
+                                    <a href="#" class="inline-flex items-center justify-center text-[12px] w-[30px] h-[30px] rounded-[6px] border border-[#e5e7eb] bg-gray-100 text-gray-300 cursor-not-allowed pointer-events-none" tabindex="-1" aria-disabled="true">👁️</a>
+                                @else
+                                    <a href="{{ $item->link_file }}" target="_blank" class="inline-flex items-center justify-center text-[12px] w-[30px] h-[30px] rounded-[6px] border border-[#e5e7eb] bg-white text-abu hover:bg-gray-50 no-underline" title="Lihat file">👁️</a>
+                                @endif
+
+                                @if($item->force_deleted_at)
+                                    <span class="inline-flex items-center text-[12px] font-medium text-red-700 bg-red-100 border border-red-200 px-[9px] py-[5px] rounded-[6px]">Dihapus permanen</span>
+                                @else
+                                    <span class="inline-flex items-center text-[12px] font-medium text-yellow-800 bg-yellow-100 border border-yellow-200 px-[9px] py-[5px] rounded-[6px]">Menunggu admin</span>
+                                @endif
                             @endif
 
                         </div>

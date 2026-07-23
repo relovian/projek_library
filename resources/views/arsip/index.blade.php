@@ -483,5 +483,3 @@
     }
 </script>
 @endpush
-
-filter berdasarkan tanggal surat

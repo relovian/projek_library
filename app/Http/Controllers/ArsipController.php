@@ -411,6 +411,9 @@ if ($request->filled('tanggal_pembuatan')) {
         $arsip = Arsip::onlyTrashed()->findOrFail($id);
         $arsip->restore();
 
+        // Reset force_deleted_at agar jika dihapus lagi bisa dikelola ulang
+        $arsip->update(['force_deleted_at' => null]);
+
         AktivitasLog::catat('pulihkan', $arsip->id, "Memulihkan dokumen: {$arsip->judul}");
 
         // Kirim notifikasi ke uploader & admin
@@ -440,7 +443,9 @@ if ($request->filled('tanggal_pembuatan')) {
         // Kirim notifikasi ke uploader & admin
         $this->notifikasiService->notifyForceDelete('Arsip', $arsip, $arsip->judul, $arsip->uploader_id);
 
-        $arsip->forceDelete();
+        // Tandai bahwa arsip sudah dihapus permanen oleh admin
+        // Record tetap di database agar uploader masih bisa melihat status "Dihapus permanen"
+        $arsip->update(['force_deleted_at' => now()]);
 
         return redirect()->route('arsip.trash')
             ->with('success', 'Arsip "' . $arsip->judul . '" berhasil dihapus permanen.');
