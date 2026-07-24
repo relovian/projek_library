@@ -85,7 +85,7 @@
         </div>
 
         <div class="text-center pb-4 text-white/30 text-[11px] font-medium">
-            <p>SIArsip v1.5</p></div>
+            <p>SIArsip v1.6</p></div>
     </aside>
 
     <div class="flex min-h-screen flex-1 flex-col ml-[260px]">
